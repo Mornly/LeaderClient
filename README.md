@@ -10,7 +10,7 @@ Based on [Unfair Client](https://github.com/UnfairGaming/Unfair),added more usef
 A bit powerful
 
 ## User Group
-1061612458__[QQGroup]__
+1061612458[QQGroup]
 
 
 
