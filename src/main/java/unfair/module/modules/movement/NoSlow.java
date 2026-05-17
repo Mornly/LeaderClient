@@ -81,12 +81,15 @@ public class NoSlow extends Module {
         return aura.isBlocking();
     }
     public boolean isAnyActive() {
-        if (this.swordMode.getValue() != 2) {
+        if (this.swordMode.getValue() != 2 && this.swordMode.getValue() != 3) {
             return mc.thePlayer.isUsingItem() && (this.isSwordActive() || this.isFoodActive() || this.isBowActive());
         }
         else if (this.swordMode.getValue() == 2 && isSwordActive()){
             KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
            return killAura.isEnabled() && killAura.shouldAutoBlock() && (killAura.blockTick == cancelTick.getValue() || killAura.blockTick == cancelTick2.getValue());
+        }
+        else if (swordMode.getValue() == 3 && isSwordActive()){
+            return delay == swapDelay.getValue();
         }
         return false;
     }
@@ -115,7 +118,6 @@ public class NoSlow extends Module {
                 delay++;
                 if (delay >= swapDelay.getValue()) {
                     if (event.getType() == EventType.POST && test.getValue()){
-                        Unfair.blinkManager.setBlinkState(true, BlinkModules.NO_SLOW);
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                     }
                     if (event.getType() == EventType.PRE) {
@@ -125,8 +127,6 @@ public class NoSlow extends Module {
                         }
                         PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
                         PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-                        PacketUtil.sendPacket(new C07PacketPlayerDigging(C07PacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
-                        Unfair.blinkManager.setBlinkState(false, BlinkModules.NO_SLOW);
                     }
                     delay = 0;
                 }

@@ -97,46 +97,37 @@ public class Island extends Module {
             int size = Scaffold.count;
             description = "Stack Size: " + (size > 64 ? EnumChatFormatting.GREEN : size > 32 ? EnumChatFormatting.YELLOW : EnumChatFormatting.RED) + size;
 
-            // 宽度计算：文字区域 + 右侧进度条区域（12px）
             float textWidth = Math.max(RenderUtil.getWidth(title), RenderUtil.getWidth(description));
-            width = textWidth + 10 + 12 + 10; // 5padding + 12进度条 + 5padding
+            width = textWidth + 10 + 12 + 10;
             height = 30f;
-
-            // 定位到屏幕中央
             x = sr.getScaledWidth() / 2f;
             y = sr.getScaledHeight() / 2f;
 
             runToXy(x, y);
 
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            float progress = Math.min(64, size) / 64f; // 0~1，剩余越多 progress 越大
+            float progress = Math.min(64, size) / 64f;
             float remaining = 1f - progress;
             int barColor = hud.getColor(System.currentTimeMillis()).getRGB();
             drawBackgroundAuto(1);
+            float barLeft = animatedX.getOutput() + animatedWidth.getOutput() - 15;
+            float barTop = animatedY.getOutput() + 6;
+            float barRight = barLeft + 6;
+            float barBottom = animatedY.getOutput() + animatedHeight.getOutput() + 10 - 6;
 
-            // ========== 绘制竖条进度条 ==========
-            float barLeft = animatedX.getOutput() + animatedWidth.getOutput() - 15; // 右侧留5px边距
-            float barTop = animatedY.getOutput() + 6;                                // 上边距
-            float barRight = barLeft + 6;                                            // 宽6px
-            float barBottom = animatedY.getOutput() + animatedHeight.getOutput() + (1 == 1 ? 10 : 0) - 6; // 下边距
-
-            // 1. 背景槽（深色半透明）
-            RenderUtil.drawRect(barLeft, barTop, barRight, barBottom, new Color(0, 0, 0, 100).getRGB());
-
-            // 2. 填充部分（从底部向上）
-            float fillHeight = (barBottom - barTop) * progress; // 剩余越多，填充越高（因为 progress = 剩余/64）
+            RenderUtil.drawRect(barLeft + 1, barTop + 1, barRight + 1, barBottom + 1, new Color(0, 0, 0, 100).getRGB());
+            float fillHeight = (barBottom - barTop) * progress;
             float fillTop = barBottom - fillHeight;
-            RenderUtil.drawRect(barLeft + 1, fillTop, barRight - 1, barBottom - 1, barColor);
-            // ===================================
+            RenderUtil.drawRect(barLeft + 2, fillTop + 1, barRight, barBottom + 1, barColor);
+
 
             if (!shader) {
-                RenderUtil.drawFont(title, (int) (animatedX.getOutput() + 5), (int) (animatedY.getOutput() + 8), -1, true);
-                RenderUtil.drawFont(description, (int) (animatedX.getOutput() + 5), (int) (animatedY.getOutput() + 20), -1, true);
+                RenderUtil.drawFont(title, (int) (animatedX.getOutput() + 8), (int) (animatedY.getOutput() + 10), -1, true);
+                RenderUtil.drawFont(description, (int) (animatedX.getOutput() + 8), (int) (animatedY.getOutput() + 22), -1, true);
             }
 
             GL11.glDisable(GL11.GL_SCISSOR_TEST);
         }else {
-            // ... 其余通知和默认显示保持不变 ...
             CopyOnWriteArrayList<NotificationTask> notifications = Notification.tasks;
             if (!notifications.isEmpty()) {
                 notifications.removeIf(it -> Notification.tasks.isEmpty());
@@ -218,9 +209,6 @@ public class Island extends Module {
         }
     }
 
-    // ---------- 新增圆形进度绘制方法 ----------
-
-    // ---------- 原有方法保持不变 ----------
     private void getSmoothFps() {
         int currentFps = Minecraft.getDebugFPS();
         if (fps < currentFps) {
