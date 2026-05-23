@@ -39,7 +39,7 @@ public class Velocity extends Module {
     public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"VANILLA", "Prediction","Reduce"});
     private final BooleanProperty noBlink = new BooleanProperty("NoBlinking",true, () -> mode.getValue() != 0);
     private final BooleanProperty noBlocking = new BooleanProperty("NoBlocking",true, () -> mode.getValue() != 0);
-
+    public final IntProperty attackTimes = new IntProperty("AttackTimes", 1, 1, 5, () -> this.mode.getValue() == 1 && this.reduce.getValue());
     public final BooleanProperty reduce = new BooleanProperty("reduce", true, () -> mode.getValue() == 1);
     public final BooleanProperty jump = new BooleanProperty("Jump", true, () -> mode.getValue() == 1);
     public final BooleanProperty delay = new BooleanProperty("delay", false, () -> mode.getValue() == 1 && !this.airBuffer.getValue());
@@ -47,7 +47,6 @@ public class Velocity extends Module {
     public final BooleanProperty rotate = new BooleanProperty("Rotate", false, () -> this.mode.getValue() == 1);
     public final IntProperty rotateTick = new IntProperty("Rotate Tick", 3, 1, 12, () -> this.mode.getValue() == 1 && this.rotate.getValue());
     public final BooleanProperty autoMove = new BooleanProperty("Auto Move", false, () -> this.mode.getValue() == 1 && this.rotate.getValue());
-    //airBuffer is much better than delay in some low ping servers
     public final BooleanProperty airBuffer = new BooleanProperty("air-buffer", true, () -> mode.getValue() == 1 && !delay.getValue());
     public final PercentProperty chance = new PercentProperty("chance", 100, () -> mode.getValue() == 0);
     public final PercentProperty horizontal = new PercentProperty("horizontal", 100, () -> mode.getValue() == 0);
@@ -218,32 +217,36 @@ public class Velocity extends Module {
                                 if (killAura.getTarget() != null) {
                                     if (!noBlink.getValue() || !Unfair.blinkManager.isBlinking()) {
                                         if (!noBlocking.getValue() || !mc.thePlayer.isBlocking()) {
-                                            EventManager.call(new AttackEvent(killAura.getTarget()));
-                                            mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
-                                            if (killAura.getTarget() != mc.thePlayer) {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(killAura.getTarget(), C02PacketUseEntity.Action.ATTACK));
-                                            } else {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(Objects.requireNonNull(killAura.getTarget()), C02PacketUseEntity.Action.ATTACK));
+                                            for (int i = 1; i <= attackTimes.getValue(); ++i) {
+                                                EventManager.call(new AttackEvent(killAura.getTarget()));
+                                                mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
+                                                if (killAura.getTarget() != mc.thePlayer) {
+                                                    mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(killAura.getTarget(), C02PacketUseEntity.Action.ATTACK));
+                                                } else {
+                                                    mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(Objects.requireNonNull(killAura.getTarget()), C02PacketUseEntity.Action.ATTACK));
+                                                }
+                                                mc.thePlayer.motionX *= 0.6D;
+                                                mc.thePlayer.motionZ *= 0.6D;
+                                                mc.thePlayer.setSprinting(false);
                                             }
-                                            mc.thePlayer.motionX *= 0.6D;
-                                            mc.thePlayer.motionZ *= 0.6D;
-                                            mc.thePlayer.setSprinting(false);
                                         }
                                     }
                                     attacking = false;
                                 } else {
                                     if (!noBlink.getValue() || !Unfair.blinkManager.isBlinking()) {
                                         if (!noBlocking.getValue() || !mc.thePlayer.isBlocking()) {
-                                            EventManager.call(new AttackEvent(targetA.entityHit));
-                                            mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
-                                            if (targetA.entityHit!= mc.thePlayer) {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(targetA.entityHit, C02PacketUseEntity.Action.ATTACK));
-                                            } else {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(Objects.requireNonNull(targetA.entityHit), C02PacketUseEntity.Action.ATTACK));
+                                            for (int i = 1; i <= attackTimes.getValue(); ++i) {
+                                                EventManager.call(new AttackEvent(targetA.entityHit));
+                                                mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
+                                                if (targetA.entityHit != mc.thePlayer) {
+                                                    mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(targetA.entityHit, C02PacketUseEntity.Action.ATTACK));
+                                                } else {
+                                                    mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(Objects.requireNonNull(targetA.entityHit), C02PacketUseEntity.Action.ATTACK));
+                                                }
+                                                mc.thePlayer.motionX *= 0.6D;
+                                                mc.thePlayer.motionZ *= 0.6D;
+                                                mc.thePlayer.setSprinting(false);
                                             }
-                                            mc.thePlayer.motionX *= 0.6D;
-                                            mc.thePlayer.motionZ *= 0.6D;
-                                            mc.thePlayer.setSprinting(false);
                                         }
                                         attacking = false;
                                     }

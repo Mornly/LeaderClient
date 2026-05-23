@@ -295,14 +295,13 @@ public class TargetHUD extends Module {
         String targetNameText = ChatColors.formatColor(String.format("&r%s&r", TeamUtil.stripName(this.target)));
         int targetNameWidth = RenderUtil.getWidth(targetNameText);
 
-        // ---------- 对齐与尺寸常量 ----------
         final float HEAD_SIZE = 32.0F;
         final float PADDING = 6.0F;
-        final float HEAD_OFFSET = PADDING + HEAD_SIZE + 6.0F; // 头像右边界 + 间距 -> 文字与血条起始X
+        final float HEAD_OFFSET = PADDING + HEAD_SIZE + 6.0F;
         final float BAR_HEIGHT = 6.0F;
-        final float NAME_Y = PADDING + 2.0F;            // 名字Y (8.0)
-        final float BAR_Y = PADDING + HEAD_SIZE + 4.0F; // 血条Y (42.0) 头像下方留4px间距
-        final float BG_HEIGHT = BAR_Y + BAR_HEIGHT + PADDING; // 背景高度自适应 (54.0)
+        final float NAME_Y = PADDING + 2.0F;
+        final float BAR_Y = PADDING + HEAD_SIZE + 4.0F;
+        final float BG_HEIGHT = BAR_Y + BAR_HEIGHT + PADDING;
         final float CORNER_RADIUS = 8.0F;
 
         float minWidth = 220.0F;
@@ -318,8 +317,6 @@ public class TargetHUD extends Module {
             case 1: posY += sr.getScaledHeight() / this.scale.getValue() / 2.0F - BG_HEIGHT / 2.0F; break;
             case 2: posY = -posY + sr.getScaledHeight() / this.scale.getValue() - BG_HEIGHT; break;
         }
-
-        // 颜色
         Color targetColor = this.getTargetColor(this.target);
         int backgroundColor = new Color(0F, 0F, 0F, this.background.getValue() / 100F).getRGB();
 
@@ -327,11 +324,7 @@ public class TargetHUD extends Module {
         GlStateManager.scale(this.scale.getValue(), this.scale.getValue(), 0F);
         GlStateManager.translate(posX, posY, -450F);
         RenderUtil.enableRenderState();
-
-        // 背景圆角矩形
         RenderUtil.drawRoundedRectangle(0F, 0F, contentWidth, BG_HEIGHT, CORNER_RADIUS, backgroundColor);
-
-        // 血条背景 (细条，高BAR_HEIGHT)
         float barLeft = HEAD_OFFSET;
         float barRight = contentWidth - PADDING;
         float barBgTop = BAR_Y;
@@ -354,8 +347,6 @@ public class TargetHUD extends Module {
                 RenderUtil.drawRect(segStart, barBgTop - 8, segEnd, barBgBottom - 8, segColor.getRGB());
             }
         }
-
-        // 血量百分比文本（增强美观）
         String hpText = String.format("%.0f%%", lerpedHealthRatio * 100);
         int hpTextWidth = RenderUtil.getWidth(hpText);
         int hpTextX = (int)(barRight - hpTextWidth - 78);
@@ -363,8 +354,6 @@ public class TargetHUD extends Module {
         RenderUtil.drawFont(hpText, hpTextX, hpTextY, -1, this.shadow.getValue());
 
         RenderUtil.disableRenderState();
-
-        // 绘制名字与头像
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

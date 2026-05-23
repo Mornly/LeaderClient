@@ -35,7 +35,7 @@ import static net.minecraft.util.EnumFacing.DOWN;
 
 public class NoSlow extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty swordMode = new ModeProperty("sword-mode", 1, new String[]{"NONE", "VANILLA","PREDICTION-SEMI","TEST"});
+    public final ModeProperty swordMode = new ModeProperty("sword-mode", 1, new String[]{"NONE", "VANILLA","PREDICTION-SEMI","PREDICTION"});
     public final IntProperty swapDelay = new IntProperty("SwapDelay",0,0,3,() -> swordMode.getValue() == 3);
     public final BooleanProperty test = new BooleanProperty("Test",false,() -> swordMode.getValue() == 3);
     public final IntProperty cancelTick = new IntProperty("cancel-tick",1,0,2,() -> swordMode.getValue() == 2);
