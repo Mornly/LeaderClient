@@ -43,7 +43,7 @@ public class ClickGui extends GuiScreen {
     private Timer blurSmooth;
     private final String clientName = "Leader";
     private final String clientVersion = Unfair.version;
-    private final String developer = "dev, UnfairGaming/woshijiejue";
+    private final String developer = "dev, UnfairGaming/woshijiejue/Mornly";
     private boolean clickGuiOpen = false;
     private long openedTime;
     private int hudColorCached = Color.white.getRGB();
