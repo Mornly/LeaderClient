@@ -1,25 +1,14 @@
 package unfair.ui.clickgui.dropdown;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
-import unfair.config.Config;
 import unfair.module.Category;
 import unfair.module.modules.render.GuiModule;
-import unfair.module.modules.render.HUD;
 import unfair.util.RenderUtil;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +19,6 @@ public class DropDownGui extends GuiScreen {
     public float posX = 13, posY = 18;
     public float scrollY = 0;
     private final long openTime;
-    private final File configFile = new File("./config/Unfair/", "dropdowngui.txt");
     private boolean blurEnabled;
 
     public DropDownGui() {
@@ -43,10 +31,9 @@ public class DropDownGui extends GuiScreen {
         for (Category cat : Category.values()) {
             if (cat == Category.CONFIG) continue;
             panels.add(new Panel(cat, posX + offsetX, posY, blurEnabled));
-            offsetX += 100;
+            offsetX += 120;
         }
         configPanel = new ConfigPanel(posX + offsetX, posY, blurEnabled);
-        loadPositions();
     }
 
     @Override
@@ -102,56 +89,5 @@ public class DropDownGui extends GuiScreen {
     }
 
     @Override
-    public void onGuiClosed() {
-        savePositions();
-        autoSaveConfig();
-        super.onGuiClosed();
-    }
-
-    private void autoSaveConfig() {
-        try { new Config(Config.lastConfig != null ? Config.lastConfig : "default", true).save(); } catch (Exception ignored) {}
-    }
-
-    @Override
     public boolean doesGuiPauseGame() { return false; }
-
-    private void savePositions() {
-        JsonObject json = new JsonObject();
-        json.addProperty("scrollY", scrollY);
-        for (int i = 0; i < panels.size(); i++) {
-            Panel p = panels.get(i);
-            String key = "panel_" + i;
-            JsonObject pos = new JsonObject();
-            pos.addProperty("x", p.x); pos.addProperty("y", p.y);
-            json.add(key, pos);
-        }
-        if (configPanel != null) {
-            JsonObject cp = new JsonObject();
-            cp.addProperty("x", configPanel.x); cp.addProperty("y", configPanel.y);
-            json.add("configPanel", cp);
-        }
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (FileWriter writer = new FileWriter(configFile)) { gson.toJson(json, writer); } catch (IOException e) { e.printStackTrace(); }
-    }
-
-    private void loadPositions() {
-        if (!configFile.exists()) return;
-        JsonParser parser = new JsonParser();
-        try (FileReader reader = new FileReader(configFile)) {
-            JsonObject json = parser.parse(reader).getAsJsonObject();
-            if (json.has("scrollY")) scrollY = json.get("scrollY").getAsFloat();
-            for (int i = 0; i < panels.size(); i++) {
-                Panel p = panels.get(i);
-                String key = "panel_" + i;
-                if (json.has(key)) {
-                    JsonObject pos = json.getAsJsonObject(key);
-                    p.x = pos.get("x").getAsFloat(); p.y = pos.get("y").getAsFloat();
-                }
-            }
-            if (configPanel != null && json.has("configPanel")) {
-                JsonObject cp = json.getAsJsonObject("configPanel");
-                configPanel.x = cp.get("x").getAsFloat(); configPanel.y = cp.get("y").getAsFloat();
-            }
-        } catch (IOException e) { e.printStackTrace(); }
-    }
 }
