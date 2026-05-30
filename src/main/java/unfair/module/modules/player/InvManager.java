@@ -1,5 +1,6 @@
 package unfair.module.modules.player;
 
+import net.minecraft.item.*;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.UpdateEvent;
@@ -12,10 +13,6 @@ import unfair.util.ItemUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.item.ItemAppleGold;
-import net.minecraft.item.ItemEgg;
-import net.minecraft.item.ItemSnowball;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.WorldSettings.GameType;
 import org.apache.commons.lang3.RandomUtils;
 
@@ -40,6 +37,7 @@ public class InvManager extends Module {
     public final IntProperty throwsSlot = new IntProperty("Throws Slot", 4, 0, 9);
     public final IntProperty throwsAmount = new IntProperty("Throws Amount", 64, 16, 320);
     public final IntProperty gappleSlot = new IntProperty("Gapple Slot", 3, 0, 9);
+    public final BooleanProperty keepOre = new BooleanProperty("KeepOre",true);
     private int actionDelay = 0;
     private int oDelay = 0;
     private boolean inventoryOpen = false;
@@ -83,7 +81,23 @@ public class InvManager extends Module {
         if (stack == null) return false;
         return stack.getItem() instanceof ItemAppleGold;
     }
-
+    private boolean isOre(ItemStack stack) {
+        if (stack == null) return false;
+        Item item = stack.getItem();
+        if (item instanceof net.minecraft.item.ItemBlock) {
+            net.minecraft.block.Block block = ((net.minecraft.item.ItemBlock) item).getBlock();
+            if (block instanceof net.minecraft.block.BlockOre) {
+                return true;
+            }
+        }
+        return item == net.minecraft.init.Items.diamond
+                || item == net.minecraft.init.Items.emerald
+                || item == net.minecraft.init.Items.iron_ingot
+                || item == net.minecraft.init.Items.gold_ingot
+                || item == net.minecraft.init.Items.coal
+                || item == net.minecraft.init.Items.quartz
+                || item == net.minecraft.init.Items.redstone;
+    }
     private int findThrowableSlot(int preferredSlot, boolean hotbarOnly) {
         if (preferredSlot >= 0 && preferredSlot <= 8) {
             ItemStack stack = mc.thePlayer.inventory.getStackInSlot(preferredSlot);
@@ -333,8 +347,10 @@ public class InvManager extends Module {
                                         boolean isBlock = ItemUtil.isBlock(stack);
                                         boolean isThrowable = this.isThrowable(stack);
                                         boolean isGapple = this.isGapple(stack);
-
-                                        if (!isThrowable && !isGapple && (ItemUtil.isNotSpecialItem(stack) || (isBlock && currentBlockCount >= this.blocks.getValue()))) {
+                                        boolean isOre = this.isOre(stack);
+                                        if (!keepOre.getValue() && isOre){
+                                            itemsToDrop.add(i);
+                                        }else if (!isThrowable && !isOre &&  !isGapple && (ItemUtil.isNotSpecialItem(stack) || (isBlock && currentBlockCount >= this.blocks.getValue()))) {
                                             itemsToDrop.add(i);
                                         }
 
@@ -448,12 +464,15 @@ public class InvManager extends Module {
                                         boolean isBlock = ItemUtil.isBlock(stack);
                                         boolean isThrowable = this.isThrowable(stack);
                                         boolean isGapple = this.isGapple(stack);
-
-                                        if (!isThrowable && !isGapple && (ItemUtil.isNotSpecialItem(stack) || (isBlock && currentBlockCount >= this.blocks.getValue()))) {
+                                        boolean isOre = this.isOre(stack);
+                                        if (!keepOre.getValue() && isOre){
                                             this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(i), 1, 4);
                                             return;
                                         }
-
+                                        else if (!isThrowable && !isOre && !isGapple && (ItemUtil.isNotSpecialItem(stack) || (isBlock && currentBlockCount >= this.blocks.getValue()))) {
+                                            this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(i), 1, 4);
+                                            return;
+                                        }
                                         if (isBlock) {
                                             currentBlockCount += stack.stackSize;
                                         }
