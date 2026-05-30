@@ -1,25 +1,16 @@
 package unfair.module.modules.movement;
 
 import com.google.common.base.CaseFormat;
-<<<<<<< HEAD
 import io.netty.buffer.Unpooled;
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityVillager;
-<<<<<<< HEAD
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
-=======
-import net.minecraft.network.play.client.C07PacketPlayerDigging;
-import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
-import net.minecraft.network.play.client.C09PacketHeldItemChange;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import unfair.Unfair;
@@ -29,14 +20,7 @@ import unfair.enums.FloatModules;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.event.types.Priority;
-<<<<<<< HEAD
 import unfair.events.*;
-=======
-import unfair.events.LivingUpdateEvent;
-import unfair.events.PlayerUpdateEvent;
-import unfair.events.RightClickMouseEvent;
-import unfair.events.UpdateEvent;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import unfair.module.Module;
 import unfair.module.modules.combat.KillAura;
 import unfair.property.properties.BooleanProperty;
@@ -54,10 +38,7 @@ public class NoSlow extends Module {
     public final ModeProperty swordMode = new ModeProperty("sword-mode", 1, new String[]{"NONE", "VANILLA","PREDICTION-SEMI","PREDICTION"});
     public final IntProperty swapDelay = new IntProperty("SwapDelay",0,0,3,() -> swordMode.getValue() == 3);
     public final BooleanProperty test = new BooleanProperty("Test",false,() -> swordMode.getValue() == 3);
-<<<<<<< HEAD
     public final BooleanProperty c17 = new BooleanProperty("C17Packet",false,() -> swordMode.getValue() == 3);
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     public final IntProperty cancelTick = new IntProperty("cancel-tick",1,0,2,() -> swordMode.getValue() == 2);
     public final IntProperty cancelTick2 = new IntProperty("cancel-tick2",1,0,2,() -> swordMode.getValue() == 2);
     public final PercentProperty swordMotion = new PercentProperty("sword-motion", 100, () -> this.swordMode.getValue() != 0);
@@ -71,10 +52,7 @@ public class NoSlow extends Module {
     public final BooleanProperty bowSprint = new BooleanProperty("bow-sprint", true, () -> this.bowMode.getValue() != 0);
     private int lastSlot = -1;
     private int delay = 0;
-<<<<<<< HEAD
     private boolean post = false;
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 
     public NoSlow() {
         super("NoSlow", false);
@@ -113,11 +91,7 @@ public class NoSlow extends Module {
            return killAura.isEnabled() && killAura.shouldAutoBlock() && (killAura.blockTick == cancelTick.getValue() || killAura.blockTick == cancelTick2.getValue());
         }
         else if (swordMode.getValue() == 3 && isSwordActive()){
-<<<<<<< HEAD
             return delay == 0;
-=======
-            return delay == swapDelay.getValue();
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
         }
         return false;
     }
@@ -140,7 +114,6 @@ public class NoSlow extends Module {
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         if (!this.isEnabled()) return;
-<<<<<<< HEAD
         if (ItemUtil.isHoldingSword() && mc.thePlayer.isUsingItem()) {
             if (isSwordActive()) {
                 if (this.swordMode.getValue() == 3) {
@@ -195,25 +168,6 @@ public class NoSlow extends Module {
                         PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
                         Unfair.blinkManager.setBlinkState(false, BlinkModules.NO_SLOW);
                     }
-=======
-        if (!ItemUtil.isHoldingSword() || !mc.thePlayer.isUsingItem()) return;
-        if (isSwordActive()) {
-            if (this.swordMode.getValue() == 3) {
-                delay++;
-                if (delay >= swapDelay.getValue()) {
-                    if (event.getType() == EventType.POST && test.getValue()){
-                        PacketUtil.sendPacket(new C08PacketPlayerBlockPlacement(mc.thePlayer.getHeldItem()));
-                    }
-                    if (event.getType() == EventType.PRE) {
-                        int randomSlot = new Random().nextInt(9);
-                        while (randomSlot == mc.thePlayer.inventory.currentItem) {
-                            randomSlot = new Random().nextInt(9);
-                        }
-                        PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
-                        PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-                    }
-                    delay = 0;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                 }
             }
         }

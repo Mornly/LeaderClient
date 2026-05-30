@@ -1,6 +1,5 @@
 package unfair.module.modules.misc;
 
-<<<<<<< HEAD
 import net.minecraft.client.gui.GuiDownloadTerrain;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.network.play.INetHandlerPlayClient;
@@ -14,16 +13,6 @@ import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.PacketEvent;
 import unfair.events.PreMotionEvent;
-=======
-import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.network.play.INetHandlerPlayClient;
-
-import java.util.concurrent.LinkedBlockingQueue;
-import unfair.Unfair;
-import unfair.event.EventTarget;
-import unfair.event.types.EventType;
-import unfair.events.PacketEvent;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import unfair.module.Module;
 import unfair.property.properties.ModeProperty;
 import unfair.util.ChatUtil;
@@ -42,17 +31,10 @@ import static unfair.event.EventManager.call;
 
 public class Disabler extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-<<<<<<< HEAD
     public static final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"PredictionInventory","Post"});
 
     private final List<Packet<?>> inventoryPackets = new ArrayList<>();
     public static final CopyOnWriteArrayList<Packet<INetHandlerPlayClient>> storedPackets = new CopyOnWriteArrayList<Packet<INetHandlerPlayClient>>();
-=======
-    public static final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"PredictionInventory"});
-
-    private final List<Packet<?>> inventoryPackets = new ArrayList<>();
-    public static LinkedBlockingQueue<Packet<INetHandlerPlayClient>> postPackets;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     public Disabler() {
         super("Disabler",false,false);
     }
@@ -105,7 +87,6 @@ public class Disabler extends Module {
             }
         }
     }
-<<<<<<< HEAD
     @EventTarget
     public void onPre(PreMotionEvent event){
         if (this.isEnabled())releasePost();
@@ -123,10 +104,6 @@ public class Disabler extends Module {
         }
         return packet instanceof S27PacketExplosion || packet instanceof S32PacketConfirmTransaction || packet instanceof S08PacketPlayerPosLook || packet instanceof S18PacketEntityTeleport || packet instanceof S19PacketEntityStatus || packet instanceof S04PacketEntityEquipment || packet instanceof S23PacketBlockChange || packet instanceof S22PacketMultiBlockChange || packet instanceof S13PacketDestroyEntities || packet instanceof S00PacketKeepAlive || packet instanceof S06PacketUpdateHealth || packet instanceof S14PacketEntity || packet instanceof S0FPacketSpawnMob|| packet instanceof S3FPacketCustomPayload;
     }
-=======
-
-
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     private void handlePredictionInventory(PacketEvent event) {
         if (!mode.getModeString().equals("PredictionInventory")) return;
 
@@ -141,7 +118,6 @@ public class Disabler extends Module {
             inventoryPackets.clear();
         }
     }
-<<<<<<< HEAD
     public static void releasePost() {
         if (Unfair.moduleManager.getModule(Disabler.class).isEnabled() && mode.getValue() == 1 && mc.getNetHandler() != null) {
             while (!storedPackets.isEmpty()) {
@@ -168,13 +144,4 @@ public class Disabler extends Module {
             }
         }
     }
-=======
-
-
-
-//    public static boolean noPost() {
-//        return PacketStoringComponent.blinking || BlinkUtils.isBlinking();
-//    }
-
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 }

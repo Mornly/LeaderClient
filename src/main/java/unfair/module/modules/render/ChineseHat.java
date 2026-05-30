@@ -127,7 +127,6 @@ public class ChineseHat extends Module {
                 .filter(this::isValidTarget)
                 .collect(Collectors.toList());
 
-        // 使用数组包装可变索引以通过 lambda 编译
         long[] indexHolder = {0};
         RenderUtil.drawConesForEntities(() -> {
             for (EntityLivingBase entity : entities) {

@@ -17,14 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import unfair.Unfair;
 import unfair.event.EventManager;
 import unfair.event.types.EventType;
-<<<<<<< HEAD
 import unfair.events.*;
-=======
-import unfair.events.LivingUpdateEvent;
-import unfair.events.MoveInputEvent;
-import unfair.events.PlayerUpdateEvent;
-import unfair.events.UpdateEvent;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import unfair.management.RotationState;
 import unfair.module.modules.misc.Disabler;
 import unfair.module.modules.movement.NoSlow;
@@ -78,10 +71,7 @@ public abstract class MixinEntityPlayerSP extends MixinEntityPlayer {
             at = {@At("RETURN")}
     )
     private void postUpdate(CallbackInfo callbackInfo) {
-<<<<<<< HEAD
 
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
         if (this.worldObj.isBlockLoaded(new BlockPos(this.posX, 0.0, this.posZ))) {
             if (!Float.isNaN(this.pendingYaw) && !Float.isNaN(this.pendingPitch)) {
                 this.lastReportedYaw = this.rotationYaw;
@@ -112,7 +102,6 @@ public abstract class MixinEntityPlayerSP extends MixinEntityPlayer {
         return entityPlayerSP.isRiding();
     }
     @Inject(
-<<<<<<< HEAD
             method = {"onUpdateWalkingPlayer"},
             at = {@At("RETURN")}
     )
@@ -127,8 +116,6 @@ public abstract class MixinEntityPlayerSP extends MixinEntityPlayer {
         EventManager.call(new PreMotionEvent());
     }
     @Inject(
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
             method = {"onUpdate"},
             at = {@At(
                     value = "INVOKE",
@@ -137,10 +124,6 @@ public abstract class MixinEntityPlayerSP extends MixinEntityPlayer {
     )
     private void onMotionUpdate(CallbackInfo callbackInfo) {
         EventManager.call(new PlayerUpdateEvent());
-<<<<<<< HEAD
-=======
-
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     }
 
     @Inject(

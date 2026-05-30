@@ -66,21 +66,14 @@ public class KillAura extends Module {
     public final ModeProperty mode;
     public final ModeProperty sort;
     public ModeProperty autoBlock;
-<<<<<<< HEAD
     private final BooleanProperty noSwap = new BooleanProperty("NoSwap",true,() -> this.autoBlock.getValue() == 2);
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     private final IntProperty maxTick = new IntProperty("MaxTick",3,1,5,() -> this.autoBlock.getValue() == 6);
     private final IntProperty startBlinkTick = new IntProperty("StartBlinkTick",0,1,5,() -> this.autoBlock.getValue() == 6);
     private final IntProperty stopBlinkTick = new IntProperty("StopBlinkTick",2,1,5,() -> this.autoBlock.getValue() == 6);
     private final IntProperty swapTick = new IntProperty("SwapTick",2,1,5,() -> this.autoBlock.getValue() == 6);
     private final IntProperty switchBackTick = new IntProperty("SwitchBackTick",2,1,5,() -> this.autoBlock.getValue() == 6);
     private final IntProperty stopBlockTick = new IntProperty("StopBlockTick",2,1,5,() -> this.autoBlock.getValue() == 6);
-<<<<<<< HEAD
     public final IntProperty attackTick = new IntProperty("AttackTick",0,1,5,() -> this.autoBlock.getValue() == 6);
-=======
-    private final IntProperty attackTick = new IntProperty("AttackTick",0,1,5,() -> this.autoBlock.getValue() == 6);
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     private final IntProperty startBlockTick = new IntProperty("StartBlockTick",0,1,5,() -> this.autoBlock.getValue() == 6);
     private final BooleanProperty postStartBlock = new BooleanProperty("PostBlock",false,() -> this.autoBlock.getValue() == 6);
     public final BooleanProperty autoBlockRequirePress;
@@ -446,7 +439,6 @@ public class KillAura extends Module {
                                 if (!Unfair.playerStateManager.digging && !Unfair.playerStateManager.placing) {
                                     switch (this.blockTick) {
                                         case 0:
-<<<<<<< HEAD
                                             if (!this.isPlayerBlocking()) {
                                                 swap = true;
                                             }
@@ -455,22 +447,11 @@ public class KillAura extends Module {
                                             break;
                                         case 1:
 
-=======
-                                            Unfair.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-                                            if (!this.isPlayerBlocking()) {
-                                                swap = true;
-                                            }
-                                            this.blockTick = 1;
-                                            break;
-                                        case 1:
-                                            blocked = true;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                             attack = false;
                                             this.blockTick = 2;
                                             break;
                                         case 2:
                                             if (this.isPlayerBlocking()) {
-<<<<<<< HEAD
                                                 if (!noSwap.getValue()) {
                                                     int randomSlot = new Random().nextInt(9);
                                                     while (randomSlot == mc.thePlayer.inventory.currentItem) {
@@ -479,14 +460,6 @@ public class KillAura extends Module {
                                                     PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
                                                     PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
                                                 }
-=======
-                                                int randomSlot = new Random().nextInt(9);
-                                                while (randomSlot == mc.thePlayer.inventory.currentItem) {
-                                                    randomSlot = new Random().nextInt(9);
-                                                }
-                                                PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
-                                                PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                                 this.stopBlock();
                                             }
                                             attack = false;
@@ -501,20 +474,13 @@ public class KillAura extends Module {
                                 this.isBlocking = true;
                                 this.fakeBlockState = true;
                             } else {
-<<<<<<< HEAD
                                 Unfair.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                 int randomSlot = new Random().nextInt(9);
                                 while (randomSlot == mc.thePlayer.inventory.currentItem) {
                                     randomSlot = new Random().nextInt(9);
                                 }
                                 PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
                                 PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-<<<<<<< HEAD
-=======
-                                Unfair.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                 this.isBlocking = false;
                                 this.fakeBlockState = false;
                             }
@@ -568,7 +534,6 @@ public class KillAura extends Module {
                                     switch (this.blockTick) {
                                         case 0:
                                             blocked = true;
-<<<<<<< HEAD
                                             if (!this.isPlayerBlocking()) {
                                                 swap = true;
                                             }
@@ -589,18 +554,6 @@ public class KillAura extends Module {
                                         case 2:
                                             attack = false;
                                             this.stopBlock();
-=======
-                                            if (this.isPlayerBlocking()) {
-                                                postSwap = true;
-                                            }
-                                            attack  = false;
-                                            this.blockTick = 1;
-                                            break;
-                                        case 1:
-                                            if (!this.isPlayerBlocking()) {
-                                                swap = true;
-                                            }
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                             if (this.attackDelayMS <= 50L) {
                                                 this.blockTick = 0;
                                             }
@@ -612,20 +565,13 @@ public class KillAura extends Module {
                                 this.isBlocking = true;
                                 this.fakeBlockState = true;
                             } else {
-<<<<<<< HEAD
                                 Unfair.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                 int randomSlot = new Random().nextInt(9);
                                 while (randomSlot == mc.thePlayer.inventory.currentItem) {
                                     randomSlot = new Random().nextInt(9);
                                 }
                                 PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
                                 PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
-<<<<<<< HEAD
-=======
-                                Unfair.blinkManager.setBlinkState(false, BlinkModules.AUTO_BLOCK);
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                 this.isBlocking = false;
                                 this.fakeBlockState = false;
                             }

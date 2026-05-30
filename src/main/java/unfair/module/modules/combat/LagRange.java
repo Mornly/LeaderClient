@@ -11,13 +11,9 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging.Action;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
-<<<<<<< HEAD
 import scala.tools.nsc.backend.icode.Members;
 import unfair.Unfair;
 import unfair.enums.BlinkModules;
-=======
-import unfair.Unfair;
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import unfair.event.EventTarget;
 import unfair.event.types.Priority;
 import unfair.events.PacketEvent;
@@ -43,13 +39,9 @@ import java.util.stream.Collectors;
 
 public class LagRange extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-<<<<<<< HEAD
     public final ModeProperty mode = new ModeProperty("Mode",0,new String[]{"DelayBlink","Lag"});
     public final IntProperty blinkTick  = new IntProperty("BlinkTick", 3,0,10,() -> mode.getValue() == 0);
     public final IntProperty delay = new IntProperty("delay", 150, 0, 1000,() -> mode.getValue() == 1);
-=======
-    public final IntProperty delay = new IntProperty("delay", 150, 0, 1000);
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     public final FloatProperty range = new FloatProperty("range", 10.0F, 3.0F, 100.0F);
     public final BooleanProperty weaponsOnly = new BooleanProperty("weapons-only", true);
     public final BooleanProperty allowTools = new BooleanProperty("allow-tools", false, this.weaponsOnly::getValue);
@@ -119,10 +111,7 @@ public class LagRange extends Module {
                                 .filter(this::isValidTarget)
                                 .collect(Collectors.toList());
                         if (players.isEmpty()) {
-<<<<<<< HEAD
                             Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                             this.tickIndex = -1;
                         } else {
                             double height = mc.thePlayer.getEyeHeight();
@@ -144,7 +133,6 @@ public class LagRange extends Module {
                                                 this.tickIndex++;
                                             }
                                         }
-<<<<<<< HEAD
                                         if (mode.getValue() == 1) {
                                             Unfair.lagManager.setDelay(this.tickIndex);
                                         }
@@ -160,21 +148,12 @@ public class LagRange extends Module {
                                     else {
                                         Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
                                     }
-=======
-                                        Unfair.lagManager.setDelay(this.tickIndex);
-                                        this.hasTarget = true;
-                                        return;
-                                    }
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                                 }
                             }
                         }
                     } else {
                         this.tickIndex = -1;
-<<<<<<< HEAD
                         Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                     }
                     break;
                 case POST:
@@ -252,13 +231,9 @@ public class LagRange extends Module {
 
     @Override
     public String[] getSuffix() {
-<<<<<<< HEAD
         if (this.mode.getValue() == 1) {
             return new String[]{String.format("%dms", this.delay.getValue())};
         }
         else return new String[]{blinkTick.getValue().toString()};
-=======
-        return new String[]{String.format("%dms", this.delay.getValue())};
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     }
 }

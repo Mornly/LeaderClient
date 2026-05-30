@@ -10,10 +10,7 @@ import unfair.events.Render2DEvent;
 import unfair.module.Module;
 import unfair.module.modules.player.Scaffold;
 import unfair.property.properties.FloatProperty;
-<<<<<<< HEAD
 import unfair.property.properties.ModeProperty;
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import unfair.util.NotificationTask;
 import unfair.util.RenderUtil;
 import unfair.util.TimerUtils;
@@ -28,37 +25,22 @@ public class Island extends Module {
     public Island(){
         super("Island",false,false);
     }
-<<<<<<< HEAD
     public final ModeProperty blockCounterMode = new ModeProperty("BlockCounterStyle",0,new String[]{"Bar","Circle"});
     public final ModeProperty blockCounterPosition = new ModeProperty("BlockCounterPosition",0,new String[]{"Middle","Top"});
-=======
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     public final FloatProperty backgroundRadius = new FloatProperty("BackgroundRadius", 4f, 0f, 20f);
     public float x, y, width, height;
     private ScaledResolution sr;
     public ContinualAnimation animatedX = new ContinualAnimation();
     public ContinualAnimation animatedY = new ContinualAnimation();
-<<<<<<< HEAD
     public ContinualAnimation animatedWidth = new ContinualAnimation();
     public ContinualAnimation animatedHeight = new ContinualAnimation();
 
-=======
-    // 类成员声明
-    public ContinualAnimation animatedWidth = new ContinualAnimation();
-    public ContinualAnimation animatedHeight = new ContinualAnimation();
-
-    // 修改 runToXy，同时平滑宽高
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     public void runToXy(float realX, float realY) {
         animatedX.animate(getRenderX(realX), 40);
         animatedY.animate(getRenderY(realY), 40);
         animatedWidth.animate(width, 40);
         animatedHeight.animate(height, 40);
     }
-<<<<<<< HEAD
-=======
-    // 重写 drawBackgroundAuto，使用动画尺寸
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     public void drawBackgroundAuto(int identifier) {
         float left = animatedX.getOutput();
         float top = animatedY.getOutput();
@@ -119,7 +101,6 @@ public class Island extends Module {
             width = textWidth + 10 + 12 + 10;
             height = 30f;
             x = sr.getScaledWidth() / 2f;
-<<<<<<< HEAD
             if (blockCounterPosition.getValue() == 0) {
                 y = sr.getScaledHeight() / 2f;
             }
@@ -176,34 +157,6 @@ public class Island extends Module {
 
                 GL11.glDisable(GL11.GL_SCISSOR_TEST);
             }
-=======
-            y = sr.getScaledHeight() / 2f;
-
-            runToXy(x, y);
-
-            GL11.glEnable(GL11.GL_SCISSOR_TEST);
-            float progress = Math.min(64, size) / 64f;
-            float remaining = 1f - progress;
-            int barColor = hud.getColor(System.currentTimeMillis()).getRGB();
-            drawBackgroundAuto(1);
-            float barLeft = animatedX.getOutput() + animatedWidth.getOutput() - 15;
-            float barTop = animatedY.getOutput() + 6;
-            float barRight = barLeft + 6;
-            float barBottom = animatedY.getOutput() + animatedHeight.getOutput() + 10 - 6;
-
-            RenderUtil.drawRect(barLeft + 1, barTop + 1, barRight + 1, barBottom + 1, new Color(0, 0, 0, 100).getRGB());
-            float fillHeight = (barBottom - barTop) * progress;
-            float fillTop = barBottom - fillHeight;
-            RenderUtil.drawRect(barLeft + 2, fillTop + 1, barRight, barBottom + 1, barColor);
-
-
-            if (!shader) {
-                RenderUtil.drawFont(title, (int) (animatedX.getOutput() + 8), (int) (animatedY.getOutput() + 10), -1, true);
-                RenderUtil.drawFont(description, (int) (animatedX.getOutput() + 8), (int) (animatedY.getOutput() + 22), -1, true);
-            }
-
-            GL11.glDisable(GL11.GL_SCISSOR_TEST);
->>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
         }else {
             CopyOnWriteArrayList<NotificationTask> notifications = Notification.tasks;
             if (!notifications.isEmpty()) {
