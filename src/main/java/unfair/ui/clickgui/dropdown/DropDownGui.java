@@ -43,7 +43,7 @@ public class DropDownGui extends GuiScreen {
         for (Category cat : Category.values()) {
             if (cat == Category.CONFIG) continue;
             panels.add(new Panel(cat, posX + offsetX, posY, blurEnabled));
-            offsetX += 50;
+            offsetX += 100;
         }
         configPanel = new ConfigPanel(posX + offsetX, posY, blurEnabled);
         loadPositions();
