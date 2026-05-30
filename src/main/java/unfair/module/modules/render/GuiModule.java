@@ -4,12 +4,12 @@ import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
-import unfair.ui.ClickGui;
+import unfair.ui.clickgui.dropdown.DropDownGui;
 
 public class GuiModule extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
     public final BooleanProperty blur = new BooleanProperty("blur", false);
-    private ClickGui clickGui;
+    private DropDownGui dropDownGui;
 
     public GuiModule() {
         super("ClickGui", false);
@@ -19,10 +19,9 @@ public class GuiModule extends Module {
     @Override
     public void onEnabled() {
         setEnabled(false);
-        if (clickGui == null) {
-            clickGui = new ClickGui();
-            clickGui.initMain();
+        if (dropDownGui == null) {
+            dropDownGui = new DropDownGui();
         }
-        mc.displayGuiScreen(clickGui);
+        mc.displayGuiScreen(dropDownGui);
     }
 }
