@@ -51,6 +51,7 @@ public class RenderUtil {
     public static void circle(final double x, final double y, final double radius, final double sides, final boolean filled, final Color color) {
         polygon(x, y, radius, sides, filled, color);
     }
+<<<<<<< HEAD
     public static void drawConesForEntities(Runnable renderLogic) {
         GlStateManager.pushAttrib();
         GlStateManager.pushMatrix();
@@ -111,6 +112,8 @@ public class RenderUtil {
         }
         tessellator.draw();
     }
+=======
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
     public static void start() {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

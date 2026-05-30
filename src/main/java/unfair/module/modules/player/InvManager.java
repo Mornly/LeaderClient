@@ -146,6 +146,10 @@ public class InvManager extends Module {
             }
 
             boolean isInventoryOpen = (mc.currentScreen instanceof GuiInventory);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
             if (!isInventoryOpen) {
                 this.inventoryOpen = false;
             } else if ((mc.currentScreen instanceof GuiInventory) && !(((GuiInventory) mc.currentScreen).inventorySlots instanceof ContainerPlayer)) {
@@ -263,6 +267,7 @@ public class InvManager extends Module {
                                 }
                             }
                         } else if (this.mode.getValue() == 1) {
+<<<<<<< HEAD
                             if (this.autoArmor.getValue()) {
                                 for (int i = 0; i < 4; i++) {
                                     int equippedSlot = equippedArmorSlots.get(i);
@@ -287,6 +292,12 @@ public class InvManager extends Module {
                             ArrayList<Integer> itemsToDrop = new ArrayList<>();
                             int currentBlockCount = this.getStackSize(inventoryBlocksSlot);
                             int totalThrowsCount = this.getTotalThrowsCount();
+=======
+                            ArrayList<Integer> itemsToDrop = new ArrayList<>();
+                            int currentBlockCount = this.getStackSize(inventoryBlocksSlot);
+                            int totalThrowsCount = this.getTotalThrowsCount();
+
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                             if (totalThrowsCount > this.throwsAmount.getValue()) {
                                 for (int i = 35; i >= 0; i--) {
                                     if (!equippedArmorSlots.contains(i)
@@ -311,6 +322,10 @@ public class InvManager extends Module {
                                     }
                                 }
                             }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                             for (int i = 0; i < 36; i++) {
                                 if (!equippedArmorSlots.contains(i)
                                         && !inventoryArmorSlots.contains(i)
@@ -344,9 +359,38 @@ public class InvManager extends Module {
                                     }
                                 }
                             }
+<<<<<<< HEAD
                             for (int slot : itemsToDrop) {
                                 this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(slot), 1, 4);
                             }
+=======
+
+                            for (int slot : itemsToDrop) {
+                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(slot), 1, 4);
+                            }
+
+                            if (this.autoArmor.getValue()) {
+                                for (int i = 0; i < 4; i++) {
+                                    int equippedSlot = equippedArmorSlots.get(i);
+                                    int inventorySlot = inventoryArmorSlots.get(i);
+                                    if (equippedSlot != -1 || inventorySlot != -1) {
+                                        int playerArmorSlot = 39 - i;
+                                        if (equippedSlot != playerArmorSlot && inventorySlot != playerArmorSlot) {
+                                            if (mc.thePlayer.inventory.getStackInSlot(playerArmorSlot) != null) {
+                                                if (mc.thePlayer.inventory.getFirstEmptyStack() != -1) {
+                                                    this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(playerArmorSlot), 0, 1);
+                                                } else {
+                                                    this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(playerArmorSlot), 1, 4);
+                                                }
+                                            } else {
+                                                int armorToEquipSlot = equippedSlot != -1 ? equippedSlot : inventorySlot;
+                                                this.clickSlot(mc.thePlayer.inventoryContainer.windowId, this.convertSlotIndex(armorToEquipSlot), 0, 1);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                             LinkedHashSet<Integer> usedHotbarSlots = new LinkedHashSet<>();
                             if (preferredSwordHotbarSlot >= 0 && preferredSwordHotbarSlot <= 8 && (equippedSwordSlot != -1 || inventorySwordSlot != -1)) {
                                 usedHotbarSlots.add(preferredSwordHotbarSlot);

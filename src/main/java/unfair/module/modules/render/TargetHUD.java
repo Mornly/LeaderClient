@@ -99,9 +99,12 @@ public class TargetHUD extends Module {
     }
 
     private Color getTargetColor(EntityLivingBase entityLivingBase) {
+<<<<<<< HEAD
         if (entityLivingBase == null){
             return new Color(-1);
         }
+=======
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
         if (entityLivingBase instanceof EntityPlayer) {
             if (TeamUtil.isFriend((EntityPlayer) entityLivingBase)) {
                 return Unfair.friendManager.getColor();
@@ -181,6 +184,7 @@ public class TargetHUD extends Module {
                 }
 
                 int styleMode = this.style.getValue();
+<<<<<<< HEAD
                 if (target != null) {
                     if (styleMode == 0) {
                         drawUnfairStyle(health, abs, heal);
@@ -194,6 +198,20 @@ public class TargetHUD extends Module {
                             if (styleMode == 4) {
                                 drawSimplifiedRoundedTargetHUD(health, abs, heal);
                             }
+=======
+                if (styleMode == 0) {
+                    drawUnfairStyle(health, abs, heal);
+                } else {
+                    if (styleMode <= 2) {
+                        drawRavenBSStyle(styleMode - 1, entity, health, abs, heal);
+                    }
+                    else {
+                        if (styleMode == 3) {
+                            drawLeaderStyle(health, abs, heal);
+                        }
+                        if (styleMode == 4){
+                            drawSimplifiedRoundedTargetHUD(health,abs,heal);
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                         }
                     }
                 }

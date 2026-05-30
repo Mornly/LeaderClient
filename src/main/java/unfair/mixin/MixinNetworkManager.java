@@ -2,11 +2,19 @@ package unfair.mixin;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.GenericFutureListener;
+<<<<<<< HEAD
+=======
+import net.minecraft.client.Minecraft;
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import net.minecraft.network.*;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.spongepowered.asm.mixin.Mixin;
+<<<<<<< HEAD
+=======
+import org.spongepowered.asm.mixin.Shadow;
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,6 +38,7 @@ public abstract class MixinNetworkManager {
     @SuppressWarnings("unchecked")
     private void channelRead0(ChannelHandlerContext channelHandlerContext, Packet<?> packet, CallbackInfo callbackInfo) {
         if (!packet.getClass().getName().startsWith("net.minecraft.network.play.client")) {
+<<<<<<< HEAD
             if (Unfair.delayManager != null && Unfair.delayManager.shouldDelay((Packet<INetHandlerPlayClient>) packet)) {
                 callbackInfo.cancel();
             }
@@ -38,6 +47,16 @@ public abstract class MixinNetworkManager {
                 callbackInfo.cancel();
             }
             else {
+=======
+            if (Disabler.mode.getValue() == 1 && Unfair.moduleManager.getModule(Disabler.class).isEnabled() && packet == Minecraft.getMinecraft().getNetHandler()){
+                Disabler.postPackets.add((Packet<INetHandlerPlayClient>)packet);
+                callbackInfo.cancel();
+                return;
+            }
+            if (Unfair.delayManager != null && Unfair.delayManager.shouldDelay((Packet<INetHandlerPlayClient>) packet)) {
+                callbackInfo.cancel();
+            } else {
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
                 PacketEvent event = new PacketEvent(EventType.RECEIVE, packet);
                 EventManager.call(event);
                 if (event.isCancelled()) {
@@ -104,5 +123,18 @@ public abstract class MixinNetworkManager {
             }
         }
     }
+<<<<<<< HEAD
 
+=======
+    @SuppressWarnings("unchecked")
+    @Inject(method = "channelRead0(Lio/netty/channel/ChannelHandlerContext;Lnet/minecraft/network/Packet;)V", at = @At("HEAD"))
+    public void receivePacket(ChannelHandlerContext p_channelRead0_1_, Packet<?> packet, CallbackInfo ci) {
+        if (packet != null) {
+            if (PacketUtil.skipReceiveEvent.contains(packet)) {
+                PacketUtil.skipReceiveEvent.remove(packet);
+                return;
+            }
+        }
+    }
+>>>>>>> 839a5315ef498d98d4be72e8b3f4e7cc0c660d5c
 }
