@@ -47,4 +47,9 @@ public class ColorUtil {
     public static Color scale(Color color, float scaleFactor, int alpha) {
         return new Color(Math.min(Math.max((int) ((float) color.getRed() * scaleFactor), 0), 255), Math.min(Math.max((int) ((float) color.getGreen() * scaleFactor), 0), 255), Math.min(Math.max((int) ((float) color.getBlue() * scaleFactor), 0), 255), alpha);
     }
+
+    public static Color applyOpacity(Color color, float opacity) {
+        opacity = Math.min(1.0f, Math.max(0.0f, opacity));
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), (int)(255 * opacity));
+    }
 }

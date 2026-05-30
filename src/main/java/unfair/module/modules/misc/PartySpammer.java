@@ -6,7 +6,9 @@ import unfair.event.EventTarget;
 import unfair.events.TickEvent;
 import unfair.event.types.EventType;
 import unfair.module.Module;
-import unfair.util.ChatUtil;
+import unfair.property.properties.IntProperty;
+import unfair.property.properties.ModeProperty;
+import unfair.property.properties.TextProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +16,10 @@ import java.util.stream.Collectors;
 
 public class PartySpammer extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private static final int TICK_DELAY = 5;
+
+    private final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"All", "Single"});
+    private final IntProperty delayTicks = new IntProperty("DelayTicks", 5, 1, 10);
+    private final TextProperty ign = new TextProperty("IGN", "", () -> mode.getValue() == 1);
 
     private List<String> allPlayers = new ArrayList<>();
     private List<String> invitedThisRound = new ArrayList<>();
@@ -62,13 +67,24 @@ public class PartySpammer extends Module {
         if (mc.thePlayer == null || mc.theWorld == null) return;
 
         tickCounter++;
-        if (tickCounter < TICK_DELAY) return;
+        if (tickCounter < delayTicks.getValue()) return;
         tickCounter = 0;
 
-        executeNext();
+        if (mode.getValue() == 1) {
+            executeSingle();
+        } else {
+            executeAll();
+        }
     }
 
-    private void executeNext() {
+    private void executeSingle() {
+        String target = ign.getValue().trim();
+        if (target.isEmpty()) return;
+        sendCommand("/party invite " + target);
+        sendCommand("/party disband");
+    }
+
+    private void executeAll() {
         if (currentBatch.isEmpty() || step >= currentBatch.size()) {
             if (!currentBatch.isEmpty() && step == currentBatch.size()) {
                 sendCommand("/party disband");
