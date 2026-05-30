@@ -27,6 +27,7 @@ public class ModuleManager {
         List<Class<? extends Module>> moduleClasses = new ArrayList<>();
 
         for (Category category : Category.values()) {
+            if (category.getPackageName() == null) continue;
             moduleClasses.addAll(scanPackageForModules(category.getPackageName()));
         }
 
