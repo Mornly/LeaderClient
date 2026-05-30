@@ -32,7 +32,7 @@ public class ChestStealer extends Module {
     public final BooleanProperty autoClose = new BooleanProperty("Auto Close", true);
     public final BooleanProperty nameCheck = new BooleanProperty("Name Check", true);
     public final BooleanProperty skipTrash = new BooleanProperty("Skip Trash", true);
-    public final BooleanProperty keepProjectiles = new BooleanProperty("Keep Projectiles", true);
+    public final BooleanProperty keepProjectiles = new BooleanProperty("SkipProjectiles", true);
 
     private int clickDelay = 0;
     private int oDelay = 0;
@@ -60,17 +60,13 @@ public class ChestStealer extends Module {
     }
 
     private void takeAllInstant(Container container, IInventory inventory) {
-        // First pass: Take all non-projectile items (or all items if keepProjectiles is false)
         for (int i = 0; i < inventory.getSizeInventory(); i++) {
             if (container.getSlot(i).getHasStack()) {
                 ItemStack stack = container.getSlot(i).getStack();
 
-                // Skip projectile items if we want to keep them
                 if (this.keepProjectiles.getValue() && this.isProjectileStack(stack)) {
                     continue;
                 }
-
-                // Skip trash items if enabled
                 if (this.skipTrash.getValue() && ItemUtil.isNotSpecialItem(stack)) {
                     continue;
                 }
