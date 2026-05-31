@@ -77,6 +77,11 @@ public class DropDownGui extends GuiScreen {
         if (timeSinceOpen < 1L) return;
 
         if (keyCode == Keyboard.KEY_ESCAPE) {
+            if (ClientSetting.anyListening) {
+                for (Panel panel : panels) panel.keyPressed(keyCode);
+                if (configPanel != null) configPanel.keyPressed(keyCode);
+                return;
+            }
             this.mc.displayGuiScreen(null);
             return;
         }

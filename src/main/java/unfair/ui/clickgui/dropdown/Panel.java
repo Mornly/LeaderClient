@@ -90,8 +90,8 @@ public class Panel {
         for (DD mod : modules) mod.mouseReleased(mx, my, button);
     }
 
-    public void charTyped(char chr) {}
-    public void keyPressed(int keyCode) {}
+    public void charTyped(char chr) { for (DD mod : modules) mod.charTyped(chr); }
+    public void keyPressed(int keyCode) { for (DD mod : modules) mod.keyPressed(keyCode); }
 
     public float calculateContentHeight() {
         float h = 0;

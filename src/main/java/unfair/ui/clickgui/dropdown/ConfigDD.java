@@ -52,6 +52,11 @@ public class ConfigDD {
             String newName = renameProp.getValue().trim();
             if (newName.isEmpty()) return;
             if (!newName.endsWith(".json")) newName += ".json";
+            if (newName.equalsIgnoreCase(configName)) return;
+            if (parentPanel.configExists(newName)) {
+                ChatUtil.sendFormatted("Config already exists: " + newName);
+                return;
+            }
             File oldFile = new File("./config/Unfair/", configName);
             File newFile = new File("./config/Unfair/", newName);
             if (oldFile.exists() && !newFile.exists() && oldFile.renameTo(newFile)) {

@@ -24,6 +24,10 @@ public class CreateDD {
             String name = nameProp.getValue().trim();
             if (name.isEmpty()) return;
             if (!name.endsWith(".json")) name += ".json";
+            if (parentPanel.configExists(name)) {
+                ChatUtil.sendFormatted("Config already exists: " + name);
+                return;
+            }
             new Config(name, true).save();
             parentPanel.refreshConfigs();
             ChatUtil.sendFormatted("Created config: " + name);

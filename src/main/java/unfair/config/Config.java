@@ -24,7 +24,8 @@ public class Config {
         if (name.equals("!") || name.equals("default")) {
             this.name = "default";
         }
-        this.file = new File("./config/Unfair/", String.format("%s.json", this.name));
+        String fileName = this.name.endsWith(".json") ? this.name : this.name + ".json";
+        this.file = new File("./config/Unfair/", fileName);
         try {
             file.getParentFile().mkdirs();
             if (newConfig) {

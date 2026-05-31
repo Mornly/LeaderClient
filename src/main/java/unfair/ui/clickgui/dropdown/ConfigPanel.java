@@ -11,7 +11,9 @@ import java.awt.*;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ConfigPanel {
     public float x, y;
@@ -39,7 +41,23 @@ public class ConfigPanel {
         if (!dir.exists() || !dir.isDirectory()) return;
         File[] files = dir.listFiles(JSON_FILTER);
         if (files == null) return;
-        for (File file : files) configDDs.add(new ConfigDD(file.getName(), this));
+        Set<String> seen = new HashSet<>();
+        for (File file : files) {
+            try {
+                String canonical = file.getCanonicalPath().toLowerCase();
+                if (!canonical.endsWith(".json") || seen.contains(canonical)) continue;
+                seen.add(canonical);
+                configDDs.add(new ConfigDD(file.getName(), this));
+            } catch (Exception ignored) {}
+        }
+    }
+
+    public boolean configExists(String name) {
+        if (!name.endsWith(".json")) name += ".json";
+        for (ConfigDD dd : configDDs) {
+            if (dd.configName.equals(name)) return true;
+        }
+        return false;
     }
 
     public void updateActiveConfig(String configName) {

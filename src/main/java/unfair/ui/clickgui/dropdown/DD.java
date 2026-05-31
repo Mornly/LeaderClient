@@ -34,6 +34,7 @@ public class DD {
 
     private void initSettings() {
         List<ValueItem> list = new ArrayList<>();
+        list.add(new ClientSetting(module));
         List<Property<?>> props = Unfair.propertyManager.properties.get(module.getClass());
         if (props != null) {
             for (Property<?> v : props) {
@@ -112,6 +113,19 @@ public class DD {
 
     public void mouseReleased(int mx, int my, int button) {
         for (ValueItem s : settings) s.mouseReleased(mx, my, button);
+    }
+
+    public void charTyped(char chr) {
+        for (ValueItem s : settings) {
+            if (s instanceof TextSetting) ((TextSetting) s).charTyped(chr);
+        }
+    }
+
+    public void keyPressed(int keyCode) {
+        for (ValueItem s : settings) {
+            if (s instanceof TextSetting) ((TextSetting) s).keyPressed(keyCode);
+            else if (s instanceof ClientSetting) ((ClientSetting) s).keyPressed(keyCode);
+        }
     }
 
     public float getTotalHeight() { return HEIGHT + (settingsOpen ? getSettingsHeight() : 0); }
