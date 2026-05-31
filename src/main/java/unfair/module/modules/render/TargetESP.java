@@ -380,8 +380,8 @@ public class TargetESP extends Module {
             float dst = mc.thePlayer.getDistanceToEntity(target);
             float[] pos = targetESPSPos(target, event);
             if (pos != null) {
-                float sizeBase = 128.0f;
-                float scale = MathHelper.clamp_float(sizeBase / (0.5f + dst * 0.1f), 40.0f, 240.0f);
+                float sizeBase = 96.0f;
+                float scale = MathHelper.clamp_float(sizeBase / (0.5f + dst * 0.1f), 30.0f, 180.0f);
                 drawTargetESP2D(pos[0], pos[1], scale, index);
             }
         }

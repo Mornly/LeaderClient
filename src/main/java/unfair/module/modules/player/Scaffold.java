@@ -95,6 +95,11 @@ public class Scaffold extends Module {
         super("Scaffold", false);
     }
 
+    @Override
+    public String[] getSuffix() {
+        return new String[]{rotationMode.getModeString()};
+    }
+
     private boolean shouldStopSprint() {
         if (this.isTowering()) {
             return false;

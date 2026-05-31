@@ -29,6 +29,11 @@ public class AutoL extends Module {
     }
 
     @Override
+    public String[] getSuffix() {
+        return new String[]{wordPattern.getModeString()};
+    }
+
+    @Override
     public void onEnabled() {
         enemies.clear();
     }

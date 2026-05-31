@@ -46,6 +46,11 @@ public class InvManager extends Module {
         super("InvManager", false);
     }
 
+    @Override
+    public String[] getSuffix() {
+        return new String[]{mode.getModeString()};
+    }
+
     private boolean isValidGameMode() {
         GameType gameType = mc.playerController.getCurrentGameType();
         return gameType == GameType.SURVIVAL || gameType == GameType.ADVENTURE;

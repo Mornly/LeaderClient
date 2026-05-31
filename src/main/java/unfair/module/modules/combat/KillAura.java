@@ -1023,6 +1023,4 @@ public class KillAura extends Module {
             return this.z;
         }
     }
-
-
 }

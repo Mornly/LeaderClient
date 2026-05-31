@@ -32,6 +32,11 @@ public class PartySpammer extends Module {
     }
 
     @Override
+    public String[] getSuffix() {
+        return new String[]{mode.getModeString()};
+    }
+
+    @Override
     public void onEnabled() {
         resetState();
         refreshPlayerList();
