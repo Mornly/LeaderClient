@@ -92,6 +92,11 @@ public class LagRange extends Module {
         if (this.isEnabled()) {
             switch (event.getType()) {
                 case PRE:
+                    KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
+                    if ((killAura.shouldAutoBlock() || killAura.isBlocking() && killAura.isEnabled() && killAura.getTarget() != null) && mode.getValue() == 0){
+                        Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
+                        return;
+                    }
                     Unfair.lagManager.setDelay(0);
                     this.hasTarget = false;
                     BedNuker bedNuker = (BedNuker) Unfair.moduleManager.modules.get(BedNuker.class);
@@ -138,21 +143,21 @@ public class LagRange extends Module {
                                         }
                                         if (mode.getValue() == 0){
                                             Unfair.blinkManager.setBlinkState(true, BlinkModules.BLINK);
-                                            if (Unfair.blinkManager.countMovement() > blinkTick.getValue().longValue()){
+                                            if (Unfair.blinkManager.countMovement() > blinkTick.getValue().longValue()) {
                                                 Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
                                             }
                                         }
                                         this.hasTarget = true;
                                         return;
                                     }
-                                    else {
-                                        Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
-                                    }
                                 }
                             }
                         }
                     } else {
                         this.tickIndex = -1;
+                        Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
+                    }
+                    if (!hasTarget){
                         Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
                     }
                     break;

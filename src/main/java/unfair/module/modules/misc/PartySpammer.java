@@ -1,0 +1,121 @@
+package unfair.module.modules.misc;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
+import unfair.event.EventTarget;
+import unfair.events.TickEvent;
+import unfair.event.types.EventType;
+import unfair.module.Module;
+import unfair.util.ChatUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class PartySpammer extends Module {
+    private static final Minecraft mc = Minecraft.getMinecraft();
+    private static final int TICK_DELAY = 5;
+
+    private List<String> allPlayers = new ArrayList<>();
+    private List<String> invitedThisRound = new ArrayList<>();
+    private List<String> currentBatch = new ArrayList<>();
+    private int step = 0;
+    private int tickCounter = 0;
+
+    public PartySpammer() {
+        super("PartySpammer", false);
+    }
+
+    @Override
+    public void onEnabled() {
+        resetState();
+        refreshPlayerList();
+        tickCounter = 0;
+        step = 0;
+    }
+
+    @Override
+    public void onDisabled() {
+        resetState();
+    }
+
+    private void resetState() {
+        allPlayers.clear();
+        invitedThisRound.clear();
+        currentBatch.clear();
+        step = 0;
+        tickCounter = 0;
+    }
+
+    private void refreshPlayerList() {
+        if (mc.theWorld == null) return;
+        allPlayers = mc.theWorld.playerEntities.stream()
+                .filter(entity -> entity != mc.thePlayer)
+                .map(EntityPlayer::getName)
+                .collect(Collectors.toList());
+    }
+
+    @EventTarget
+    public void onTick(TickEvent event) {
+        if (event.getType() != EventType.PRE) return;
+        if (!isEnabled()) return;
+        if (mc.thePlayer == null || mc.theWorld == null) return;
+
+        tickCounter++;
+        if (tickCounter < TICK_DELAY) return;
+        tickCounter = 0;
+
+        executeNext();
+    }
+
+    private void executeNext() {
+        if (currentBatch.isEmpty() || step >= currentBatch.size()) {
+            if (!currentBatch.isEmpty() && step == currentBatch.size()) {
+                sendCommand("/party disband");
+                step++;
+                return;
+            }
+            prepareNextBatch();
+            if (currentBatch.isEmpty()) return;
+            step = 0;
+        }
+
+        if (step < currentBatch.size()) {
+            String playerName = currentBatch.get(step);
+            sendCommand("/party invite " + playerName);
+            invitedThisRound.add(playerName);
+            step++;
+        } else if (step == currentBatch.size()) {
+            sendCommand("/party disband");
+            step++;
+        }
+    }
+
+    private void prepareNextBatch() {
+        if (allPlayers.isEmpty()) {
+            refreshPlayerList();
+            if (allPlayers.isEmpty()) return;
+        }
+
+        List<String> available = allPlayers.stream()
+                .filter(name -> !invitedThisRound.contains(name))
+                .collect(Collectors.toList());
+
+        if (available.isEmpty()) {
+            invitedThisRound.clear();
+            available = new ArrayList<>(allPlayers);
+        }
+
+        currentBatch.clear();
+        int batchSize = Math.min(4, available.size());
+        for (int i = 0; i < batchSize; i++) {
+            currentBatch.add(available.get(i));
+        }
+    }
+
+    private void sendCommand(String command) {
+        if (mc.thePlayer != null) {
+            mc.thePlayer.sendChatMessage(command);
+        }
+    }
+}
