@@ -40,6 +40,7 @@ public class AutoL extends Module {
 
     @EventTarget
     public void onAttack(AttackEvent event) {
+        if (!this.enabled) return;
         Entity target = event.getTarget();
         if (target instanceof EntityPlayer && !enemies.contains(target)) {
             enemies.add(target);
@@ -49,6 +50,7 @@ public class AutoL extends Module {
     @EventTarget
     public void onTick(TickEvent event) {
         if (event.getType() != EventType.POST) return;
+        if (!this.enabled) return;
 
         List<Entity> toRemove = new ArrayList<>();
         for (Entity entity : enemies) {
