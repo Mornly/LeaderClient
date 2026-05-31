@@ -214,6 +214,10 @@ public class Scaffold extends Module {
             }
             return;
         }
+        if (this.bbUnC()) {
+            if (this.clutchActive) this.clutchReset();
+            return;
+        }
         double fallDistance = mc.thePlayer.fallDistance;
         boolean shouldClutch = fallDistance > 2
                 && !PlayerUtil.isAirAbove()
@@ -233,11 +237,13 @@ public class Scaffold extends Module {
                 mc.thePlayer.motionY = 0.0;
                 mc.thePlayer.motionZ = 0.0;
             } else {
+                Unfair.blinkManager.setBlinkState(false, BlinkModules.BLINK);
                 BlockData blockData = this.getBlockData();
                 if (blockData != null) {
                     Vec3 hitVec = BlockUtil.getClickVec(blockData.blockPos(), blockData.facing());
                     this.place(blockData.blockPos(), blockData.facing(), hitVec);
                 }
+                Unfair.blinkManager.setBlinkState(true, BlinkModules.BLINK);
             }
         }
     }
@@ -263,6 +269,22 @@ public class Scaffold extends Module {
             }
         }
         return true;
+    }
+
+    private boolean bbUnC() {
+        if (mc.thePlayer == null) return false;
+        int playerY = MathHelper.floor_double(mc.thePlayer.posY);
+        for (int i = 1; i <= 2; i++) {
+            BlockPos checkPos = new BlockPos(
+                    MathHelper.floor_double(mc.thePlayer.posX),
+                    playerY - i,
+                    MathHelper.floor_double(mc.thePlayer.posZ)
+            );
+            if (mc.theWorld.getBlockState(checkPos).getBlock().getMaterial().isSolid()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @EventTarget(Priority.HIGH)
