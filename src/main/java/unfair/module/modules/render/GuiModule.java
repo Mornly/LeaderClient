@@ -2,13 +2,17 @@ package unfair.module.modules.render;
 
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
+import unfair.event.EventTarget;
+import unfair.events.Render2DEvent;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
+import unfair.property.properties.ModeProperty;
 import unfair.ui.clickgui.dropdown.DropDownGui;
+import unfair.ui.clickgui.panel.PanelGui;
 
 public class GuiModule extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final BooleanProperty blur = new BooleanProperty("blur", false);
+    public final ModeProperty mode = new ModeProperty("Mode", 1, new String[]{"DropDown", "Panel"});
     private DropDownGui dropDownGui;
 
     public GuiModule() {
@@ -19,9 +23,13 @@ public class GuiModule extends Module {
     @Override
     public void onEnabled() {
         setEnabled(false);
-        if (dropDownGui == null) {
-            dropDownGui = new DropDownGui();
+        if (mode.getValue() == 0) {
+            if (dropDownGui == null) dropDownGui = new DropDownGui();
+            mc.displayGuiScreen(dropDownGui);
         }
-        mc.displayGuiScreen(dropDownGui);
+
+        if (mode.getValue() == 1) {
+            mc.displayGuiScreen(new PanelGui());
+        }
     }
 }

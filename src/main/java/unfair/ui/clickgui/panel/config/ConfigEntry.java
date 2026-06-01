@@ -1,0 +1,192 @@
+package unfair.ui.clickgui.panel.config;
+
+import unfair.Unfair;
+import unfair.config.Config;
+import unfair.ui.clickgui.panel.PanelValueItem;
+import unfair.util.ChatUtil;
+import unfair.util.shader.RoundedUtils;
+
+import java.awt.*;
+import java.io.File;
+
+public class ConfigEntry extends PanelValueItem {
+    private final String configName;
+    private boolean isActive;
+    private boolean isHovering;
+
+    public static Color cardNormal = new Color(248, 250, 252);
+    public static Color cardActive = new Color(232, 240, 253);
+    public static Color cardHover = new Color(235, 242, 250);
+
+    public ConfigEntry(String configName) {
+        this.configName = configName.endsWith(".json") ? 
+            configName.substring(0, configName.length() - 5) : configName;
+        this.isActive = this.configName.equals(Config.lastConfig);
+    }
+
+    @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+    }
+
+    @Override
+    public void render(int mouseX, int mouseY) {
+        isHovering = mouseX >= x && mouseX <= x + width && 
+                     mouseY >= y && mouseY <= y + getHeight();
+
+        float cardH = getHeight();
+        
+        Color bgColor;
+        if (isActive) {
+            bgColor = cardActive;
+        } else if (isHovering) {
+            bgColor = cardHover;
+        } else {
+            bgColor = cardNormal;
+        }
+        
+        RoundedUtils.drawRound(x, y, width, cardH, 5, blendAlpha(bgColor, alpha));
+
+        float iconX = x + 12;
+        float iconY = y + (cardH - 16) / 2f;
+        Unfair.fontManager.icon16.drawString("\uf0c7", iconX, iconY + 4.5f,
+                blendAlpha(new Color(100, 110, 125), alpha).getRGB(), false);
+
+        float textX = iconX + 22;
+        float textY = y + (cardH - 14) / 2f;
+
+        int textColor = isActive ? 
+            blendAlpha(new Color(40, 90, 140), alpha).getRGB(): 
+            blendAlpha(new Color(60, 65, 75), alpha).getRGB();
+        
+        Unfair.fontManager.getFont(14).drawString(configName, textX, textY + 1.5f, textColor, false);
+
+        if (isActive) {
+            String activeTag = "Active";
+            float tagW = Unfair.fontManager.getFont(11).getStringWidth(activeTag);
+            float tagFinalX = textX + Unfair.fontManager.getFont(14).getStringWidth(configName) + 8;
+
+            RoundedUtils.drawRound(tagFinalX, textY, tagW + 10, 14, 3,
+                    blendAlpha(new Color(70, 130, 180), alpha * 0.9f));
+            Unfair.fontManager.getFont(11).drawString(activeTag, tagFinalX + 5, textY + 4.5f,
+                    blendAlpha(Color.WHITE, alpha).getRGB(), false);
+        }
+
+        float btnY = y + (cardH - 18) / 2f + 1;
+        float btnStartX = x + width - 170;
+
+        drawSmallButton(btnStartX, btnY, "Load", new Color(70, 130, 180),
+                       isBtnHovered(mouseX, mouseY, btnStartX, btnY, 40, 18));
+        drawSmallButton(btnStartX + 44, btnY, "Save", new Color(70, 130, 180),
+                       isBtnHovered(mouseX, mouseY, btnStartX + 44, btnY, 40, 18));
+        drawSmallButton(btnStartX + 88, btnY, "Delete", new Color(244, 67, 54),
+                       isBtnHovered(mouseX, mouseY, btnStartX + 88, btnY, 48, 18));
+    }
+
+    private void drawSmallButton(float bx, float by, String text, Color baseColor, boolean hovered) {
+        float btnW = text.equals("Delete") ? 48 : 40;
+        float btnH = 18;
+
+        Color color = hovered ? baseColor.brighter() : baseColor;
+        
+        RoundedUtils.drawRound(bx, by, btnW, btnH, 4, blendAlpha(color, alpha));
+
+        int font = 10;
+        float textW = Unfair.fontManager.getFont(font).getStringWidth(text);
+        Unfair.fontManager.getFont(font).drawString(text,
+                bx + (btnW - textW) / 2f, by + (btnH - font) / 2f + 2.0f,
+                blendAlpha(Color.WHITE, alpha).getRGB(), false);
+    }
+
+    private boolean isBtnHovered(int mx, int my, float bx, float by, float bw, float bh) {
+        return isHovering && mx >= bx && mx <= bx + bw && my >= by && my <= by + bh;
+    }
+
+    @Override
+    public void mouseClicked(int mx, int my, int button) {
+        if (button != 0) return;
+        
+        boolean hovering = mx >= x && mx <= x + width && my >= y && my <= y + getHeight();
+        if (!hovering) return;
+
+        float cardH = getHeight();
+        float btnY = y + (cardH - 18) / 2f + 1;
+        float btnStartX = x + width - 170;
+
+        if (isBtnHovered(mx, my, btnStartX, btnY, 40, 18)) {
+            loadConfig();
+        } else if (isBtnHovered(mx, my, btnStartX + 44, btnY, 40, 18)) {
+            saveConfig();
+        } else if (isBtnHovered(mx, my, btnStartX + 88, btnY, 48, 18)) {
+            deleteConfig();
+        }
+    }
+
+    @Override
+    public void mouseReleased(int mx, int my, int button) {}
+    
+    @Override
+    public void mouseDragged(int mx, int my, int button) {}
+
+    @Override
+    public float getHeight() { return 36; }
+
+    @Override
+    public boolean visible() { return true; }
+
+    public boolean isHovering(int mx, int my) {
+        return mx >= x && mx <= x + width && my >= y && my <= y + getHeight();
+    }
+
+    private void loadConfig() {
+        try {
+            Config config = new Config(configName, false);
+            config.load();
+            setActive(true);
+            ChatUtil.sendFormatted(Unfair.clientName + "&aLoaded: &f" + configName);
+        } catch (Exception e) {
+            ChatUtil.sendFormatted(Unfair.clientName + "&cFailed to load: &f" + configName);
+        }
+    }
+
+    private void saveConfig() {
+        try {
+            Config config = new Config(configName, false);
+            config.save();
+            setActive(true);
+            ChatUtil.sendFormatted(Unfair.clientName + "&aSaved: &f" + configName);
+        } catch (Exception e) {
+            ChatUtil.sendFormatted(Unfair.clientName + "&cFailed to save: &f" + configName);
+        }
+    }
+
+    private void deleteConfig() {
+        try {
+            File file = new File("./config/Unfair/" + configName + ".json");
+            if (file.exists()) {
+                file.delete();
+                ChatUtil.sendFormatted(Unfair.clientName + "&cDeleted: &f" + configName);
+                if (isActive) {
+                    Config defaultCfg = new Config("default", false);
+                    if (defaultCfg.file.exists()) defaultCfg.load();
+                    setActive(false);
+                }
+            }
+        } catch (Exception e) {
+            ChatUtil.sendFormatted(Unfair.clientName + "&cFailed to delete: &f" + configName);
+        }
+    }
+
+    public void setActive(boolean active) {
+        this.isActive = active;
+        if (active) Config.lastConfig = configName;
+    }
+
+    public String getConfigName() { return configName; }
+
+    public void resetAnimations() {}
+
+    private static Color blendAlpha(Color c, float a) {
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(), (int)(a * 255));
+    }
+}

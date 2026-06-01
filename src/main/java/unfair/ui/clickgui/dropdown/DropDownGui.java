@@ -19,21 +19,18 @@ public class DropDownGui extends GuiScreen {
     public float posX = 13, posY = 18;
     public float scrollY = 0;
     private final long openTime;
-    private boolean blurEnabled;
 
     public DropDownGui() {
         super();
         openTime = System.currentTimeMillis();
-        GuiModule guiModule = (GuiModule) Unfair.moduleManager.modules.get(GuiModule.class);
-        blurEnabled = guiModule != null && guiModule.blur.getValue();
 
         float offsetX = 0;
         for (Category cat : Category.values()) {
             if (cat == Category.CONFIG) continue;
-            panels.add(new Panel(cat, posX + offsetX, posY, blurEnabled));
+            panels.add(new Panel(cat, posX + offsetX, posY, false));
             offsetX += 120;
         }
-        configPanel = new ConfigPanel(posX + offsetX, posY, blurEnabled);
+        configPanel = new ConfigPanel(posX + offsetX, posY, false);
     }
 
     @Override

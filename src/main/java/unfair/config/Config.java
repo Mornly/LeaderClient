@@ -6,6 +6,7 @@ import unfair.Unfair;
 import unfair.mixin.IAccessorMinecraft;
 import unfair.module.Module;
 import unfair.property.Property;
+import unfair.management.ClientSettings;
 import unfair.util.ChatUtil;
 
 import java.io.*;
@@ -92,6 +93,36 @@ public class Config {
                     }
                 }
             }
+
+            JsonElement settingsElem = jsonObject.get("settings");
+            if (settingsElem != null && settingsElem.isJsonObject()) {
+                JsonObject settingsObj = settingsElem.getAsJsonObject();
+                if (settingsObj.has("guiSize")) {
+                    String guiSizeStr = settingsObj.get("guiSize").getAsString();
+                    for (ClientSettings.GUISize size : ClientSettings.GUISize.values()) {
+                        if (size.getDisplayName().equals(guiSizeStr)) {
+                            ClientSettings.INSTANCE.setGuiSize(size);
+                            break;
+                        }
+                    }
+                }
+                if (settingsObj.has("theme")) {
+                    String themeStr = settingsObj.get("theme").getAsString();
+                    for (ClientSettings.Theme theme : ClientSettings.Theme.values()) {
+                        if (theme.getDisplayName().equals(themeStr)) {
+                            ClientSettings.INSTANCE.setTheme(theme);
+                            break;
+                        }
+                    }
+                }
+                if (settingsObj.has("backgroundAlpha")) {
+                    ClientSettings.INSTANCE.setBackgroundAlpha(settingsObj.get("backgroundAlpha").getAsInt());
+                }
+                if (settingsObj.has("blurArea")) {
+                    ClientSettings.INSTANCE.setBlurArea(settingsObj.get("blurArea").getAsBoolean());
+                }
+            }
+
             ChatUtil.sendFormatted(String.format("%sConfig has been loaded (&a&o%s&r)&r", Unfair.clientName, file.getName()));
         } catch (FileNotFoundException e) {
             ChatUtil.sendFormatted(String.format("%sConfig file not found (&c&o%s&r)&r", Unfair.clientName, file.getName()));
@@ -129,6 +160,13 @@ public class Config {
                 }
                 object.add(module.getName(), moduleObject);
             }
+
+            JsonObject settingsObject = new JsonObject();
+            settingsObject.addProperty("guiSize", ClientSettings.INSTANCE.getGuiSize().getDisplayName());
+            settingsObject.addProperty("theme", ClientSettings.INSTANCE.getTheme().getDisplayName());
+            settingsObject.addProperty("backgroundAlpha", ClientSettings.INSTANCE.getBackgroundAlpha());
+            settingsObject.addProperty("blurArea", ClientSettings.INSTANCE.isBlurArea());
+            object.add("settings", settingsObject);
 
             PrintWriter printWriter = new PrintWriter(new FileWriter(file));
             printWriter.println(gson.toJson(object));

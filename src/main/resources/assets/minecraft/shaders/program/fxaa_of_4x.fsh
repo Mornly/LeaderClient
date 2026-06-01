@@ -133,7 +133,7 @@ FxaaFloat4 FxaaPixelShader(
     //   Due to the PS3 being ALU bound,
     //   there are only two safe values here: 1/4 and 1/8.
     //   These options use the shaders ability to a free *|/ by 2|4|8.
-    // The console setting has a different mapping than the quality setting.
+    // The console settings has a different mapping than the quality settings.
     // Other platforms can use other values.
     //   0.125 leaves less aliasing, but is softer (default!!!)
     //   0.25 leaves more aliasing, and is sharper
@@ -143,7 +143,7 @@ FxaaFloat4 FxaaPixelShader(
     // This used to be the FXAA_CONSOLE__EDGE_THRESHOLD_MIN define.
     // It is here now to allow easier tuning.
     // Trims the algorithm from processing darks.
-    // The console setting has a different mapping than the quality setting.
+    // The console settings has a different mapping than the quality settings.
     // This does not apply to PS3, 
     // PS3 was simplified to avoid more shader instructions.
     //   0.06 - faster but more aliasing in darks
