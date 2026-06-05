@@ -1117,4 +1117,174 @@ public class RenderUtil {
             this.put(62, new EnchantmentData("Lu", 3));
         }
     }
+
+    public static void drawQuads() {
+        ScaledResolution sr = new ScaledResolution(mc);
+        float w = (float) sr.getScaledWidth_double();
+        float h = (float) sr.getScaledHeight_double();
+        drawQuads(0f, 0f, w, h);
+    }
+
+    public static void drawQuads(float x, float y, float width, float height) {
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(0f, 0f);
+        GL11.glVertex2f(x, y);
+        GL11.glTexCoord2f(0f, 1f);
+        GL11.glVertex2f(x, y + height);
+        GL11.glTexCoord2f(1f, 1f);
+        GL11.glVertex2f(x + width, y + height);
+        GL11.glTexCoord2f(1f, 0f);
+        GL11.glVertex2f(x + width, y);
+        GL11.glEnd();
+    }
+
+    public static void drawQuads(float width, float height) {
+        drawQuads(0f, 0f, width, height);
+    }
+
+    public static void drawFixedQuads() {
+        ScaledResolution sr = new ScaledResolution(mc);
+        int factor = sr.getScaleFactor();
+        float width = (float) (mc.displayWidth / factor);
+        float height = (float) (mc.displayHeight / factor);
+        drawQuads(width, height);
+    }
+
+    // ========== TargetESP 所需渲染方法 ==========
+
+    public static void setupOrientationMatrix(double x, double y, double z) {
+        double renderPosX = ((IAccessorRenderManager) mc.getRenderManager()).getRenderPosX();
+        double renderPosY = ((IAccessorRenderManager) mc.getRenderManager()).getRenderPosY();
+        double renderPosZ = ((IAccessorRenderManager) mc.getRenderManager()).getRenderPosZ();
+        GlStateManager.translate(x - renderPosX, y - renderPosY, z - renderPosZ);
+    }
+
+    public static double deltaTime() {
+        return ((IAccessorMinecraft) mc).getTimer().renderPartialTicks;
+    }
+
+    public static void drawAxisAlignedBB(AxisAlignedBB axisAlignedBB, boolean filled, int color) {
+        enableRenderState();
+        setColor(color);
+        if (filled) {
+            drawFilledBoundingBox(axisAlignedBB);
+        } else {
+            drawBoundingBoxOutline(axisAlignedBB);
+        }
+        disableRenderState();
+    }
+
+    public static void drawFilledBoundingBox(AxisAlignedBB bb) {
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        worldRenderer.begin(7, DefaultVertexFormats.POSITION);
+        worldRenderer.pos(bb.minX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.minZ).endVertex();
+        tessellator.draw();
+    }
+
+    public static void drawBoundingBoxOutline(AxisAlignedBB bb) {
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        worldRenderer.begin(3, DefaultVertexFormats.POSITION);
+        worldRenderer.pos(bb.minX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.minZ).endVertex();
+        tessellator.draw();
+        worldRenderer.begin(3, DefaultVertexFormats.POSITION);
+        worldRenderer.pos(bb.minX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.minZ).endVertex();
+        tessellator.draw();
+        worldRenderer.begin(1, DefaultVertexFormats.POSITION);
+        worldRenderer.pos(bb.minX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.minZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.maxX, bb.maxY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.minY, bb.maxZ).endVertex();
+        worldRenderer.pos(bb.minX, bb.maxY, bb.maxZ).endVertex();
+        tessellator.draw();
+    }
+
+    public static void drawImage(ResourceLocation image, float x, float y, float x2, float y2, int colorTL, int colorTR, int colorBR, int colorBL) {
+        mc.getTextureManager().bindTexture(image);
+        GL11.glBegin(GL11.GL_QUADS);
+        setColor(colorTL);
+        GL11.glTexCoord2f(0, 0);
+        GL11.glVertex2f(x, y);
+        setColor(colorTR);
+        GL11.glTexCoord2f(0, 1);
+        GL11.glVertex2f(x, y2);
+        setColor(colorBR);
+        GL11.glTexCoord2f(1, 1);
+        GL11.glVertex2f(x2, y2);
+        setColor(colorBL);
+        GL11.glTexCoord2f(1, 0);
+        GL11.glVertex2f(x2, y);
+        GL11.glEnd();
+        GlStateManager.resetColor();
+    }
+
+    public static void drawImage(ResourceLocation image, double x, double y, double z, float width, float height, int colorTL, int colorTR, int colorBR, int colorBL) {
+        mc.getTextureManager().bindTexture(image);
+        GL11.glBegin(GL11.GL_QUADS);
+        setColor(colorTL);
+        GL11.glTexCoord2f(0, 0);
+        GL11.glVertex3d(x, y, z);
+        setColor(colorTR);
+        GL11.glTexCoord2f(0, 1);
+        GL11.glVertex3d(x, y + height, z);
+        setColor(colorBR);
+        GL11.glTexCoord2f(1, 1);
+        GL11.glVertex3d(x + width, y + height, z);
+        setColor(colorBL);
+        GL11.glTexCoord2f(1, 0);
+        GL11.glVertex3d(x + width, y, z);
+        GL11.glEnd();
+        GlStateManager.resetColor();
+    }
+
+    public static void drawImage(ResourceLocation image, float x, float y, float width, float height, int color) {
+        mc.getTextureManager().bindTexture(image);
+        setColor(color);
+        GL11.glBegin(GL11.GL_QUADS);
+        GL11.glTexCoord2f(0, 0);
+        GL11.glVertex2f(x, y);
+        GL11.glTexCoord2f(0, 1);
+        GL11.glVertex2f(x, y + height);
+        GL11.glTexCoord2f(1, 1);
+        GL11.glVertex2f(x + width, y + height);
+        GL11.glTexCoord2f(1, 0);
+        GL11.glVertex2f(x + width, y);
+        GL11.glEnd();
+        GlStateManager.resetColor();
+    }
 }

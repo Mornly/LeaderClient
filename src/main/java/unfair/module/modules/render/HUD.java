@@ -250,89 +250,115 @@ public class HUD extends Module {
                 float currentY = y;
                 float yDir = (this.posY.getValue() == 0) ? 1.0F : -1.0F;
 
+                ScaledResolution sr = new ScaledResolution(mc);
+                float scaledWidth = sr.getScaledWidth() / this.scale.getValue();
+                float scaledHeight = sr.getScaledHeight() / this.scale.getValue();
+                boolean alignLeft = this.posX.getValue() == 0;
+                boolean alignTop = this.posY.getValue() == 0;
+                float startX = alignLeft ? this.offsetX.getValue() : scaledWidth - this.offsetX.getValue();
+                float startY = alignTop ? this.offsetY.getValue() : scaledHeight - this.offsetY.getValue();
+
                 List<Module> renderList = this.activeModules;
 
                 for (Module module : renderList) {
                     String moduleName = this.getModuleName(module);
                     String[] moduleSuffix = this.getModuleSuffix(module);
-                    int fullWidthPx = this.calculateStringWidth(moduleName, moduleSuffix);
-                    float fullWidth = fullWidthPx;
-                    float targetSlide = module.isEnabled() ? fullWidth : 0.0F;
+                    float textWidth = mc.fontRendererObj.getStringWidth(moduleName);
+                    float totalWidth = textWidth;
+                    if (this.suffixes.getValue() && moduleSuffix.length > 0) {
+                        for (String s : moduleSuffix) {
+                            totalWidth += SUFFIX_GAP + mc.fontRendererObj.getStringWidth(s);
+                        }
+                    }
+
+                    float targetSlide = module.isEnabled() ? totalWidth : 0.0F;
                     float currentSlide = this.animationMap.getOrDefault(module, 0.0F);
                     currentSlide = animateSmooth(targetSlide, currentSlide, 15.0F, deltaTime);
-                    currentSlide = Math.max(0.0F, Math.min(fullWidth, currentSlide));
+                    currentSlide = Math.max(0.0F, Math.min(totalWidth, currentSlide));
                     this.animationMap.put(module, currentSlide);
-                    float heightFactor = (fullWidth > 0.0F) ? (currentSlide / fullWidth) : 0.0F;
+                    float heightFactor = (totalWidth > 0.0F) ? (currentSlide / totalWidth) : 0.0F;
                     float effectiveHeight = rowHeight * heightFactor;
                     if (currentSlide <= 0.1F) {
                         offset++;
                         continue;
                     }
-                    float totalWidth = fullWidthPx - (this.shadow.getValue() ? 0 : 1);
+
+                    float totalModuleWidth = barSize + padX * 2 + totalWidth;
+                    float xSlideAmount = (1.0F - heightFactor) * (totalModuleWidth + 5.0F);
+                    float currentX = startX + (alignLeft ? -xSlideAmount : xSlideAmount);
+
+                    float moduleLeft, moduleRight, textRenderX;
+                    if (alignLeft) {
+                        moduleLeft = currentX;
+                        moduleRight = currentX + totalModuleWidth;
+                        textRenderX = moduleLeft + barSize + padX;
+                    } else {
+                        moduleRight = currentX;
+                        moduleLeft = currentX - totalModuleWidth;
+                        textRenderX = moduleLeft + padX;
+                    }
+
+                    float drawY = alignTop ? currentY : currentY - rowHeight;
                     int color = this.getColor(l, offset).getRGB();
-
-                    boolean alignLeft = this.posX.getValue() == 0;
-                    boolean alignTop = this.posY.getValue() == 0;
-
-                    float shiftAmount = (this.posX.getValue() == 0) ? -(fullWidth - currentSlide) : (fullWidth - currentSlide);
-                    float newX = x + shiftAmount;
+                    int animatedColor = color;
+                    if (heightFactor < 1.0F) {
+                        int alpha = Math.max(0, Math.min(255, (int) (heightFactor * 255.0F)));
+                        animatedColor = (color & 0x00FFFFFF) | (alpha << 24);
+                    }
 
                     RenderUtil.enableRenderState();
                     if (this.background.getValue() > 0 && heightFactor > 0.02F) {
                         Color bgCol = new Color(this.backgroundColor.getValue());
                         int alpha = (int) (heightFactor * this.background.getValue().floatValue() / 100.0F * 255.0F);
                         alpha = Math.min(255, Math.max(0, alpha));
-                        int finalColor = (bgCol.getRGB() & 0x00FFFFFF) | (alpha << 24);
-                        float textLeft = newX / this.scale.getValue() - (alignLeft ? 0.0F : totalWidth);
-                        float textRight = textLeft + totalWidth;
-                        float left = textLeft - padX;
-                        float right = textRight + padX;
-                        float top = currentY / this.scale.getValue();
-                        float bottom = currentY / this.scale.getValue() + effectiveHeight;
-                        RenderUtil.drawRect(left, top, right, bottom, finalColor);
+                        int bgColor = (bgCol.getRGB() & 0x00FFFFFF) | (alpha << 24);
+                        RenderUtil.drawRect(moduleLeft, drawY, moduleRight, drawY + rowHeight, bgColor);
                     }
+
                     if (this.showBar.getValue() && heightFactor > 0.02F) {
-                        int barAlpha = (int) (heightFactor * 255.0F);
-                        barAlpha = Math.min(barAlpha, 255);
+                        int barAlpha = Math.min(255, (int) (heightFactor * 255.0F));
                         int barColor = (color & 0x00FFFFFF) | (barAlpha << 24);
-                        float barLeft = newX / this.scale.getValue() + (alignLeft ? -3.0F : 1.0F);
-                        float barRight = newX / this.scale.getValue() + (alignLeft ? -2.0F : 2.0F);
-                        float barTop = currentY / this.scale.getValue() + this.barHeight.getValue();
-                        float barBottom = currentY / this.scale.getValue() + effectiveHeight - this.barHeight.getValue();
-                        RenderUtil.drawRect(barLeft, barTop, barRight, barBottom, barColor);
+                        if (alignLeft) {
+                            RenderUtil.drawRect(moduleLeft, drawY + this.barHeight.getValue(), moduleLeft + BAR_WIDTH, drawY + rowHeight - this.barHeight.getValue(), barColor);
+                        } else {
+                            RenderUtil.drawRect(moduleRight - BAR_WIDTH, drawY + this.barHeight.getValue(), moduleRight, drawY + rowHeight - this.barHeight.getValue(), barColor);
+                        }
                     }
                     RenderUtil.disableRenderState();
+
                     GlStateManager.disableDepth();
                     if (heightFactor > 0.05F) {
                         GlStateManager.enableBlend();
                         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                        float textX = newX / this.scale.getValue() + (alignLeft ? padX : -(totalWidth + padX));
-                        float textYBase = currentY / this.scale.getValue() + padY;
+                        float textY = drawY + padY + TEXT_Y_OFFSET;
+                        float currentTextX = textRenderX;
+
                         if (this.shadow.getValue()) {
-                            mc.fontRendererObj.drawStringWithShadow(moduleName, textX, textYBase, color);
+                            mc.fontRendererObj.drawStringWithShadow(moduleName, currentTextX, textY, animatedColor);
                         } else {
-                            mc.fontRendererObj.drawString(moduleName, textX, textYBase + (alignTop ? 0.0F : 1.0F), color, false);
+                            mc.fontRendererObj.drawString(moduleName, currentTextX, textY + (alignTop ? 0.0F : 1.0F), animatedColor, false);
                         }
+                        currentTextX += textWidth;
+
                         if (this.suffixes.getValue() && moduleSuffix.length > 0 && heightFactor > 0.5F) {
-                            float width = (float) mc.fontRendererObj.getStringWidth(moduleName) + 3.0F;
-                            int suffixAlpha = (int) (((heightFactor - 0.5F) / 0.5F) * 255.0F);
-                            suffixAlpha = Math.min(suffixAlpha, 255);
-                            int suffixColor = ChatColors.GRAY.toAwtColor() & 0x00FFFFFF | (suffixAlpha << 24);
-                            for (String string : moduleSuffix) {
-                                float suffixX = textX + width;
+                            int suffixAlpha = Math.min(255, (int) (((heightFactor - 0.5F) / 0.5F) * 255.0F));
+                            int suffixColor = (ChatColors.GRAY.toAwtColor() & 0x00FFFFFF) | (suffixAlpha << 24);
+                            for (String suffix : moduleSuffix) {
+                                currentTextX += SUFFIX_GAP;
                                 if (this.shadow.getValue()) {
-                                    mc.fontRendererObj.drawStringWithShadow(string, suffixX, textYBase, suffixColor);
+                                    mc.fontRendererObj.drawStringWithShadow(suffix, currentTextX, textY, suffixColor);
                                 } else {
-                                    mc.fontRendererObj.drawString(string, suffixX, textYBase + (alignTop ? 0.0F : 1.0F), suffixColor, false);
+                                    mc.fontRendererObj.drawString(suffix, currentTextX, textY + (alignTop ? 0.0F : 1.0F), suffixColor, false);
                                 }
-                                width += (float) mc.fontRendererObj.getStringWidth(string) + (this.shadow.getValue() ? 3.0F : 2.0F);
+                                currentTextX += mc.fontRendererObj.getStringWidth(suffix);
                             }
                         }
                         GlStateManager.disableBlend();
                     }
-                    currentY += effectiveHeight * this.scale.getValue() * yDir;
+                    currentY += alignTop ? effectiveHeight : -effectiveHeight;
                     offset++;
                 }
+
                 if (this.blinkTimer.getValue()) {
                     BlinkModules blinkingModule = Unfair.blinkManager.getBlinkingModule();
                     if (blinkingModule != BlinkModules.NONE && blinkingModule != BlinkModules.AUTO_BLOCK) {
@@ -400,7 +426,7 @@ public class HUD extends Module {
                         continue;
                     }
                     float barSize = this.showBar.getValue() ? BAR_WIDTH : 0.0F;
-                    float totalModuleWidth = barSize + padX + textWidth + padX;
+                    float totalModuleWidth = barSize + padX * 2 + fullWidth;
                     float xSlideAmount = (1.0F - heightFactor) * (totalModuleWidth + 5.0F);
                     float currentX = startX + (alignLeft ? -xSlideAmount : xSlideAmount);
                     float moduleLeft, moduleRight, textRenderX;
