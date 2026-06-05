@@ -7,6 +7,7 @@ import unfair.Unfair;
 import unfair.module.Module;
 import unfair.module.modules.render.HUD;
 import unfair.util.KeyBindUtil;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -23,14 +24,14 @@ public class ClientSetting extends ValueItem {
     public void render(int mouseX, int mouseY) {
         int fontSize = 17;
         String hiddenLabel = module.isHidden() ? "Hidden" : "hide";
-        int hiddenColor = module.isHidden() ? Color.WHITE.getRGB() : new Color(100, 100, 105).getRGB();
+        int hiddenColor = module.isHidden() ? ClientSettings.INSTANCE.getTextEnabledColor().getRGB() : ClientSettings.INSTANCE.getTextDisabledColor().getRGB();
         Unfair.fontManager.getFont(fontSize).drawString(hiddenLabel, x, y - 1, hiddenColor, false);
 
         String keyName = listening ? "..." : KeyBindUtil.getKeyName(module.getKey());
         String display = "[" + keyName + "]";
         float textWidth = Unfair.fontManager.getFont(fontSize).getStringWidth(display);
         float textX = x + (width - textWidth);
-        int color = listening ? getHud().getColor(System.currentTimeMillis()).getRGB() : new Color(160, 160, 165).getRGB();
+        int color = listening ? getHud().getColor(System.currentTimeMillis()).getRGB() : ClientSettings.INSTANCE.getTextDisabledColor().getRGB();
         Unfair.fontManager.getFont(fontSize).drawString(display, textX, y - 1, color, false);
     }
 

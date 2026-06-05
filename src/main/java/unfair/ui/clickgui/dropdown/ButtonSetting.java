@@ -3,6 +3,7 @@ package unfair.ui.clickgui.dropdown;
 import unfair.module.modules.render.HUD;
 import unfair.Unfair;
 import unfair.util.RenderUtil;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -28,13 +29,13 @@ public class ButtonSetting extends ValueItem {
             Color c = hud.getColor(System.currentTimeMillis());
             bgColor = new Color(c.getRed(), c.getGreen(), c.getBlue(), 50).getRGB();
         } else {
-            bgColor = new Color(40, 40, 45).getRGB();
+            bgColor = ClientSettings.INSTANCE.getButtonNormalColor().getRGB();
         }
         RenderUtil.drawRect(x, y, x + width, y + 12, bgColor);
 
         float textWidth = Unfair.fontManager.getFont(15).getStringWidth(label);
         float textX = x + (width - textWidth) / 2;
-        int textColor = hover ? getHud().getColor(System.currentTimeMillis()).getRGB() : new Color(160, 160, 165).getRGB();
+        int textColor = hover ? getHud().getColor(System.currentTimeMillis()).getRGB() : ClientSettings.INSTANCE.getTextDisabledColor().getRGB();
         Unfair.fontManager.getFont(15).drawString(label, textX, y + 1, textColor, false);
     }
 

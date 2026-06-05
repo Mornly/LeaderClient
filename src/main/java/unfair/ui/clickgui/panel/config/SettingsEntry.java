@@ -19,16 +19,6 @@ public class SettingsEntry extends PanelValueItem {
     private float toggleAnim = 0f;
     private float sliderDisplayAlpha = 0f;
     
-    private static final Color BG_COLOR = new Color(255, 255, 255);
-    private static final Color BG_HOVER = new Color(242, 248, 255);
-    private static final Color TEXT_COLOR = new Color(35, 45, 60);
-    private static final Color VALUE_COLOR = new Color(70, 130, 180);
-    private static final Color SLIDER_TRACK = new Color(210, 215, 225);
-    private static final Color SLIDER_FILL = new Color(70, 130, 180);
-    private static final Color SLIDER_DOT = new Color(255, 255, 255);
-    private static final Color TOGGLE_OFF = new Color(200, 204, 210);
-    private static final Color TOGGLE_ON = new Color(70, 130, 180);
-    
     public enum SettingsType {
         GUI_SIZE,
         THEME,
@@ -82,11 +72,11 @@ public class SettingsEntry extends PanelValueItem {
         float entryHeight = getHeight();
         hovered = isHovering(mouseX, mouseY, x, y, width, entryHeight);
         
-        Color bgColor = blendColor(BG_COLOR, BG_HOVER, hoverAnim);
+        Color bgColor = blendColor(ClientSettings.INSTANCE.getEntryBgColor(), ClientSettings.INSTANCE.getEntryHoverColor(), hoverAnim);
         RoundedUtils.drawRound(x, y, width, entryHeight, 5, blendAlpha(bgColor, alpha));
         
         Unfair.fontManager.getFont(14).drawString(name, x + 12, y + 8, 
-                blendAlpha(TEXT_COLOR, alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), alpha).getRGB(), false);
         
         if (type == SettingsType.BACKGROUND_ALPHA) {
             drawSlider(mouseX);
@@ -96,7 +86,7 @@ public class SettingsEntry extends PanelValueItem {
             String valueText = getValueText();
             float textW = Unfair.fontManager.getFont(13).getStringWidth(valueText);
             Unfair.fontManager.getFont(13).drawString(valueText, x + width - textW - 12, y + 9, 
-                    blendAlpha(VALUE_COLOR, alpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getEntryValueColor(), alpha).getRGB(), false);
         }
     }
 
@@ -108,17 +98,17 @@ public class SettingsEntry extends PanelValueItem {
         float sliderH = 4;
 
         RoundedUtils.drawRound(sliderX, sliderY, sliderW, sliderH, 2,
-                blendAlpha(SLIDER_TRACK, alpha));
+                blendAlpha(ClientSettings.INSTANCE.getSliderTrackColor(), alpha));
 
         float fillW = (alphaVal / 255f) * sliderW;
         if (fillW > 0) {
             RoundedUtils.drawRound(sliderX, sliderY, fillW, sliderH, 2,
-                    blendAlpha(SLIDER_FILL, alpha));
+                    blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha));
         }
 
         float dotSize = 10 + sliderDisplayAlpha * 4;
         float dotX = sliderX + fillW;
-        Color dotColor = blendColor(SLIDER_FILL, SLIDER_DOT, sliderDisplayAlpha);
+        Color dotColor = blendColor(ClientSettings.INSTANCE.getAccentColor(), ClientSettings.INSTANCE.getCardColor(), sliderDisplayAlpha);
         RoundedUtils.drawRound(dotX - dotSize / 2f, sliderY + (sliderH - dotSize) / 2f,
                 dotSize, dotSize, dotSize / 2f, blendAlpha(dotColor, alpha));
 
@@ -137,7 +127,7 @@ public class SettingsEntry extends PanelValueItem {
         float toggleX = x + width - toggleW - 12;
         float toggleY = y + (getHeight() - toggleH) / 2f;
 
-        Color trackColor = blendColor(TOGGLE_OFF, TOGGLE_ON, toggleAnim);
+        Color trackColor = blendColor(ClientSettings.INSTANCE.getToggleOffColor(), ClientSettings.INSTANCE.getAccentColor(), toggleAnim);
         RoundedUtils.drawRound(toggleX, toggleY, toggleW, toggleH, toggleH / 2f,
                 blendAlpha(trackColor, alpha));
 
@@ -145,7 +135,7 @@ public class SettingsEntry extends PanelValueItem {
         float dotX = toggleX + 2 + toggleAnim * (toggleW - dotSize - 4);
         float dotY = toggleY + 2;
         RoundedUtils.drawRound(dotX, dotY, dotSize, dotSize, dotSize / 2f,
-                blendAlpha(Color.WHITE, alpha));
+                blendAlpha(ClientSettings.INSTANCE.getCardColor(), alpha));
     }
     
     private String getValueText() {

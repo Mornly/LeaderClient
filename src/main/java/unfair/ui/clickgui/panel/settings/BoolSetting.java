@@ -3,6 +3,7 @@ package unfair.ui.clickgui.panel.settings;
 import unfair.property.properties.BooleanProperty;
 import unfair.Unfair;
 import unfair.ui.clickgui.panel.PanelValueItem;
+import unfair.management.ClientSettings;
 import unfair.util.shader.RoundedUtils;
 
 import java.awt.*;
@@ -18,14 +19,19 @@ public class BoolSetting extends PanelValueItem {
 
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
+        setTargetVisibility(visible());
         float target = value.getValue() ? 1f : 0f;
         animProgress = lerp(animProgress, target, 0.15f, deltaTime);
     }
 
     @Override
     public void render(int mouseX, int mouseY) {
+        float visAlpha = getVisibilityAlpha();
+        if (visAlpha < 0.01f) return;
+
         Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 2,
-                blendAlpha(new Color(80, 90, 105), alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
         float toggleW = 24;
         float toggleH = 12;
@@ -36,23 +42,20 @@ public class BoolSetting extends PanelValueItem {
         float toggleX = x + width - toggleW;
         float toggleY = y + 1;
 
-        Color trackColorOff = new Color(200, 204, 210);
-        Color trackColorOn = new Color(70, 130, 180);
-
         if (alpha < 0.01f) return;
 
         if (animProgress < 0.5f) {
             RoundedUtils.drawRound(toggleX, toggleY, toggleW, toggleH, toggleH / 2f,
-                    blendAlpha(trackColorOff, alpha * (1 - animProgress * 2)));
+                    blendAlpha(ClientSettings.INSTANCE.getToggleOffColor(), alpha * visAlpha * (1 - animProgress * 2)));
         }
         if (animProgress > 0.0f) {
             RoundedUtils.drawRound(toggleX, toggleY, toggleW, toggleH, toggleH / 2f,
-                    blendAlpha(trackColorOn, alpha * Math.min(animProgress * 2, 1f)));
+                    blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha * Math.min(animProgress * 2, 1f)));
         }
 
         float dotX = toggleX + padding + animProgress * (maxDotX - padding);
         RoundedUtils.drawRound(dotX, toggleY + padding, dotSize, dotSize, dotSize / 2f,
-                blendAlpha(Color.WHITE, alpha));
+                blendAlpha(ClientSettings.INSTANCE.getCardColor(), alpha * visAlpha));
     }
 
     @Override
