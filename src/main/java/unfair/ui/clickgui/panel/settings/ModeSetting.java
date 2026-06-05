@@ -1,11 +1,10 @@
 package unfair.ui.clickgui.panel.settings;
 
-import net.minecraft.client.Minecraft;
 import unfair.property.properties.ModeProperty;
 import unfair.Unfair;
 import unfair.ui.clickgui.panel.PanelValueItem;
-import unfair.util.shader.RoundedUtils;
 import unfair.management.ClientSettings;
+import unfair.util.shader.RoundedUtils;
 import unfair.util.RenderUtil;
 
 import org.lwjgl.opengl.GL11;
@@ -77,6 +76,8 @@ public class ModeSetting extends PanelValueItem {
 
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
+        setTargetVisibility(visible());
         float target = expanded ? 1f : 0f;
         expandAnim = lerp(expandAnim, target, 0.18f, deltaTime);
 
@@ -113,8 +114,11 @@ public class ModeSetting extends PanelValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
+        float visAlpha = getVisibilityAlpha();
+        if (visAlpha < 0.01f) return;
+
         Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 2,
-                blendAlpha(new Color(80, 90, 105), alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
         String[] modes = value.getModes();
         if (modes.length == 0) return;
@@ -138,8 +142,8 @@ public class ModeSetting extends PanelValueItem {
         float hoverTarget = hovering ? 1f : 0f;
         hoverAnim = lerp(hoverAnim, hoverTarget, 0.15f, 0.016f);
 
-        Color bgColor = blendColor(new Color(240, 243, 247), new Color(225, 230, 238), hoverAnim);
-        RoundedUtils.drawRound(panelX, panelY, totalW, btnH, 4, blendAlpha(bgColor, alpha));
+        Color bgColor = blendColor(ClientSettings.INSTANCE.getModeBgNormalColor(), ClientSettings.INSTANCE.getModeBgHoverColor(), hoverAnim);
+        RoundedUtils.drawRound(panelX, panelY, totalW, btnH, 4, blendAlpha(bgColor, alpha * visAlpha));
 
         if (currentExpandW > 1 && textAlpha > 0.01f) {
             float scrollOffset = modeScrollOffset;
@@ -169,19 +173,19 @@ public class ModeSetting extends PanelValueItem {
                                    mouseY >= panelY && mouseY <= panelY + btnH;
 
                 if (selected || itemHover) {
-                    Color hlColor = selected ? new Color(235, 242, 252) : new Color(245, 247, 250);
+                    Color hlColor = selected ? ClientSettings.INSTANCE.getModeItemSelectedColor() : ClientSettings.INSTANCE.getModeItemHoverColor();
                     RoundedUtils.drawRound(modeX + 2, panelY + 2, itemW - 4, btnH - 4, 3,
-                            blendAlpha(hlColor, alpha * textAlpha));
+                            blendAlpha(hlColor, alpha * textAlpha * visAlpha));
                 }
 
-                Color tc = selected ? new Color(70, 130, 180) : new Color(85, 95, 110);
+                Color tc = selected ? ClientSettings.INSTANCE.getAccentColor() : ClientSettings.INSTANCE.getModeTextNormalColor();
                 String modeText = modes[i];
                 float modeTextW = Unfair.fontManager.getFont(11).getStringWidth(modeText);
                 float textPosX = modeX + (itemW - modeTextW) / 2f;
                 float textPosY = panelY + (btnH - 11) / 2f + 1;
 
                 Unfair.fontManager.getFont(11).drawString(modeText, textPosX, textPosY,
-                        blendAlpha(tc, alpha * textAlpha).getRGB(), false);
+                        blendAlpha(tc, alpha * textAlpha * visAlpha).getRGB(), false);
             }
 
             GL11.glPopAttrib();
@@ -195,16 +199,16 @@ public class ModeSetting extends PanelValueItem {
             float tipY = panelY + btnH + 3;
 
             RoundedUtils.drawRound(tipX, tipY, tipW, tipH, 3,
-                    blendAlpha(new Color(30, 35, 45), alpha * tipAlpha * 0.85f));
+                    blendAlpha(ClientSettings.INSTANCE.getTipBgColor(), alpha * tipAlpha * visAlpha * 0.85f));
             Unfair.fontManager.getFont(10).drawString(tipText,
                     tipX + (tipW - Unfair.fontManager.getFont(10).getStringWidth(tipText)) / 2f,
                     tipY + (tipH - 10) / 2f + 1.5f,
-                    blendAlpha(new Color(200, 205, 215), alpha * tipAlpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getTipTextColor(), alpha * tipAlpha * visAlpha).getRGB(), false);
         }
 
         Unfair.fontManager.getFont(font).drawString(selectedText,
                 btnX + (btnW - textW) / 2f, panelY + (btnH - font) / 2f + 1,
-                blendAlpha(new Color(70, 130, 180), alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha).getRGB(), false);
     }
 
     @Override

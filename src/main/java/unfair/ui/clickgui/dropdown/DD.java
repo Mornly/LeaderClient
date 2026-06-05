@@ -8,6 +8,7 @@ import unfair.property.Property;
 import unfair.property.properties.*;
 import unfair.util.RenderUtil;
 import unfair.util.shader.BlurUtils;
+import unfair.management.ClientSettings;
 
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
@@ -67,9 +68,9 @@ public class DD {
         float textX = x + (width - textWidth) / 2;
 
         if (module.isEnabled()) {
-            drawString(name, textX, y + 3, Color.WHITE.getRGB(), fontSize, false);
+            drawString(name, textX, y + 3, ClientSettings.INSTANCE.getTextEnabledColor().getRGB(), fontSize, false);
         } else {
-            drawString(name, textX, y + 3, new Color(130, 130, 135).getRGB(), fontSize, false);
+            drawString(name, textX, y + 3, ClientSettings.INSTANCE.getTextDisabledColor().getRGB(), fontSize, false);
         }
 
         if (settingsOpen && hasVisibleSettings()) {
@@ -81,10 +82,10 @@ public class DD {
 
             if (blurEnabled) {
                 BlurUtils.prepareBlur();
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, new Color(0, 0, 0, 110).getRGB());
+                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
                 BlurUtils.blurEnd(2, 3f);
             } else {
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, new Color(0, 0, 0, 110).getRGB());
+                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
             }
 
             float settingY = y + HEIGHT;

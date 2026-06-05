@@ -4,6 +4,7 @@ import unfair.module.modules.render.HUD;
 import unfair.property.properties.ModeProperty;
 import unfair.Unfair;
 import unfair.util.RenderUtil;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -18,7 +19,7 @@ public class ModeSetting extends ValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
-        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y + 1, new Color(160, 160, 160).getRGB(), false);
+        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y + 1, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
 
         String modeText = value.getModeString();
         float textWidth = Unfair.fontManager.getFont(17).getStringWidth(modeText);

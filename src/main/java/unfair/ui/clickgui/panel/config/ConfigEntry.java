@@ -2,6 +2,7 @@ package unfair.ui.clickgui.panel.config;
 
 import unfair.Unfair;
 import unfair.config.Config;
+import unfair.management.ClientSettings;
 import unfair.ui.clickgui.panel.PanelValueItem;
 import unfair.util.ChatUtil;
 import unfair.util.shader.RoundedUtils;
@@ -13,10 +14,6 @@ public class ConfigEntry extends PanelValueItem {
     private final String configName;
     private boolean isActive;
     private boolean isHovering;
-
-    public static Color cardNormal = new Color(248, 250, 252);
-    public static Color cardActive = new Color(232, 240, 253);
-    public static Color cardHover = new Color(235, 242, 250);
 
     public ConfigEntry(String configName) {
         this.configName = configName.endsWith(".json") ? 
@@ -36,6 +33,10 @@ public class ConfigEntry extends PanelValueItem {
 
         float cardH = getHeight();
         
+        Color cardNormal = ClientSettings.INSTANCE.getCardColor();
+        Color cardActive = ClientSettings.INSTANCE.getEntryActiveColor();
+        Color cardHover = ClientSettings.INSTANCE.getEntryHoverColor();
+        
         Color bgColor;
         if (isActive) {
             bgColor = cardActive;
@@ -50,14 +51,14 @@ public class ConfigEntry extends PanelValueItem {
         float iconX = x + 12;
         float iconY = y + (cardH - 16) / 2f;
         Unfair.fontManager.icon16.drawString("\uf0c7", iconX, iconY + 4.5f,
-                blendAlpha(new Color(100, 110, 125), alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getEntryIconColor(), alpha).getRGB(), false);
 
         float textX = iconX + 22;
         float textY = y + (cardH - 14) / 2f;
 
         int textColor = isActive ? 
-            blendAlpha(new Color(40, 90, 140), alpha).getRGB(): 
-            blendAlpha(new Color(60, 65, 75), alpha).getRGB();
+            blendAlpha(ClientSettings.INSTANCE.getEntryValueColor(), alpha).getRGB(): 
+            blendAlpha(ClientSettings.INSTANCE.getConfigNameInactiveColor(), alpha).getRGB();
         
         Unfair.fontManager.getFont(14).drawString(configName, textX, textY + 1.5f, textColor, false);
 
@@ -67,19 +68,19 @@ public class ConfigEntry extends PanelValueItem {
             float tagFinalX = textX + Unfair.fontManager.getFont(14).getStringWidth(configName) + 8;
 
             RoundedUtils.drawRound(tagFinalX, textY, tagW + 10, 14, 3,
-                    blendAlpha(new Color(70, 130, 180), alpha * 0.9f));
+                    blendAlpha(ClientSettings.INSTANCE.getButtonPrimaryColor(), alpha * 0.9f));
             Unfair.fontManager.getFont(11).drawString(activeTag, tagFinalX + 5, textY + 4.5f,
-                    blendAlpha(Color.WHITE, alpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getCardColor(), alpha).getRGB(), false);
         }
 
         float btnY = y + (cardH - 18) / 2f + 1;
         float btnStartX = x + width - 170;
 
-        drawSmallButton(btnStartX, btnY, "Load", new Color(70, 130, 180),
+        drawSmallButton(btnStartX, btnY, "Load", ClientSettings.INSTANCE.getButtonPrimaryColor(),
                        isBtnHovered(mouseX, mouseY, btnStartX, btnY, 40, 18));
-        drawSmallButton(btnStartX + 44, btnY, "Save", new Color(70, 130, 180),
+        drawSmallButton(btnStartX + 44, btnY, "Save", ClientSettings.INSTANCE.getButtonPrimaryColor(),
                        isBtnHovered(mouseX, mouseY, btnStartX + 44, btnY, 40, 18));
-        drawSmallButton(btnStartX + 88, btnY, "Delete", new Color(244, 67, 54),
+        drawSmallButton(btnStartX + 88, btnY, "Delete", ClientSettings.INSTANCE.getButtonDangerColor(),
                        isBtnHovered(mouseX, mouseY, btnStartX + 88, btnY, 48, 18));
     }
 
@@ -95,7 +96,7 @@ public class ConfigEntry extends PanelValueItem {
         float textW = Unfair.fontManager.getFont(font).getStringWidth(text);
         Unfair.fontManager.getFont(font).drawString(text,
                 bx + (btnW - textW) / 2f, by + (btnH - font) / 2f + 2.0f,
-                blendAlpha(Color.WHITE, alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getCardColor(), alpha).getRGB(), false);
     }
 
     private boolean isBtnHovered(int mx, int my, float bx, float by, float bw, float bh) {

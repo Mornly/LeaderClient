@@ -4,6 +4,7 @@ import unfair.module.modules.render.HUD;
 import unfair.property.properties.ColorProperty;
 import unfair.Unfair;
 import unfair.util.RenderUtil;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -25,7 +26,7 @@ public class ColorSetting extends ValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
-        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y + 3, new Color(160, 160, 160).getRGB(), false);
+        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y + 3, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
 
         int rgb = opaque(value.getValue());
         RenderUtil.drawRect(x + width - 15, y + 3, x + width - 3, y + 13, rgb);
@@ -50,7 +51,7 @@ public class ColorSetting extends ValueItem {
         float pickerSize = Math.max(60, width - 16);
         float hueBarHeight = 6;
 
-        RenderUtil.drawRect(pickerX, pickerY, pickerX + pickerSize, pickerY + pickerSize, new Color(25, 25, 28).getRGB());
+        RenderUtil.drawRect(pickerX, pickerY, pickerX + pickerSize, pickerY + pickerSize, ClientSettings.INSTANCE.getPickerBgColor().getRGB());
 
         float currentHue = cachedHue;
         for (int py = 0; py < (int)pickerSize; py += 3) {

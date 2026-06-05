@@ -6,6 +6,7 @@ import unfair.Unfair;
 import unfair.module.modules.render.HUD;
 import unfair.util.RenderUtil;
 import unfair.util.shader.BlurUtils;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 import java.io.File;
@@ -87,10 +88,10 @@ public class ConfigPanel {
 
         if (blurEnabled && contentHeight > 0) {
             BlurUtils.prepareBlur();
-            RenderUtil.drawRect(x, panelY + ph, x + pw, panelY + ph + contentHeight, new Color(0, 0, 0, 90).getRGB());
+            RenderUtil.drawRect(x, panelY + ph, x + pw, panelY + ph + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
             BlurUtils.blurEnd(2, 3f);
         } else {
-            RenderUtil.drawRect(x, panelY + ph, x + pw, panelY + ph + contentHeight, new Color(0, 0, 0, 90).getRGB());
+            RenderUtil.drawRect(x, panelY + ph, x + pw, panelY + ph + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
         }
 
         GlStateManager.enableBlend();

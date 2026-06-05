@@ -5,6 +5,7 @@ import unfair.config.Config;
 import unfair.util.RenderUtil;
 import unfair.util.ChatUtil;
 import unfair.util.shader.BlurUtils;
+import unfair.management.ClientSettings;
 import unfair.property.properties.TextProperty;
 
 import java.awt.*;
@@ -89,7 +90,7 @@ public class ConfigDD {
         float textX = x + (width - textWidth) / 2;
 
         Unfair.fontManager.getFont(fontSize).drawString(displayName, textX, y + 2,
-                active ? Color.WHITE.getRGB() : new Color(130, 130, 135).getRGB(), false);
+                active ? ClientSettings.INSTANCE.getTextEnabledColor().getRGB() : ClientSettings.INSTANCE.getTextDisabledColor().getRGB(), false);
 
         if (settingsOpen && hasVisibleSettings()) {
             float totalSettingsHeight = 0;
@@ -98,13 +99,12 @@ public class ConfigDD {
             }
             if (totalSettingsHeight > 0) totalSettingsHeight -= 3;
 
-            boolean blur = parentPanel.isBlurEnabled();
-            if (blur) {
+            if (parentPanel.isBlurEnabled()) {
                 BlurUtils.prepareBlur();
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, new Color(0, 0, 0, 110).getRGB());
+                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
                 BlurUtils.blurEnd(2, 3f);
             } else {
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, new Color(0, 0, 0, 110).getRGB());
+                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
             }
 
             float settingY = y + HEIGHT;

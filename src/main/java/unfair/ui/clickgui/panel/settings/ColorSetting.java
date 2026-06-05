@@ -3,6 +3,7 @@ package unfair.ui.clickgui.panel.settings;
 import unfair.property.properties.ColorProperty;
 import unfair.Unfair;
 import unfair.ui.clickgui.panel.PanelValueItem;
+import unfair.management.ClientSettings;
 import unfair.util.shader.RoundedUtils;
 
 import java.awt.*;
@@ -33,6 +34,8 @@ public class ColorSetting extends PanelValueItem {
 
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
+        setTargetVisibility(visible());
         if (expanded) {
             expandAnim = lerp(expandAnim, 1f, 0.18f, deltaTime);
             if (expandAnim > 0.95f) {
@@ -48,8 +51,11 @@ public class ColorSetting extends PanelValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
+        float visAlpha = getVisibilityAlpha();
+        if (visAlpha < 0.01f) return;
+
         Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 2,
-                blendAlpha(new Color(80, 90, 105), alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
         int currentColor = value.getValue() & 0xFFFFFF;
         float previewSize = 14;
@@ -57,7 +63,7 @@ public class ColorSetting extends PanelValueItem {
         float previewY = y + 1;
 
         RoundedUtils.drawRound(previewX, previewY, previewSize, previewSize, 3,
-                blendAlpha(new Color(currentColor), alpha));
+                blendAlpha(new Color(currentColor), alpha * visAlpha));
 
         if (expandAnim > 0.001f) {
             float pickerWidth = width - 4;
@@ -69,11 +75,14 @@ public class ColorSetting extends PanelValueItem {
             float pickerHeight = pickerContentH * expandAnim;
             float pickerY = y + 20;
 
-            if (alpha > 0.01f) {
+            if (alpha * visAlpha > 0.01f) {
                 RoundedUtils.drawRound(pickerX, pickerY, pickerWidth, pickerHeight, 5,
-                        new Color(245, 247, 250, (int)(alpha * 255)));
+                        new Color(ClientSettings.INSTANCE.getPickerBgColor().getRed(),
+                                ClientSettings.INSTANCE.getPickerBgColor().getGreen(),
+                                ClientSettings.INSTANCE.getPickerBgColor().getBlue(),
+                                (int)(alpha * visAlpha * 255)));
 
-                float contentAlpha = alpha * contentAnim;
+                float contentAlpha = alpha * contentAnim * visAlpha;
                 if (contentAlpha > 0.01f) {
                     float svX = pickerX + 8;
                     float svY = pickerY + 6;
@@ -93,7 +102,7 @@ public class ColorSetting extends PanelValueItem {
                     float circleY = svY + (1f - brightness) * svH - 4;
                     float circleSize = 8;
                     int whiteOutline = blendAlpha(new Color(255, 255, 255), contentAlpha).getRGB();
-                    int fillColor = blendAlpha(new Color(135, 206, 235), contentAlpha * 0.667f).getRGB();
+                    int fillColor = blendAlpha(ClientSettings.INSTANCE.getCircleFillColor(), contentAlpha * 0.667f).getRGB();
                     RoundedUtils.drawRound(circleX, circleY, circleSize, circleSize, circleSize / 2f, whiteOutline);
                     RoundedUtils.drawRound(circleX + 1, circleY + 1, circleSize - 2, circleSize - 2, (circleSize - 2) / 2f, fillColor);
 
@@ -130,9 +139,9 @@ public class ColorSetting extends PanelValueItem {
 
         float pickerWidth = width - 4;
         float svSize = pickerWidth - 16;
-        float svH = svSize * 0.7f;
         float svX = x + 2 + 8;
         float svY = y + 20 + 6;
+        float svH = svSize * 0.7f;
 
         if (mx >= svX && mx <= svX + svSize && my >= svY && my <= svY + svH) {
             draggingSV = true;

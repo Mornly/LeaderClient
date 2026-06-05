@@ -4,6 +4,7 @@ import unfair.module.modules.render.HUD;
 import unfair.property.properties.TextProperty;
 import unfair.Unfair;
 import unfair.util.RenderUtil;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -19,12 +20,12 @@ public class TextSetting extends ValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
-        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y - 3, new Color(160, 160, 160).getRGB(), false);
+        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y - 3, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
 
         float inputY = y + 12;
         float inputH = 14;
 
-        int bgColor = focused ? new Color(50, 50, 55).getRGB() : new Color(35, 35, 40).getRGB();
+        int bgColor = focused ? ClientSettings.INSTANCE.getInputFocusedBgColor().getRGB() : ClientSettings.INSTANCE.getInputNormalBgColor().getRGB();
         RenderUtil.drawRect(x, inputY, x + width, inputY + inputH, bgColor);
 
         if (focused) {

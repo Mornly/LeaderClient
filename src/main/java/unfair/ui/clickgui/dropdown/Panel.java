@@ -6,6 +6,7 @@ import unfair.module.Module;
 import unfair.module.modules.render.HUD;
 import unfair.util.RenderUtil;
 import unfair.util.shader.BlurUtils;
+import unfair.management.ClientSettings;
 
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
@@ -53,16 +54,16 @@ public class Panel {
         int color2 = hud.getColor(time + 400).getRGB();
         RenderUtil.drawGradientRect((int)x, (int)panelY, x + PANEL_WIDTH, (int)(panelY + HEADER_HEIGHT), color1, color2);
 
-        drawString(category.name(), x + 7, panelY + 3, Color.WHITE.getRGB(), 20, false);
+        drawString(category.name(), x + 7, panelY + 3, ClientSettings.INSTANCE.getTextEnabledColor().getRGB(), 20, false);
 
         float contentHeight = calculateContentHeight();
 
         if (blurEnabled && contentHeight > 0) {
             BlurUtils.prepareBlur();
-            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight, new Color(0, 0, 0, 90).getRGB());
+            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
             BlurUtils.blurEnd(2, 3f);
         } else {
-            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight, new Color(0, 0, 0, 90).getRGB());
+            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
         }
 
         GlStateManager.enableBlend();

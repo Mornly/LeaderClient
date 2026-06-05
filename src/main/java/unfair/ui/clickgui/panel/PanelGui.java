@@ -49,19 +49,6 @@ public class PanelGui extends GuiScreen {
     private static final float NONCONFIG_SEL_BG_UP = 1;
     private static final float COL_GAP = 8;
 
-    private Color BG_COLOR = new Color(250, 250, 250);
-    private Color LOGO_BOX_COLOR = new Color(70, 130, 180);
-    private Color LOGO_TEXT_COLOR = new Color(173, 216, 230);
-    private Color CATEGORY_TEXT_COLOR = new Color(120, 135, 155);
-    private Color CATEGORY_ACTIVE_COLOR = new Color(35, 45, 60);
-    private Color SECTION_HEADER_COLOR = new Color(150, 155, 165);
-    private Color CARD_NORMAL = new Color(255, 255, 255);
-    private Color CARD_ENABLED = new Color(242, 248, 255);
-    private Color CARD_HIDDEN_ENABLED = new Color(245, 240, 250);
-    private Color SEARCH_BG = new Color(235, 238, 242);
-    private Color SEARCH_FOCUSED_BORDER = new Color(70, 130, 180);
-    private Color PLAYER_BG = new Color(240, 243, 248);
-
     private float displayHealth;
     private boolean healthInitialized;
 
@@ -114,6 +101,14 @@ public class PanelGui extends GuiScreen {
     private float renderDt = 0.016f;
     private static final float GUI_ANIM_SPEED = 0.12f;
 
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+        if (mc.ingameGUI != null && mc.ingameGUI.getChatGUI() != null) {
+            mc.ingameGUI.getChatGUI().clearChatMessages();
+        }
+        super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
     public PanelGui() {
         EventManager.register(this);
         Collections.addAll(categoryList, Category.values());
@@ -147,15 +142,17 @@ public class PanelGui extends GuiScreen {
         float x = (this.width - scaledWidth) / 2f;
         float y = (this.height - scaledHeight) / 2f;
 
-        int bgAlpha = ClientSettings.INSTANCE.getBackgroundAlpha();
         boolean useBlur = ClientSettings.INSTANCE.isBlurArea();
 
         GlStateManager.enableBlend();
 
+        float bgLayerAlpha = ClientSettings.INSTANCE.getLayeredAlpha(guiAlpha, 0);
+
         if (useBlur) {
             BlurUtils.prepareBlur();
+            Color bg = ClientSettings.INSTANCE.getBackgroundColor();
             RoundedUtils.drawRound(x, y, scaledWidth, scaledHeight, RADIUS * scale,
-                    new Color(BG_COLOR.getRed(), BG_COLOR.getGreen(), BG_COLOR.getBlue(),
+                    new Color(bg.getRed(), bg.getGreen(), bg.getBlue(),
                             (int)(guiAlpha * 255)).getRGB());
             BlurUtils.blurEnd(2, 8f);
         }
@@ -164,10 +161,11 @@ public class PanelGui extends GuiScreen {
         GlStateManager.translate(x, y, 0);
         GlStateManager.scale(scale, scale, 1f);
         GlStateManager.translate(-x, -y, 0);
-        
-        GlStateManager.color(1F, 1F, 1F, guiAlpha);
 
-        Color bgWithAlpha = blendAlpha(BG_COLOR, guiAlpha * bgAlpha / 255f);
+        GlStateManager.color(1F, 1F, 1F, bgLayerAlpha);
+
+        Color bgColorRaw = ClientSettings.INSTANCE.getBackgroundColor();
+        Color bgWithAlpha = blendAlpha(bgColorRaw, bgLayerAlpha);
         RoundedUtils.drawRound(x, y, PANEL_WIDTH, PANEL_HEIGHT, RADIUS, bgWithAlpha);
 
         drawLogo(x, y);
@@ -190,7 +188,6 @@ public class PanelGui extends GuiScreen {
 
     private void updateAnimations(float dt) {
         ClientSettings.INSTANCE.update(dt);
-        updateThemeColors();
         
         if (closing) {
             guiAlpha = PanelValueItem.lerp(guiAlpha, 0f, GUI_ANIM_SPEED, dt);
@@ -304,25 +301,26 @@ public class PanelGui extends GuiScreen {
         float logoSize = 32;
         float logoX = x + 16;
         float logoY = y + 14;
-        RoundedUtils.drawRound(logoX, logoY, logoSize, logoSize, 7, blendAlpha(LOGO_BOX_COLOR, guiAlpha));
+        RoundedUtils.drawRound(logoX, logoY, logoSize, logoSize, 7, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), guiAlpha));
 
         String logoText = "L";
         int logoFontSize = 22;
         float lw = Unfair.fontManager.getFont(logoFontSize).getStringWidth(logoText);
         Unfair.fontManager.getFont(logoFontSize).drawString(logoText,
                 logoX + (logoSize - lw) / 2f, logoY + (logoSize - logoFontSize) / 2f + 7,
-                blendAlpha(LOGO_TEXT_COLOR, guiAlpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getLogoTextColor(), guiAlpha).getRGB(), false);
 
         float nameX = logoX + logoSize + 10;
-        Unfair.fontManager.getFont(20).drawString("Leader", nameX, logoY + 4, blendAlpha(new Color(35, 45, 60), guiAlpha).getRGB(), false);
-        Unfair.fontManager.getFont(12).drawString("for Minecraft", nameX, logoY + 24, blendAlpha(new Color(140, 145, 155), guiAlpha).getRGB(), false);
+        Unfair.fontManager.getFont(20).drawString("Leader", nameX, logoY + 4, blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), guiAlpha).getRGB(), false);
+        Unfair.fontManager.getFont(12).drawString("version " + Unfair.version, nameX, logoY + 16, blendAlpha(ClientSettings.INSTANCE.getTitleSubColor(), guiAlpha).getRGB(), false);
     }
 
     private void drawCategories(float x, float y) {
         float headerY = y + 70;
+        float sidebarAlpha = ClientSettings.INSTANCE.getLayeredAlpha(guiAlpha, 1);
 
         Unfair.fontManager.getFont(13).drawString("Modules", x + 16, headerY,
-                blendAlpha(SECTION_HEADER_COLOR, guiAlpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getSectionHeaderColor(), guiAlpha).getRGB(), false);
 
         float catY = headerY + 8;
 
@@ -356,7 +354,7 @@ public class PanelGui extends GuiScreen {
         } else {
             selBgActualY = catSelectAnimY + (selItemH - selBgH) / 2f - NONCONFIG_SEL_BG_UP;
         }
-        RoundedUtils.drawRound(selBgX, selBgActualY, selBgW, selBgH, 5, blendAlpha(new Color(225, 232, 245), guiAlpha));
+        RoundedUtils.drawRound(selBgX, selBgActualY, selBgW, selBgH, 5, blendAlpha(ClientSettings.INSTANCE.getSelCatBgColor(), sidebarAlpha));
 
         for (int i = 0; i < categoryList.size(); i++) {
             boolean isConfig = categoryList.get(i) == Category.CONFIG;
@@ -365,12 +363,12 @@ public class PanelGui extends GuiScreen {
             if (isConfig) {
                 catY += CONFIG_DOWN_OFFSET;
                 Unfair.fontManager.getFont(13).drawString("Client", x + 16, catY,
-                        blendAlpha(SECTION_HEADER_COLOR, guiAlpha).getRGB(), false);
+                        blendAlpha(ClientSettings.INSTANCE.getSectionHeaderColor(), guiAlpha).getRGB(), false);
                 catY += CLIENT_TITLE_SPACING;
             }
 
             String catName = categoryList.get(i).getDisplayName();
-            int textColor = (i == selectedCategoryIndex) ? blendAlpha(CATEGORY_ACTIVE_COLOR, guiAlpha).getRGB() : blendAlpha(CATEGORY_TEXT_COLOR, guiAlpha).getRGB();
+            int textColor = (i == selectedCategoryIndex) ? blendAlpha(ClientSettings.INSTANCE.getTextColor(), guiAlpha).getRGB() : blendAlpha(ClientSettings.INSTANCE.getCategoryTextColor(), guiAlpha).getRGB();
 
             float textOffsetY = !isClientCat ? 3.5f : 4f;
             Unfair.fontManager.getFont(15).drawString(catName, x + 16, catY + textOffsetY, textColor, false);
@@ -384,8 +382,9 @@ public class PanelGui extends GuiScreen {
         float currentW = baseW + (expandedW - baseW) * searchWidthAnim;
         float searchH = 28;
 
-        float bgAlpha = (0.3f + 0.7f * searchWidthAnim) * guiAlpha;
-        Color bgColor = blendAlpha(SEARCH_BG, bgAlpha);
+        float inputAlpha = ClientSettings.INSTANCE.getLayeredAlpha(guiAlpha, 3);
+        float bgAlpha = (0.55f + 0.45f * searchWidthAnim) * inputAlpha;
+        Color bgColor = blendAlpha(ClientSettings.INSTANCE.getSearchBgColor(), bgAlpha);
 
         if (searchFocused) {
             RoundedUtils.drawRoundedRectRise(contentX, contentTop, currentW, searchH, 5,
@@ -395,15 +394,15 @@ public class PanelGui extends GuiScreen {
         }
 
         if (searchAlpha > 0.05f && guiAlpha > 0.05f) {
-            Color borderColor = blendAlpha(SEARCH_FOCUSED_BORDER, searchAlpha * 0.6f);
+            Color borderColor = blendAlpha(ClientSettings.INSTANCE.getAccentColor(), searchAlpha * 0.6f * inputAlpha);
             RenderUtil.drawRect(contentX, contentTop + searchH - 1, contentX + currentW, contentTop + searchH, borderColor.getRGB());
         }
 
         if (searchText.isEmpty() && !searchFocused) {
-            float placeholderAlpha = (0.5f + 0.5f * (1f - searchWidthAnim)) * guiAlpha;
+            float placeholderAlpha = (0.6f + 0.4f * (1f - searchWidthAnim)) * guiAlpha;
             float placeholderOffset = (float) Math.sin(System.currentTimeMillis() / 1000.0 * Math.PI * 2) * 0.5f;
             Unfair.fontManager.getFont(13).drawString("Search...", contentX + 10, contentTop + 8 + placeholderOffset,
-                    blendAlpha(new Color(170, 175, 185), placeholderAlpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getSearchPlaceholderColor(), placeholderAlpha).getRGB(), false);
         } else {
             if (searchSelectionStart >= 0 && searchSelectionStart != searchCursorPos) {
                 int selMin = Math.min(searchSelectionStart, searchCursorPos);
@@ -413,11 +412,11 @@ public class PanelGui extends GuiScreen {
                 float selW = Unfair.fontManager.getFont(13).getStringWidth(searchText.substring(selMin, selMax));
                 float selectionPulse = (float) Math.sin(System.currentTimeMillis() / 300.0 * Math.PI * 2) * 0.1f + 0.3f;
                 RenderUtil.drawRect(selX, contentTop + 7, selX + selW, contentTop + 21,
-                        blendAlpha(new Color(70, 130, 180), selectionPulse * guiAlpha).getRGB());
+                        blendAlpha(ClientSettings.INSTANCE.getAccentColor(), selectionPulse * guiAlpha).getRGB());
             }
 
             float textScale = 1f + (1f - textAnimProgress) * 0.05f;
-            float textAlpha = (0.7f + 0.3f * textAnimProgress) * guiAlpha;
+            float displayTextAlpha = (0.7f + 0.3f * textAnimProgress) * guiAlpha;
 
             GlStateManager.pushMatrix();
             float textCenterX = contentX + 10 + Unfair.fontManager.getFont(13).getStringWidth(searchText) / 2f;
@@ -427,7 +426,7 @@ public class PanelGui extends GuiScreen {
             GlStateManager.translate(-textCenterX, -textCenterY, 0);
 
             Unfair.fontManager.getFont(13).drawString(searchText, contentX + 10, contentTop + 8,
-                    blendAlpha(new Color(40, 50, 65), searchAlpha * textAlpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getInputTextColor(), searchAlpha * displayTextAlpha).getRGB(), false);
 
             GlStateManager.popMatrix();
 
@@ -441,14 +440,14 @@ public class PanelGui extends GuiScreen {
                 if (cursorVisible) {
                     float cursorAlpha = textAnimProgress < 0.9f ? 1f : (float)(Math.sin(cursorTime / 200.0 * Math.PI) * 0.3f + 0.7f);
                     RenderUtil.drawRect(cursorX, contentTop + 8, cursorX + 1, contentTop + 21,
-                            blendAlpha(new Color(70, 130, 180), searchAlpha * cursorAlpha).getRGB());
+                            blendAlpha(ClientSettings.INSTANCE.getAccentColor(), searchAlpha * cursorAlpha * guiAlpha).getRGB());
 
                     if (textAnimProgress < 0.95f) {
                         float glowW = 2f + (1f - textAnimProgress) * 3f;
                         float glowAlpha = (1f - textAnimProgress) * 0.3f * guiAlpha;
                         RenderUtil.drawRect(cursorX - glowW/2, contentTop + 8,
                                 cursorX + glowW/2, contentTop + 21,
-                                blendAlpha(new Color(70, 130, 180), glowAlpha).getRGB());
+                                blendAlpha(ClientSettings.INSTANCE.getAccentColor(), glowAlpha).getRGB());
                     }
                 }
             }
@@ -458,19 +457,20 @@ public class PanelGui extends GuiScreen {
     private void drawCategoryTitle(float contentX, float contentTop) {
         int renderCatIdx = categoryChanging ? prevSelectedCategoryIndex : selectedCategoryIndex;
         Category selectedCat = categoryList.get(renderCatIdx);
+
         if (selectedCat == Category.CONFIG || selectedCat == Category.SETTINGS) {
             String categoryName = selectedCat.getDisplayName();
             Unfair.fontManager.getFont(18).drawString(categoryName, contentX, contentTop + 38,
-                    blendAlpha(new Color(35, 45, 60), contentAlpha * categoryTitleAlpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), contentAlpha * categoryTitleAlpha).getRGB(), false);
         } else {
             if (searchActive && !searchText.isEmpty()) {
                 String searchResultText = "Search Results";
                 Unfair.fontManager.getFont(18).drawString(searchResultText, contentX, contentTop + 38,
-                        blendAlpha(new Color(35, 45, 60), contentAlpha).getRGB(), false);
+                        blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), contentAlpha).getRGB(), false);
             } else {
                 String categoryName = selectedCat.getDisplayName();
                 Unfair.fontManager.getFont(18).drawString(categoryName, contentX, contentTop + 38,
-                        blendAlpha(new Color(35, 45, 60), contentAlpha * categoryTitleAlpha).getRGB(), false);
+                        blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), contentAlpha * categoryTitleAlpha).getRGB(), false);
             }
         }
     }
@@ -515,35 +515,35 @@ public class PanelGui extends GuiScreen {
 
             float cardH = entry.getTotalHeight();
 
-            float entryAlpha = contentAlpha;
-            Color baseEnabledColor = blendColor(CARD_ENABLED, CARD_HIDDEN_ENABLED, entry.hideAnim);
+            float cardAlpha = ClientSettings.INSTANCE.getLayeredAlpha(contentAlpha, 2);
+            Color baseEnabledColor = blendColor(ClientSettings.INSTANCE.getCardEnabledColor(), ClientSettings.INSTANCE.getCardHiddenEnabledColor(), entry.hideAnim);
             Color cardColor = blendColor(
-                    blendAlpha(CARD_NORMAL, entryAlpha),
-                    blendAlpha(baseEnabledColor, entryAlpha),
+                    blendAlpha(ClientSettings.INSTANCE.getCardColor(), cardAlpha),
+                    blendAlpha(baseEnabledColor, cardAlpha),
                     entry.toggleAnim
             );
             RoundedUtils.drawRound(ex, ey, colWidth, cardH, 5, cardColor);
 
-            GlStateManager.color(1F, 1F, 1F, entryAlpha);
+            GlStateManager.color(1F, 1F, 1F, cardAlpha);
 
             Module mod = entry.mod;
-            int nameColor = blendAlpha(mod.isEnabled() ? CATEGORY_ACTIVE_COLOR : CATEGORY_TEXT_COLOR, entryAlpha).getRGB();
+            int nameColor = blendAlpha(mod.isEnabled() ? ClientSettings.INSTANCE.getTextColor() : ClientSettings.INSTANCE.getCategoryTextColor(), contentAlpha).getRGB();
             Unfair.fontManager.getFont(14).drawString(mod.getName(), ex + 12, ey + 6, nameColor, false);
 
             float actionBtnWidth = (29 + 3) * 2 - 3;
             float actionBtnX = ex + colWidth - actionBtnWidth - 40;
             float actionBtnY = ey + 2 + 1.5f;
-            
+
             int rawMX = (int)(Mouse.getX() * this.width / (double)this.mc.displayWidth);
             int rawMY = (int)(this.height - Mouse.getY() * this.height / (double)this.mc.displayHeight - 1);
             int[] transformed = transformMouseCoords(rawMX, rawMY);
             int mx = transformed[0];
             int mY = transformed[1];
-            
+
             entry.actionButtons.x = actionBtnX;
             entry.actionButtons.y = actionBtnY;
             entry.actionButtons.width = actionBtnWidth;
-            entry.actionButtons.alpha = entryAlpha;
+            entry.actionButtons.alpha = cardAlpha;
             entry.actionButtons.update(renderDt);
             entry.actionButtons.render(mx, mY);
 
@@ -552,23 +552,24 @@ public class PanelGui extends GuiScreen {
             float toggleX = ex + colWidth - toggleW - 12;
             float toggleY = ey + 5;
 
-            Color trackColor = blendColor(new Color(200, 204, 210), new Color(70, 130, 180), entry.toggleAnim);
-            RoundedUtils.drawRound(toggleX, toggleY, toggleW, toggleH, toggleH / 2f, blendAlpha(trackColor, entryAlpha));
+            Color trackColor = blendColor(ClientSettings.INSTANCE.getToggleOffColor(), ClientSettings.INSTANCE.getAccentColor(), entry.toggleAnim);
+            RoundedUtils.drawRound(toggleX, toggleY, toggleW, toggleH, toggleH / 2f, blendAlpha(trackColor, cardAlpha));
 
             float dotSize = toggleH - 4;
             float dotX = toggleX + 2 + entry.toggleAnim * (toggleW - dotSize - 4);
             float dotY = toggleY + 2;
-            Color dotColor = blendAlpha(Color.WHITE, entryAlpha);
+            Color dotColor = blendAlpha(ClientSettings.INSTANCE.getCardColor(), cardAlpha);
             RoundedUtils.drawRound(dotX, dotY, dotSize, dotSize, dotSize / 2f, dotColor);
 
             float settingY = ey + 24;
-            
+
             for (PanelValueItem setting : entry.settings) {
-                if (!setting.visible()) continue;
+                float settingVisAlpha = setting.getVisibilityAlpha();
+                if (settingVisAlpha < 0.001f) continue;
                 setting.x = ex + 12;
                 setting.y = settingY;
                 setting.width = colWidth - 24;
-                setting.alpha = entryAlpha;
+                setting.alpha = cardAlpha;
 
                 if (setting instanceof ModeSetting) {
                     ModeSetting modeSetting = (ModeSetting) setting;
@@ -584,7 +585,7 @@ public class PanelGui extends GuiScreen {
                 } else {
                     setting.render(mx, mY);
                 }
-                settingY += setting.getHeight() + 2;
+                settingY += setting.getHeight() * settingVisAlpha + 2;
             }
 
             GlStateManager.color(1F, 1F, 1F, 1F);
@@ -602,7 +603,7 @@ public class PanelGui extends GuiScreen {
         if (createConfigEntry.justCreatedConfig()) {
             configListDirty = true;
         }
-        
+
         if (configListDirty) {
             refreshConfigs();
         }
@@ -612,7 +613,7 @@ public class PanelGui extends GuiScreen {
 
         int mx = (int)(Mouse.getX() * this.width / (double)this.mc.displayWidth);
         int mY = (int)(this.height - Mouse.getY() * this.height / (double)this.mc.displayHeight - 1);
-        
+
         int[] transformed = transformMouseCoords(mx, mY);
         int logicMX = transformed[0];
         int logicMY = transformed[1];
@@ -622,11 +623,12 @@ public class PanelGui extends GuiScreen {
         float currentY = areaTop - scrollY;
         float cardW = (contentWidth - COL_GAP);
         float cardX = contentX + COL_GAP / 2f;
+        float cardAlpha = ClientSettings.INSTANCE.getLayeredAlpha(contentAlpha, 2);
 
         createConfigEntry.x = cardX;
         createConfigEntry.y = currentY;
         createConfigEntry.width = cardW;
-        createConfigEntry.alpha = contentAlpha;
+        createConfigEntry.alpha = cardAlpha;
         createConfigEntry.update(renderDt);
         createConfigEntry.render(logicMX, logicMY);
         currentY += createConfigEntry.getHeight() + 8;
@@ -635,7 +637,7 @@ public class PanelGui extends GuiScreen {
             entry.x = cardX;
             entry.y = currentY;
             entry.width = cardW;
-            entry.alpha = contentAlpha;
+            entry.alpha = cardAlpha;
             entry.update(renderDt);
             entry.render(logicMX, logicMY);
 
@@ -660,7 +662,7 @@ public class PanelGui extends GuiScreen {
 
         int mx = (int)(Mouse.getX() * this.width / (double)this.mc.displayWidth);
         int mY = (int)(this.height - Mouse.getY() * this.height / (double)this.mc.displayHeight - 1);
-        
+
         int[] transformed = transformMouseCoords(mx, mY);
         int logicMX = transformed[0];
         int logicMY = transformed[1];
@@ -668,6 +670,7 @@ public class PanelGui extends GuiScreen {
         float colWidth = (contentWidth - COL_GAP) / 2f;
         float col1X = contentX;
         float col2X = contentX + colWidth + COL_GAP;
+        float cardAlpha = ClientSettings.INSTANCE.getLayeredAlpha(contentAlpha, 2);
 
         float leftY = areaTop - scrollY;
         float rightY = areaTop - scrollY;
@@ -680,7 +683,7 @@ public class PanelGui extends GuiScreen {
             entry.x = cardX;
             entry.y = cardY;
             entry.width = colWidth;
-            entry.alpha = contentAlpha;
+            entry.alpha = cardAlpha;
             entry.update(renderDt);
             entry.render(logicMX, logicMY);
 
@@ -716,7 +719,9 @@ public class PanelGui extends GuiScreen {
         float infoW = SIDEBAR_WIDTH - 20;
         float infoH = 40;
 
-        RoundedUtils.drawRound(infoX, infoY, infoW, infoH, 5, blendAlpha(PLAYER_BG, guiAlpha));
+        float sidebarAlpha = ClientSettings.INSTANCE.getLayeredAlpha(guiAlpha, 1);
+
+        RoundedUtils.drawRound(infoX, infoY, infoW, infoH, 5, blendAlpha(ClientSettings.INSTANCE.getSidebarColor(), sidebarAlpha));
 
         EntityLivingBase player = mc.thePlayer;
         if (player == null) return;
@@ -724,7 +729,7 @@ public class PanelGui extends GuiScreen {
         String playerName = player.getName();
         float nameX = infoX + 10;
         float textY = infoY + 8;
-        Unfair.fontManager.getFont(13).drawString(playerName, nameX, textY, blendAlpha(CATEGORY_ACTIVE_COLOR, guiAlpha).getRGB(), false);
+        Unfair.fontManager.getFont(13).drawString(playerName, nameX, textY, blendAlpha(ClientSettings.INSTANCE.getTextColor(), guiAlpha).getRGB(), false);
 
         float health = player.getHealth();
         float maxHealth = player.getMaxHealth();
@@ -738,11 +743,11 @@ public class PanelGui extends GuiScreen {
         float hpBarY = textY + 18;
         float hpBarW = infoW - 20;
         float hpBarH = 3;
-        RenderUtil.drawRect(nameX, hpBarY, nameX + hpBarW, hpBarY + hpBarH, blendAlpha(new Color(210, 212, 216), guiAlpha).getRGB());
+        RenderUtil.drawRect(nameX, hpBarY, nameX + hpBarW, hpBarY + hpBarH, blendAlpha(ClientSettings.INSTANCE.getHpBarTrackColor(), sidebarAlpha).getRGB());
         if (maxHealth > 0 && displayHealth > 0) {
             float fillW = hpBarW * Math.min(displayHealth / maxHealth, 1f);
             if (fillW > 0) {
-                RoundedUtils.drawRound(nameX, hpBarY, fillW, hpBarH, 1.5f, blendAlpha(LOGO_BOX_COLOR, guiAlpha));
+                RoundedUtils.drawRound(nameX, hpBarY, fillW, hpBarH, 1.5f, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), sidebarAlpha));
             }
         }
     }
@@ -1004,7 +1009,7 @@ public class PanelGui extends GuiScreen {
                 return;
             }
             if (keyCode == Keyboard.KEY_RETURN) {
-                searchFocused = false;
+                deactivateSearch();
                 return;
             }
             if (isCtrlKeyDown() && keyCode == Keyboard.KEY_A) {
@@ -1294,72 +1299,6 @@ public class PanelGui extends GuiScreen {
         RenderUtil.scissor(mcX, mcY, mcW, mcH);
     }
     
-    private void updateThemeColors() {
-        Color tgtBG = ClientSettings.INSTANCE.getBackgroundColor();
-        BG_COLOR = tgtBG;
-
-        Color tgtAccent = ClientSettings.INSTANCE.getAccentColor();
-        LOGO_BOX_COLOR = tgtAccent;
-        SEARCH_FOCUSED_BORDER = tgtAccent;
-
-        Color tgtText = ClientSettings.INSTANCE.getTextColor();
-        CATEGORY_ACTIVE_COLOR = tgtText;
-
-        Color tgtCard = ClientSettings.INSTANCE.getCardColor();
-        CARD_NORMAL = tgtCard;
-
-        Color tgtSidebar = ClientSettings.INSTANCE.getSidebarColor();
-        PLAYER_BG = tgtSidebar;
-
-        LOGO_TEXT_COLOR = new Color(
-            Math.min(255, tgtAccent.getRed() + 50),
-            Math.min(255, tgtAccent.getGreen() + 50),
-            Math.min(255, tgtAccent.getBlue() + 50)
-        );
-
-        CATEGORY_TEXT_COLOR = new Color(
-            Math.min(255, tgtText.getRed() + 85),
-            Math.min(255, tgtText.getGreen() + 90),
-            Math.min(255, tgtText.getBlue() + 95)
-        );
-
-        SECTION_HEADER_COLOR = new Color(
-            Math.min(255, tgtText.getRed() + 115),
-            Math.min(255, tgtText.getGreen() + 110),
-            Math.min(255, tgtText.getBlue() + 105)
-        );
-
-        CARD_ENABLED = new Color(
-            Math.max(0, tgtCard.getRed() - 13),
-            Math.min(255, tgtCard.getGreen() + 8),
-            Math.min(255, tgtCard.getBlue() + 5)
-        );
-
-        CARD_HIDDEN_ENABLED = new Color(
-            Math.max(0, tgtCard.getRed() - 10),
-            Math.max(0, tgtCard.getGreen() - 15),
-            Math.min(255, tgtCard.getBlue() + 10)
-        );
-
-        SEARCH_BG = new Color(
-            Math.max(0, tgtBG.getRed() - 15),
-            Math.max(0, tgtBG.getGreen() - 12),
-            Math.max(0, tgtBG.getBlue() - 8)
-        );
-
-        ConfigEntry.cardNormal = CARD_NORMAL;
-        ConfigEntry.cardActive = new Color(
-            Math.max(0, tgtCard.getRed() - 20),
-            Math.max(0, tgtCard.getGreen() - 5),
-            Math.min(255, tgtCard.getBlue() + 15)
-        );
-        ConfigEntry.cardHover = new Color(
-            Math.max(0, tgtCard.getRed() - 10),
-            Math.min(255, tgtCard.getGreen() + 3),
-            Math.min(255, tgtCard.getBlue() + 10)
-        );
-    }
-    
     private void closeAllColorPickers() {
         for (ModuleEntry entry : moduleEntries) {
             for (PanelValueItem setting : entry.settings) {
@@ -1427,17 +1366,22 @@ public class PanelGui extends GuiScreen {
             List<Property<?>> props = Unfair.propertyManager.properties.get(m.getClass());
             if (props != null) {
                 for (Property<?> p : props) {
-                    if (!p.isVisible()) continue;
-                    if (p instanceof BooleanProperty) settings.add(new BoolSetting((BooleanProperty) p));
+                    PanelValueItem setting = null;
+                    if (p instanceof BooleanProperty) setting = new BoolSetting((BooleanProperty) p);
                     else if (p instanceof FloatProperty || p instanceof IntProperty || p instanceof PercentProperty)
-                        settings.add(new SliderSetting(p));
+                        setting = new SliderSetting(p);
                     else if (p instanceof ModeProperty) {
                         ModeSetting modeSetting = new ModeSetting((ModeProperty) p);
                         modeSetting.col = c;
-                        settings.add(modeSetting);
+                        setting = modeSetting;
                     }
                     else if (p instanceof ColorProperty)
-                        settings.add(new ColorSetting((ColorProperty) p));
+                        setting = new ColorSetting((ColorProperty) p);
+
+                    if (setting != null) {
+                        setting.initVisibility(p.isVisible());
+                        settings.add(setting);
+                    }
                 }
             }
         }
@@ -1445,7 +1389,10 @@ public class PanelGui extends GuiScreen {
         float getTotalHeight() {
             float h = 22;
             for (PanelValueItem s : settings) {
-                if (s.visible()) h += s.getHeight() + 2;
+                float visAlpha = s.getVisibilityAlpha();
+                if (visAlpha > 0.001f) {
+                    h += s.getHeight() * visAlpha + 2;
+                }
             }
             return Math.max(h, 40);
         }

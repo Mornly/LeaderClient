@@ -3,6 +3,7 @@ package unfair.ui.clickgui.dropdown;
 import unfair.property.properties.BooleanProperty;
 import unfair.Unfair;
 import unfair.util.RenderUtil;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -14,7 +15,7 @@ public class BoolSetting extends ValueItem {
     @Override
     public void render(int mouseX, int mouseY) {
         boolean on = value.getValue();
-        Color textColor = on ? Color.WHITE : new Color(160, 160, 160);
+        Color textColor = on ? ClientSettings.INSTANCE.getTextEnabledColor() : ClientSettings.INSTANCE.getSettingNameColor();
         Unfair.fontManager.getFont(17).drawString(value.getName(), x, y - 1, textColor.getRGB(), false);
     }
 
