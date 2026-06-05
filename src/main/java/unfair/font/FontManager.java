@@ -6,7 +6,9 @@ import java.util.HashMap;
 
 public class FontManager {
 
+    public UFontRenderer s12;
     public UFontRenderer s14;
+    public UFontRenderer s15;
     public UFontRenderer s16;
     public UFontRenderer s18;
     public UFontRenderer s20;
@@ -16,8 +18,14 @@ public class FontManager {
     public UFontRenderer s36;
     public UFontRenderer s40;
 
+    public UFontRenderer icon16;
+    public UFontRenderer icon20;
+    public UFontRenderer icon24;
+
     public void load(){
+        s12 = new UFontRenderer("NotoSansSC-Regular",12);
         s14 = new UFontRenderer("NotoSansSC-Regular",14);
+        s15 = new UFontRenderer("NotoSansSC-Regular",15);
         s16 = new UFontRenderer("NotoSansSC-Regular",16);
         s18 = new UFontRenderer("NotoSansSC-Regular",18);
         s20 = new UFontRenderer("NotoSansSC-Regular",20);
@@ -26,6 +34,10 @@ public class FontManager {
         s28 = new UFontRenderer("NotoSansSC-Regular",28);
         s36 = new UFontRenderer("NotoSansSC-Regular",36);
         s40 = new UFontRenderer("NotoSansSC-Regular",40);
+
+        icon16 = new UFontRenderer("icon", 16);
+        icon20 = new UFontRenderer("icon", 20);
+        icon24 = new UFontRenderer("icon", 24);
     }
 
     HashMap<Integer, UFontRenderer> fonts = new HashMap<>();

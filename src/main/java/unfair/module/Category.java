@@ -6,8 +6,8 @@ public enum Category {
     RENDER("Render", "unfair.module.modules.render"),
     PLAYER("Player", "unfair.module.modules.player"),
     MISC("Misc", "unfair.module.modules.misc"),
-    CONFIG("Config", null);
-
+    CONFIG("Config", null),
+    SETTINGS("Settings", null);
     private final String displayName;
     private final String packageName;
 
