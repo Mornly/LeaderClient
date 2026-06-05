@@ -63,6 +63,10 @@ public class BackTrack extends Module {
 
    private int currentLatency = 0;
 
+   @Override
+   public String[] getSuffix() {
+      return new String[]{minLatency.getValue() + "-" + maxLatency.getValue()};
+   }
 
    @Override
    public void onEnabled() {

@@ -45,7 +45,6 @@ public class Potion extends Module {
     private List<PotionEffect> currentEffects = new ArrayList<>();
     private long lastFrameTime = System.currentTimeMillis();
 
-    // 动画速度6，更慢更明显
     private static float animateSmooth(float target, float current, float speed, float deltaTime) {
         float diff = target - current;
         float change = diff * Math.min(1.0f, speed * deltaTime);
@@ -142,11 +141,6 @@ public class Potion extends Module {
         updateAnimations(deltaTime);
 
         List<PotionEffect> renderList = new ArrayList<>(currentEffects);
-        for (Map.Entry<Integer, AnimData> entry : animationMap.entrySet()) {
-            int id = entry.getKey();
-            if (currentEffects.stream().noneMatch(e -> e.getPotionID() == id)) {
-            }
-        }
         renderList.sort(Comparator.comparingInt(this::getEffectFullWidth).reversed());
 
         HUD hud = (HUD) Unfair.moduleManager.modules.get(HUD.class);
@@ -174,6 +168,13 @@ public class Potion extends Module {
 
         drawFont("Potions", baseX + 6, baseY - 8, hud.getColor(System.currentTimeMillis()).getRGB(), true);
         drawRect(baseX, baseY - 8, baseX + 2, baseY, hud.getColor(System.currentTimeMillis()).getRGB());
+
+        // 收集所有动画进度，用于背景透明度取最大值
+        float maxProgress = 0f;
+        for (PotionEffect effect : renderList) {
+            AnimData anim = animationMap.get(effect.getPotionID());
+            if (anim != null) maxProgress = Math.max(maxProgress, anim.progress);
+        }
 
         for (PotionEffect effect : renderList) {
             int id = effect.getPotionID();
@@ -207,7 +208,8 @@ public class Potion extends Module {
 
             int cx = baseX + offsetX - 20;
             int cy = (int) drawY + 16 - offsetY + getHeight() - 3;
-            circle(cx, cy, 24, 360, false, new Color(0, 0, 0, 70));
+            // 圆环背景透明度也随progress变化
+            circle(cx, cy, 24, 360, false, new Color(0, 0, 0, (int)(70 * progress)));
             circle(cx, cy, 24, ratio * 360, false, fadedText);
 
             drawFont(name, baseX + offsetX + 7, (int) drawY + 16 - offsetY + getHeight(), fadedText.getRGB(), true);
@@ -216,18 +218,24 @@ public class Potion extends Module {
             currentY += effectiveHeight;
         }
 
-        if (background.getValue() > 0 && !renderList.isEmpty()) {
-            int bgAlpha = (int) (background.getValue().floatValue() / 100f * 255);
+        // 背景矩形透明度随最大进度变化
+        if (background.getValue() > 0 && !renderList.isEmpty() && maxProgress > 0.01f) {
+            int bgAlpha = (int) (background.getValue().floatValue() / 100f * 255 * maxProgress);
             drawRoundedRectangle(baseX + offsetX - 22, baseY - 10, baseX + maxString + 8 + offsetX, (int) currentY + baseY, 4f, new Color(0, 0, 0, bgAlpha).getRGB());
         }
     }
 
-    // GlowCircle 模式
     private void renderGlowCircleMode(List<PotionEffect> renderList, HUD hud, int baseX, int baseY) {
         int offsetX = 21;
         int offsetY = 14;
         float rowHeight = 28.8f;
         float currentY = baseY;
+
+        float maxProgress = 0f;
+        for (PotionEffect effect : renderList) {
+            AnimData anim = animationMap.get(effect.getPotionID());
+            if (anim != null) maxProgress = Math.max(maxProgress, anim.progress);
+        }
 
         for (PotionEffect effect : renderList) {
             int id = effect.getPotionID();
@@ -269,9 +277,10 @@ public class Potion extends Module {
             int cx = baseX + offsetX - 20;
             int cy = (int) drawY + 16 - offsetY + getHeight() - 3;
 
-            circle(cx, cy, 27, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), 30));
-            circle(cx, cy, 25.5, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), 60));
-            circle(cx, cy, 24.5, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), 100));
+            // 所有圆环透明度均乘以progress
+            circle(cx, cy, 27, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), (int)(30 * progress)));
+            circle(cx, cy, 25.5, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), (int)(60 * progress)));
+            circle(cx, cy, 24.5, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), (int)(100 * progress)));
             circle(cx, cy, 24, ratio * 360, false, new Color(0, 0, 0, (int)(70 * progress)));
             circle(cx, cy, 24, ratio * 360, false, fadedCircle);
 
@@ -280,15 +289,22 @@ public class Potion extends Module {
 
             currentY += effectiveHeight;
         }
+
+        // GlowCircle模式没有背景矩形，无需处理
     }
 
-    // Bar 模式
     private void renderBarMode(List<PotionEffect> renderList, HUD hud, int baseX, int baseY) {
         int offsetY = 28;
         int progressBarWidth = 100;
         int progressBarHeight = 4;
         float rowHeight = offsetY;
         float currentY = baseY;
+
+        float maxProgress = 0f;
+        for (PotionEffect effect : renderList) {
+            AnimData anim = animationMap.get(effect.getPotionID());
+            if (anim != null) maxProgress = Math.max(maxProgress, anim.progress);
+        }
 
         for (PotionEffect effect : renderList) {
             int id = effect.getPotionID();
@@ -336,8 +352,9 @@ public class Potion extends Module {
             currentY += effectiveHeight;
         }
 
-        if (background.getValue() > 0 && !renderList.isEmpty()) {
-            int bgAlpha = (int) (background.getValue().floatValue() / 100f * 255);
+        // 背景透明度随最大进度变化
+        if (background.getValue() > 0 && !renderList.isEmpty() && maxProgress > 0.01f) {
+            int bgAlpha = (int) (background.getValue().floatValue() / 100f * 255 * maxProgress);
             drawRoundedRectangle(baseX, baseY, baseX + 22 + progressBarWidth, (int) currentY, 4f, new Color(0, 0, 0, bgAlpha).getRGB());
         }
     }

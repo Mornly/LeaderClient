@@ -44,6 +44,11 @@ public class ChestStealer extends Module {
         super("ChestStealer", false);
     }
 
+    @Override
+    public String[] getSuffix() {
+        return new String[]{mode.getModeString()};
+    }
+
     private boolean isProjectileStack(ItemStack stack) {
         if (stack == null) return false;
         Item item = stack.getItem();
