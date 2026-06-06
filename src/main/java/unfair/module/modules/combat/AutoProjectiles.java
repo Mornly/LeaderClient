@@ -34,13 +34,11 @@ public class AutoProjectiles extends Module {
     public final FloatProperty range = new FloatProperty("Range", 8.0F, 3.0F, 10F);
     public final IntProperty amount = new IntProperty("Amount", 3, 1, 10);
 
-    public final IntProperty throwDelay = new IntProperty("Throw Delay", 200, 50, 1000);
     public final BooleanProperty prediction = new BooleanProperty("Prediction", true);
     public final BooleanProperty teams = new BooleanProperty("Teams", true);
 
     private EntityLivingBase target = null;
     private int lastSlot = -1;
-    private long lastThrowTime = 0L;
     private int throwState = 0;
     private boolean hasRotated = false;
     private SmartPredictor smartPredictor = new SmartPredictor();
@@ -55,7 +53,15 @@ public class AutoProjectiles extends Module {
         if (mc.thePlayer.getDistanceToEntity(entity) > this.range.getValue()) return false;
         EntityPlayer player = (EntityPlayer) entity;
         if (TeamUtil.isFriend(player)) return false;
+        if (!isEntityHeightVisible(entity)) return false;
         return !this.teams.getValue() || !TeamUtil.isSameTeam(player);
+    }
+
+    private boolean isEntityHeightVisible(EntityLivingBase entity) {
+        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
+        Vec3 top = new Vec3(entity.posX, entity.posY + entity.height, entity.posZ);
+        Vec3 bottom = new Vec3(entity.posX, entity.posY, entity.posZ);
+        return mc.theWorld.rayTraceBlocks(eyePos, top) == null || mc.theWorld.rayTraceBlocks(eyePos, bottom) == null;
     }
 
     private EntityLivingBase getTarget() {
@@ -190,8 +196,6 @@ public class AutoProjectiles extends Module {
 
         switch (this.throwState) {
             case 0:
-                if (System.currentTimeMillis() - this.lastThrowTime < this.throwDelay.getValue()) return;
-
                 this.target = this.getTarget();
                 if (this.target == null) return;
 
@@ -223,7 +227,6 @@ public class AutoProjectiles extends Module {
                 for (int i = 0; i < this.amount.getValue(); i++) {
                     this.throwProjectile();
                 }
-                this.lastThrowTime = System.currentTimeMillis();
                 this.throwState = 4;
                 break;
 
@@ -249,7 +252,6 @@ public class AutoProjectiles extends Module {
         this.lastSlot = -1;
         this.throwState = 0;
         this.hasRotated = false;
-        this.lastThrowTime = 0L;
     }
 
     @Override
