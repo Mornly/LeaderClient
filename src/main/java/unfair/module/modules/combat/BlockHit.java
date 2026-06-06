@@ -1,33 +1,22 @@
 package unfair.module.modules.combat;
 
 import com.google.common.base.CaseFormat;
-import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.*;
-import net.minecraft.network.play.server.S12PacketEntityVelocity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.WorldSettings;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import unfair.Unfair;
 import unfair.enums.BlinkModules;
-import unfair.enums.DelayModules;
-import unfair.event.EventManager;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
-import unfair.event.types.Priority;
-import unfair.events.*;
-import unfair.mixin.IAccessorEntityPlayer;
-import unfair.mixin.IAccessorPlayerControllerMP;
+import unfair.events.AttackEvent;
+import unfair.events.TickEvent;
 import unfair.module.Module;
 import unfair.property.properties.*;
-import unfair.util.*;
-import net.minecraft.client.Minecraft;
-
-import java.util.Random;
+import unfair.util.ItemUtil;
+import unfair.util.KeyBindUtil;
+import unfair.util.PacketUtil;
+import unfair.util.TimerUtil;
 
 public class BlockHit extends Module {
 
@@ -37,20 +26,20 @@ public class BlockHit extends Module {
     }
     private final ModeProperty mode = new ModeProperty("Mode",0,new String[]{"Helper","Auto","Lag"});
 
-    private final IntProperty stopTime = new IntProperty("StopTicks",2,1,5, () -> this.mode.getValue() == 0);
-    private final ModeProperty autoMode = new ModeProperty("AutoMode",0,new String[]{"Spam","Hold"},() -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 0);
-    private final ModeProperty autoBlockTime = new ModeProperty("AutoBlockTime",0, new String[]{"Delay","HurtTime","Sag","Smart"},() -> this.mode.getValue() == 1);
-    private final IntProperty smartBlockTick = new IntProperty("SmartBlockTick",2,1,5, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 3);
-    private final IntProperty blockDelay = new IntProperty("BlockDelay",100,0,1000, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 0);
-    private final IntProperty holdTick = new IntProperty("HoldTick",2,2,5, () -> this.mode.getValue() == 1 && this.autoMode.getValue() == 1  && this.autoBlockTime.getValue() == 0);
-    private final IntProperty minHurtTime = new IntProperty("MinHurtTime",10,1,10, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 1);
-    private final IntProperty maxHurtTime = new IntProperty("MaxHurtTime",10,1,10, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 1);
-    private final IntProperty delayPacketTick = new IntProperty("DelayPacketTick",2,1,10, () -> this.mode.getValue() == 2);
-    private final IntProperty blockTick = new IntProperty("BlockTick",3,1,5, () -> this.mode.getValue() == 2 );
-    private final IntProperty startHurtTime = new IntProperty("StartHurtTime",6,1,10, () -> this.mode.getValue() == 2 );
-    private final PercentProperty chance = new PercentProperty("BlockHitChance",50,()-> this.mode.getValue() == 1);
+    private final IntProperty stopTime = new IntProperty("Stop Ticks",2,1,5, () -> this.mode.getValue() == 0);
+    private final ModeProperty autoMode = new ModeProperty("Auto Mode",0,new String[]{"Spam","Hold"},() -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 0);
+    private final ModeProperty autoBlockTime = new ModeProperty("AutoBlock Time",0, new String[]{"Delay","HurtTime","Sag","Smart"},() -> this.mode.getValue() == 1);
+    private final IntProperty smartBlockTick = new IntProperty("Smart Block Ticks",2,1,5, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 3);
+    private final IntProperty blockDelay = new IntProperty("Block Delay",100,0,1000, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 0);
+    private final IntProperty holdTick = new IntProperty("Hold Ticks",2,2,5, () -> this.mode.getValue() == 1 && this.autoMode.getValue() == 1  && this.autoBlockTime.getValue() == 0);
+    private final IntProperty minHurtTime = new IntProperty("Min HurtTime",10,1,10, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 1);
+    private final IntProperty maxHurtTime = new IntProperty("Max HurtTime",10,1,10, () -> this.mode.getValue() == 1 && this.autoBlockTime.getValue() == 1);
+    private final IntProperty delayPacketTick = new IntProperty("Delay Packet Ticks",2,1,10, () -> this.mode.getValue() == 2);
+    private final IntProperty blockTick = new IntProperty("Block Ticks",3,1,5, () -> this.mode.getValue() == 2 );
+    private final IntProperty startHurtTime = new IntProperty("Start HurtTime",6,1,10, () -> this.mode.getValue() == 2 );
+    private final PercentProperty chance = new PercentProperty("Block Hit Chance",50,()-> this.mode.getValue() == 1);
     private final BooleanProperty smart = new BooleanProperty("Smart",true,() -> this.mode.getValue() == 1);
-    private final BooleanProperty autoBlockRange = new BooleanProperty("AutoBlockRange",true,() -> this.mode.getValue() == 1);
+    private final BooleanProperty autoBlockRange = new BooleanProperty("AutoBlock Range",true,() -> this.mode.getValue() == 1);
     private final FloatProperty range = new FloatProperty("Range",3.0f,1f,4f,() -> autoBlockRange.getValue() && mode.getValue() == 1);
     private int holdTicks,stopTick;
 

@@ -1,12 +1,10 @@
 package unfair.module.modules.render;
 
+import net.minecraft.client.Minecraft;
 import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;
-import unfair.font.impl.UFontRenderer;
 import unfair.module.Module;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import unfair.property.properties.IntProperty;
 import unfair.util.RenderUtil;
 
@@ -15,8 +13,8 @@ public class WaterMark extends Module {
         super("WaterMark", false, true);
     }
 
-    public final IntProperty rectLeft = new IntProperty("RectLeft", 5, 0, 20);
-    public final IntProperty rectTop = new IntProperty("RectTop", 5, 0, 20);
+    public final IntProperty rectLeft = new IntProperty("Rect Left", 5, 0, 20);
+    public final IntProperty rectTop = new IntProperty("Rect Top", 5, 0, 20);
     @EventTarget
     public void onRender2D(Render2DEvent event) {
         if (!this.isEnabled()) return;

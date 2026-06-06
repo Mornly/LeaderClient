@@ -2,14 +2,11 @@ package unfair.ui.clickgui.dropdown;
 
 import net.minecraft.client.settings.KeyBinding;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import unfair.Unfair;
+import unfair.management.ClientSettings;
 import unfair.module.Module;
 import unfair.module.modules.render.HUD;
 import unfair.util.KeyBindUtil;
-import unfair.management.ClientSettings;
-
-import java.awt.*;
 
 public class ClientSetting extends ValueItem {
     private final Module module;

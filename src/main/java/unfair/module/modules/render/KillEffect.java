@@ -1,19 +1,18 @@
 package unfair.module.modules.render;
 
-import unfair.event.EventTarget;
-import unfair.events.AttackEvent;
-import unfair.events.LoadWorldEvent;
-import unfair.events.UpdateEvent;
-import unfair.module.Category;
-import unfair.module.Module;
-import unfair.property.properties.BooleanProperty;
-import unfair.util.SoundUtil;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumParticleTypes;
+import unfair.event.EventTarget;
+import unfair.events.AttackEvent;
+import unfair.events.LoadWorldEvent;
+import unfair.events.UpdateEvent;
+import unfair.module.Module;
+import unfair.property.properties.BooleanProperty;
+import unfair.util.SoundUtil;
 
 import static unfair.config.Config.mc;
 

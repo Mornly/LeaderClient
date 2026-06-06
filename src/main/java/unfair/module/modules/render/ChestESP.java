@@ -28,9 +28,9 @@ public class ChestESP extends Module {
 
     public ChestESP() {
         super("ChestESP", false, true);
-        this.color = new ColorProperty("color", new Color(255, 170, 0).getRGB());
-        this.opacity = new PercentProperty("opacity", 100);
-        this.tracers = new BooleanProperty("tracers", false);
+        this.color = new ColorProperty("Color", new Color(255, 170, 0).getRGB());
+        this.opacity = new PercentProperty("Opacity", 100);
+        this.tracers = new BooleanProperty("Tracers", false);
     }
 
     @EventTarget

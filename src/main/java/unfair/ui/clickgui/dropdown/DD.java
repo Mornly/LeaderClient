@@ -1,19 +1,14 @@
 package unfair.ui.clickgui.dropdown;
 
 import unfair.Unfair;
-import unfair.module.Category;
+import unfair.management.ClientSettings;
 import unfair.module.Module;
 import unfair.module.modules.render.HUD;
 import unfair.property.Property;
 import unfair.property.properties.*;
 import unfair.util.RenderUtil;
 import unfair.util.shader.BlurUtils;
-import unfair.management.ClientSettings;
 
-import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 

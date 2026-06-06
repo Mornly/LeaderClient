@@ -1,9 +1,9 @@
 package unfair.ui.clickgui.dropdown;
 
-import unfair.module.modules.render.HUD;
 import unfair.Unfair;
-import unfair.util.RenderUtil;
 import unfair.management.ClientSettings;
+import unfair.module.modules.render.HUD;
+import unfair.util.RenderUtil;
 
 import java.awt.*;
 

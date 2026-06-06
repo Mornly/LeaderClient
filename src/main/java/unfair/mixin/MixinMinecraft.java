@@ -21,7 +21,6 @@ import unfair.event.types.EventType;
 import unfair.events.*;
 import unfair.init.Initializer;
 import unfair.module.modules.combat.NoHitDelay;
-import unfair.module.modules.misc.Disabler;
 
 @SideOnly(Side.CLIENT)
 @Mixin({Minecraft.class})

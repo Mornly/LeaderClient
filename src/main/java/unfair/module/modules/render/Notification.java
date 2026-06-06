@@ -1,7 +1,6 @@
 package unfair.module.modules.render;
 
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;
 import unfair.module.Module;
@@ -11,7 +10,6 @@ import unfair.util.NotificationTask;
 import unfair.util.RenderUtil;
 
 import java.awt.*;
-
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static unfair.config.Config.mc;
@@ -19,10 +17,10 @@ import static unfair.config.Config.mc;
 public class Notification extends Module {
     public Notification(){super("Notification",true,true);}
     public final ModeProperty mode = new ModeProperty("Mode",0,new String[]{"Normal","Clean"});
-    public static final IntProperty showTime = new IntProperty("ShowTime",2000,0,10000);
+    public static final IntProperty showTime = new IntProperty("Show Time",2000,0,10000);
     private final IntProperty space = new IntProperty("Space",20,0,10);
-    public final IntProperty rectLeft = new IntProperty("RectLeft", 5, 0, 20);
-    public final IntProperty rectTop = new IntProperty("RectTop", 50, 0, 100);
+    public final IntProperty rectLeft = new IntProperty("Rect Left", 5, 0, 20);
+    public final IntProperty rectTop = new IntProperty("Rect Top", 50, 0, 100);
     public static final CopyOnWriteArrayList<NotificationTask> tasks = new CopyOnWriteArrayList<>();
     public static final CopyOnWriteArrayList<NotificationTask> disTasks = new CopyOnWriteArrayList<>();
 

@@ -30,22 +30,6 @@ public abstract class Animation {
     }
 
 
-    public boolean finished(Direction direction) {
-        return isDone() && this.direction.equals(direction);
-    }
-
-    public double getLinearOutput() {
-        return 1 - ((timerUtil.getTime() / (double) duration) * endPoint);
-    }
-
-    public double getEndPoint() {
-        return endPoint;
-    }
-
-    public void setEndPoint(double endPoint) {
-        this.endPoint = endPoint;
-    }
-
     public void reset() {
         timerUtil.reset();
     }
@@ -54,9 +38,6 @@ public abstract class Animation {
         return timerUtil.hasTimeElapsed(duration);
     }
 
-    public void changeDirection() {
-        setDirection(direction.opposite());
-    }
 
     public Direction getDirection() {
         return direction;
@@ -65,13 +46,9 @@ public abstract class Animation {
     public Animation setDirection(Direction direction) {
         if (this.direction != direction) {
             this.direction = direction;
-            timerUtil.setTime(System.currentTimeMillis() - (duration - Math.min(duration, timerUtil.getTime())));
+            timerUtil.setTime();
         }
         return this;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
     }
 
     protected boolean correctOutput() {
@@ -84,18 +61,18 @@ public abstract class Animation {
                 return endPoint;
             }
 
-            return getEquation(timerUtil.getTime() / (double) duration) * endPoint;
+            return getEquation(timerUtil.getElapsedTime() / (double) duration) * endPoint;
         } else {
             if (isDone()) {
                 return 0.0;
             }
 
             if (correctOutput()) {
-                double revTime = Math.min(duration, Math.max(0, duration - timerUtil.getTime()));
+                double revTime = Math.min(duration, Math.max(0, duration - timerUtil.getElapsedTime()));
                 return getEquation(revTime / duration) * endPoint;
             }
 
-            return (1 - getEquation(timerUtil.getTime() / (double) duration)) * endPoint;
+            return (1 - getEquation(timerUtil.getElapsedTime() / (double) duration)) * endPoint;
         }
     }
 

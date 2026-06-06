@@ -1,6 +1,11 @@
 package unfair.module.modules.player;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.item.*;
+import net.minecraft.world.WorldSettings.GameType;
+import org.apache.commons.lang3.RandomUtils;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.UpdateEvent;
@@ -10,11 +15,6 @@ import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.IntProperty;
 import unfair.property.properties.ModeProperty;
 import unfair.util.ItemUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.world.WorldSettings.GameType;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class InvManager extends Module {
     public final IntProperty throwsSlot = new IntProperty("Throws Slot", 4, 0, 9);
     public final IntProperty throwsAmount = new IntProperty("Throws Amount", 64, 16, 320);
     public final IntProperty gappleSlot = new IntProperty("Gapple Slot", 3, 0, 9);
-    public final BooleanProperty keepOre = new BooleanProperty("KeepOre",true);
+    public final BooleanProperty keepOre = new BooleanProperty("Keep Ore",true);
     private int actionDelay = 0;
     private int oDelay = 0;
     private boolean inventoryOpen = false;

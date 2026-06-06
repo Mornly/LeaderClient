@@ -1,59 +1,38 @@
 package unfair.module.modules.player;
 
-import unfair.Unfair;
-import unfair.event.EventTarget;
-import unfair.event.types.EventType;
-import unfair.event.types.Priority;
-import unfair.events.MoveInputEvent;
-import unfair.management.RotationState;
-import unfair.events.UpdateEvent;
-import unfair.module.Module;
-import unfair.module.modules.movement.Eagle;
-import unfair.property.properties.BooleanProperty;
-import unfair.property.properties.ModeProperty;
-import unfair.util.BlockUtil;
-import unfair.util.ItemUtil;
-import unfair.util.MoveUtil;
-import unfair.util.PlayerUtil;
-import unfair.util.RotationUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import unfair.Unfair;
+import unfair.event.EventTarget;
+import unfair.event.types.EventType;
+import unfair.event.types.Priority;
+import unfair.events.MoveInputEvent;
+import unfair.events.UpdateEvent;
+import unfair.management.RotationState;
+import unfair.module.Module;
+import unfair.module.modules.movement.Eagle;
+import unfair.property.properties.BooleanProperty;
+import unfair.property.properties.ModeProperty;
+import unfair.util.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class LegitScaffold extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private static final double[] placeOffsets = new double[]{
-            0.03125,
-            0.09375,
-            0.15625,
-            0.21875,
-            0.28125,
-            0.34375,
-            0.40625,
-            0.46875,
-            0.53125,
-            0.59375,
-            0.65625,
-            0.71875,
-            0.78125,
-            0.84375,
-            0.90625,
-            0.96875
-    };
+    private static final double[] placeOffsets = new double[]{0.03125, 0.09375, 0.15625, 0.21875, 0.28125, 0.34375, 0.40625, 0.46875, 0.53125, 0.59375, 0.65625, 0.71875, 0.78125, 0.84375, 0.90625, 0.96875};
     private float yaw = -180.0F;
     private float pitch = 0.0F;
     private boolean canRotate = false;
     private boolean eagleSneaking = false;
-    public final ModeProperty rotationMode = new ModeProperty("rotations", 2, new String[]{"NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS"});
-    public final ModeProperty moveFix = new ModeProperty("move-fix", 1, new String[]{"NONE", "SILENT"});
-    public final BooleanProperty eagle = new BooleanProperty("eagle", true);
-    public final BooleanProperty blocksOnly = new BooleanProperty("blocks-only", true);
+    public final ModeProperty rotationMode = new ModeProperty("Rotations", 2, new String[]{"None", "Default", "Backwards", "Sideways"});
+    public final ModeProperty moveFix = new ModeProperty("Move Fix", 1, new String[]{"None", "Silent"});
+    public final BooleanProperty eagle = new BooleanProperty("Eagle", true);
+    public final BooleanProperty blocksOnly = new BooleanProperty("Blocks Only", true);
 
     public LegitScaffold() {
         super("LegitScaffold", false);
@@ -67,7 +46,7 @@ public class LegitScaffold extends Module {
                 && !this.isModuleEnabled(Scaffold.class);
     }
 
-    private boolean isModuleEnabled(Class<? extends Module> moduleClass) {
+    private boolean isModuleEnabled(Class<? extends Module> moduleClass) { //写出来这个东西的人或者ai可以进场了
         Module module = Unfair.moduleManager.modules.get(moduleClass);
         return module != null && module.isEnabled();
     }
@@ -191,7 +170,7 @@ public class LegitScaffold extends Module {
 
         double[] x = placeOffsets;
         double[] y = placeOffsets;
-        double[] z = placeOffsets;
+        double[] z = placeOffsets;//?
         switch (blockData.facing()) {
             case NORTH:
                 z = new double[]{0.0};

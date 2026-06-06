@@ -30,14 +30,14 @@ import java.util.stream.Collectors;
 
 public class ESP extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("mode", 2, new String[]{"NONE", "2D", "3D", "OUTLINE", "FAKECORNER", "FAKE2D"});
-    public final ModeProperty color = new ModeProperty("color", 0, new String[]{"DEFAULT", "TEAMS", "HUD"});
-    public final ModeProperty healthBar = new ModeProperty("health-bar", 0, new String[]{"NONE", "2D", "RAVEN"});
-    public final BooleanProperty players = new BooleanProperty("players", true);
-    public final BooleanProperty friends = new BooleanProperty("friends", true);
-    public final BooleanProperty enemies = new BooleanProperty("enemies", true);
-    public final BooleanProperty self = new BooleanProperty("self", false);
-    public final BooleanProperty bots = new BooleanProperty("bots", false);
+    public final ModeProperty mode = new ModeProperty("Mode", 2, new String[]{"None", "2d", "3d", "Outline", "FakeCorner", "Fake2d"});
+    public final ModeProperty color = new ModeProperty("Color", 0, new String[]{"Default", "Teams", "Hud"});
+    public final ModeProperty healthBar = new ModeProperty("Health Bar", 0, new String[]{"None", "2d", "Raven"});
+    public final BooleanProperty players = new BooleanProperty("Players", true);
+    public final BooleanProperty friends = new BooleanProperty("Friends", true);
+    public final BooleanProperty enemies = new BooleanProperty("Enemies", true);
+    public final BooleanProperty self = new BooleanProperty("Self", false);
+    public final BooleanProperty bots = new BooleanProperty("Bots", false);
     private final OutlineShader outlineRenderer = new OutlineShader();
     private final GlowShader glowShader = new GlowShader();
     private Framebuffer framebuffer = null;

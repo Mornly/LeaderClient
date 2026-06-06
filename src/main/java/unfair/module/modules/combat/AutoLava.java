@@ -16,13 +16,14 @@ import unfair.event.types.Priority;
 import unfair.events.MoveInputEvent;
 import unfair.events.UpdateEvent;
 import unfair.management.RotationState;
+import unfair.mixin.IAccessorMinecraft;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.FloatProperty;
 import unfair.property.properties.IntProperty;
 import unfair.property.properties.ModeProperty;
-import unfair.mixin.IAccessorMinecraft;
-import unfair.util.*;
+import unfair.util.MoveUtil;
+import unfair.util.TeamUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;

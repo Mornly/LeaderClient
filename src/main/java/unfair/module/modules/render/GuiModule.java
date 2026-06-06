@@ -2,17 +2,14 @@ package unfair.module.modules.render;
 
 import net.minecraft.client.Minecraft;
 import org.lwjgl.input.Keyboard;
-import unfair.event.EventTarget;
-import unfair.events.Render2DEvent;
 import unfair.module.Module;
-import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.ModeProperty;
 import unfair.ui.clickgui.dropdown.DropDownGui;
 import unfair.ui.clickgui.panel.PanelGui;
 
 public class GuiModule extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("Mode", 1, new String[]{"DropDown", "Panel"});
+    public final ModeProperty mode = new ModeProperty("Mode", 1, new String[]{"Drop Down", "Panel"});
     private DropDownGui dropDownGui;
 
     public GuiModule() {

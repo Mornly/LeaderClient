@@ -3,12 +3,9 @@ package unfair.ui.clickgui.dropdown;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import unfair.Unfair;
 import unfair.module.Category;
-import unfair.module.modules.render.GuiModule;
 import unfair.util.RenderUtil;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

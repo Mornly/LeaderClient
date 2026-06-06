@@ -1,15 +1,12 @@
 package unfair.module.modules.combat;
 
 import net.minecraft.potion.Potion;
-import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.events.KnockbackEvent;
 import unfair.events.LivingUpdateEvent;
 import unfair.mixin.IAccessorEntity;
 import unfair.module.Module;
-import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.PercentProperty;
-import unfair.util.ChatUtil;
 import unfair.util.MoveUtil;
 import unfair.util.RandomUtil;
 
@@ -18,7 +15,6 @@ import static unfair.config.Config.mc;
 public class JumpReset extends Module {
     private boolean jumpFlag = false;
     public final PercentProperty chance = new PercentProperty("Chance", 100, 20, 100, null);
-    public final BooleanProperty dbg = new BooleanProperty("debug", true);
 
     public JumpReset() {
         super("JumpReset", false);
@@ -41,13 +37,6 @@ public class JumpReset extends Module {
                 int threshold = chance.getValue();
                 if (random <= threshold) {
                     this.jumpFlag = true;
-                    if (dbg.getValue()) {
-                        ChatUtil.sendFormatted(Unfair.clientName + "§7[§bJumpReset§7] §a触发 (" + random + " ≤ " + threshold + ")");
-                    }
-                } else {
-                    if (dbg.getValue()) {
-                        ChatUtil.sendFormatted(Unfair.clientName + "§7[§bJumpReset§7] §c未触发 (" + random + " > " + threshold + ")");
-                    }
                 }
             }
         }
@@ -59,7 +48,6 @@ public class JumpReset extends Module {
             this.jumpFlag = false;
             if (mc.thePlayer.onGround && MoveUtil.isForwardPressed() && !mc.thePlayer.isPotionActive(Potion.jump) && !this.isInLiquidOrWeb() && mc.thePlayer.isSprinting()) {
                 mc.thePlayer.movementInput.jump = true;
-                if (this.dbg.getValue()) ChatUtil.sendFormatted(Unfair.clientName + "jump");
             }
         }
     }

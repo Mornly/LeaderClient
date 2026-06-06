@@ -1,13 +1,12 @@
 package unfair.ui.clickgui.panel.settings;
 
-import unfair.property.properties.ModeProperty;
-import unfair.Unfair;
-import unfair.ui.clickgui.panel.PanelValueItem;
-import unfair.management.ClientSettings;
-import unfair.util.shader.RoundedUtils;
-import unfair.util.RenderUtil;
-
 import org.lwjgl.opengl.GL11;
+import unfair.Unfair;
+import unfair.management.ClientSettings;
+import unfair.property.properties.ModeProperty;
+import unfair.ui.clickgui.panel.PanelValueItem;
+import unfair.util.RenderUtil;
+import unfair.util.shader.RoundedUtils;
 
 import java.awt.*;
 

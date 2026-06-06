@@ -41,11 +41,11 @@ import java.util.stream.Collectors;
 
 public class HitBox extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final FloatProperty multiplier = new FloatProperty("multiplier", 1.2F, 1.0F, 5.0F);
-    public final ModeProperty showHitbox = new ModeProperty("show-hitbox", 0, new String[]{"NONE", "PLAYERS", "MOBS", "ANIMALS", "ALL"});
-    public final ColorProperty color = new ColorProperty("color", new Color(255, 255, 255).getRGB(), () -> this.showHitbox.getValue() != 0);
-    public final BooleanProperty teams = new BooleanProperty("teams", true, () -> this.showHitbox.getValue() == 1 || this.showHitbox.getValue() == 4);
-    public final BooleanProperty botCheck = new BooleanProperty("bot-check", true, () -> this.showHitbox.getValue() == 1 || this.showHitbox.getValue() == 4);
+    public final FloatProperty multiplier = new FloatProperty("Multiplier", 1.2F, 1.0F, 5.0F);
+    public final ModeProperty showHitbox = new ModeProperty("Show Hitbox", 0, new String[]{"NONE", "PLAYERS", "MOBS", "ANIMALS", "ALL"});
+    public final ColorProperty color = new ColorProperty("Color", new Color(255, 255, 255).getRGB(), () -> this.showHitbox.getValue() != 0);
+    public final BooleanProperty teams = new BooleanProperty("Teams", true, () -> this.showHitbox.getValue() == 1 || this.showHitbox.getValue() == 4);
+    public final BooleanProperty botCheck = new BooleanProperty("Bot Check", true, () -> this.showHitbox.getValue() == 1 || this.showHitbox.getValue() == 4);
     private MovingObjectPosition targetEntity = null;
 
     public HitBox() {

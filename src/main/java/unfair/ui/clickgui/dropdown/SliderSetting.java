@@ -1,13 +1,13 @@
 package unfair.ui.clickgui.dropdown;
 
+import unfair.Unfair;
+import unfair.management.ClientSettings;
 import unfair.module.modules.render.HUD;
 import unfair.property.Property;
-import unfair.property.properties.*;
-import unfair.Unfair;
+import unfair.property.properties.FloatProperty;
+import unfair.property.properties.IntProperty;
+import unfair.property.properties.PercentProperty;
 import unfair.util.RenderUtil;
-import unfair.management.ClientSettings;
-
-import java.awt.*;
 
 public class SliderSetting extends ValueItem {
     private final Property<?> value;

@@ -16,19 +16,15 @@ import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
-import unfair.events.PacketEvent;
-import unfair.events.UpdateEvent;
-import unfair.events.Render2DEvent;
-import unfair.events.Render3DEvent;
-import unfair.events.Shader2DEvent;
+import unfair.events.*;
 import unfair.mixin.IAccessorEntityRenderer;
-import unfair.mixin.IAccessorRenderManager;
 import unfair.mixin.IAccessorMinecraft;
+import unfair.mixin.IAccessorRenderManager;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
-import unfair.property.properties.ModeProperty;
-import unfair.property.properties.FloatProperty;
 import unfair.property.properties.ColorProperty;
+import unfair.property.properties.FloatProperty;
+import unfair.property.properties.ModeProperty;
 import unfair.util.*;
 
 import javax.imageio.ImageIO;
@@ -40,11 +36,11 @@ import java.io.IOException;
 public class TargetESP extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
-    public final ModeProperty mode = new ModeProperty("MarkMode", 1, new String[]{"Points", "Ghost", "Image", "Exhi", "Circle"});
-    public final ModeProperty imageMode = new ModeProperty("ImageMode", 0, new String[]{"Rectangle", "QuadStapple", "TriangleStapple", "TriangleStipple", "Aim", "Custom"},
+    public final ModeProperty mode = new ModeProperty("Mark Mode", 1, new String[]{"Points", "Ghost", "Image", "Exhi", "Circle"});
+    public final ModeProperty imageMode = new ModeProperty("Image Mode", 0, new String[]{"Rectangle", "Quad Stapple", "Triangle Stapple", "Triangle Stipple", "Aim", "Custom"},
             () -> mode.getValue() == 2);
     public final BooleanProperty animation = new BooleanProperty("Animation", true, () -> mode.getValue() == 2 && imageMode.getValue() == 5);
-    public final BooleanProperty selectImage = new BooleanProperty("SelectImage", false, () -> mode.getValue() == 2 && imageMode.getValue() == 5) {
+    public final BooleanProperty selectImage = new BooleanProperty("Select Image", false, () -> mode.getValue() == 2 && imageMode.getValue() == 5) {
         @Override
         public boolean setValue(Object value) {
             boolean result = super.setValue(value);
@@ -55,11 +51,11 @@ public class TargetESP extends Module {
             return result;
         }
     };
-    public final FloatProperty circleSpeed = new FloatProperty("CircleSpeed", 2.0F, 1.0F, 5.0F, () -> mode.getValue() == 4);
-    public final BooleanProperty onlyPlayer = new BooleanProperty("OnlyPlayer", false);
-    public final BooleanProperty showHurt = new BooleanProperty("ShowHurt", false, () -> mode.getValue() == 2);
-    public final ModeProperty colorMode = new ModeProperty("ColorMode", 0,new String[]{"HUD","Simple"});
-    public final ColorProperty moduleColor = new ColorProperty("Color", 0xFFFFFF,() -> colorMode.getValue() == 1);
+    public final FloatProperty circleSpeed = new FloatProperty("Circle Speed", 2.0F, 1.0F, 5.0F, () -> mode.getValue() == 4);
+    public final BooleanProperty onlyPlayer = new BooleanProperty("Only Player", false);
+    public final BooleanProperty showHurt = new BooleanProperty("Show Hurt", false, () -> mode.getValue() == 2);
+    public final ModeProperty colorMode = new ModeProperty("Color Mode", 0, new String[]{"Hud", "Simple"});
+    public final ColorProperty moduleColor = new ColorProperty("Color", 0xFFFFFF, () -> colorMode.getValue() == 1);
 
     private ResourceLocation customImage = null;
     private long lastHurtTime = 0;

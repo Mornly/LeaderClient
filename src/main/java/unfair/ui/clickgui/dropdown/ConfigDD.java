@@ -2,17 +2,13 @@ package unfair.ui.clickgui.dropdown;
 
 import unfair.Unfair;
 import unfair.config.Config;
-import unfair.util.RenderUtil;
-import unfair.util.ChatUtil;
-import unfair.util.shader.BlurUtils;
 import unfair.management.ClientSettings;
 import unfair.property.properties.TextProperty;
+import unfair.util.ChatUtil;
+import unfair.util.RenderUtil;
+import unfair.util.shader.BlurUtils;
 
-import java.awt.*;
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ConfigDD {
     public String configName;

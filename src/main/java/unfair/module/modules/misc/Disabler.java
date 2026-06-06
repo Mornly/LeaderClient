@@ -1,14 +1,16 @@
 package unfair.module.modules.misc;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiDownloadTerrain;
 import net.minecraft.client.network.NetHandlerPlayClient;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
-
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import net.minecraft.network.play.client.C0DPacketCloseWindow;
+import net.minecraft.network.play.client.C0EPacketClickWindow;
+import net.minecraft.network.play.client.C16PacketClientStatus;
 import net.minecraft.network.play.server.*;
 import unfair.Unfair;
-import unfair.event.EventManager;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.PacketEvent;
@@ -17,21 +19,16 @@ import unfair.module.Module;
 import unfair.property.properties.ModeProperty;
 import unfair.util.ChatUtil;
 import unfair.util.PacketUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.client.C0DPacketCloseWindow;
-import net.minecraft.network.play.client.C0EPacketClickWindow;
-import net.minecraft.network.play.client.C16PacketClientStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static unfair.event.EventManager.call;
 
 public class Disabler extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public static final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"PredictionInventory","Post"});
+    public static final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Prediction Inventory","Post"});
 
     private final List<Packet<?>> inventoryPackets = new ArrayList<>();
     public static final CopyOnWriteArrayList<Packet<INetHandlerPlayClient>> storedPackets = new CopyOnWriteArrayList<Packet<INetHandlerPlayClient>>();

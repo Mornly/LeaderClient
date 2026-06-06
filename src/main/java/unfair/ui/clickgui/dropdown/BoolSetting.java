@@ -1,9 +1,8 @@
 package unfair.ui.clickgui.dropdown;
 
-import unfair.property.properties.BooleanProperty;
 import unfair.Unfair;
-import unfair.util.RenderUtil;
 import unfair.management.ClientSettings;
+import unfair.property.properties.BooleanProperty;
 
 import java.awt.*;
 

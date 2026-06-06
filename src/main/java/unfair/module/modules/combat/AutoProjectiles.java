@@ -24,6 +24,7 @@ import unfair.property.properties.FloatProperty;
 import unfair.property.properties.IntProperty;
 import unfair.util.MoveUtil;
 import unfair.util.PacketUtil;
+import unfair.util.RotationUtil;
 import unfair.util.TeamUtil;
 
 import java.util.ArrayList;
@@ -31,10 +32,10 @@ import java.util.Comparator;
 
 public class AutoProjectiles extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final FloatProperty range = new FloatProperty("Range", 8.0F, 3.0F, 15.0F);
-    public final IntProperty amount = new IntProperty("Amount", 3, 1, 10);
+    public final FloatProperty range = new FloatProperty("Range", 8.0F, 3.0F, 20.0F);
 
-    public final IntProperty throwDelay = new IntProperty("Throw Delay", 200, 50, 1000);
+    public final BooleanProperty smartDelay = new BooleanProperty("Smart Delay", false);
+    public final IntProperty throwDelay = new IntProperty("Throw Delay Ticks", 3, 1, 15, () -> !smartDelay.getValue());
     public final BooleanProperty prediction = new BooleanProperty("Prediction", true);
     public final BooleanProperty teams = new BooleanProperty("Teams", true);
 
@@ -55,7 +56,15 @@ public class AutoProjectiles extends Module {
         if (mc.thePlayer.getDistanceToEntity(entity) > this.range.getValue()) return false;
         EntityPlayer player = (EntityPlayer) entity;
         if (TeamUtil.isFriend(player)) return false;
+        if (!isEntityHeightVisible(entity)) return false;
         return !this.teams.getValue() || !TeamUtil.isSameTeam(player);
+    }
+
+    private boolean isEntityHeightVisible(EntityLivingBase entity) {
+        Vec3 eyePos = mc.thePlayer.getPositionEyes(1.0f);
+        Vec3 top = new Vec3(entity.posX, entity.posY + entity.height, entity.posZ);
+        Vec3 bottom = new Vec3(entity.posX, entity.posY, entity.posZ);
+        return mc.theWorld.rayTraceBlocks(eyePos, top) == null || mc.theWorld.rayTraceBlocks(eyePos, bottom) == null;
     }
 
     private EntityLivingBase getTarget() {
@@ -71,6 +80,20 @@ public class AutoProjectiles extends Module {
         EntityLivingBase newTarget = targets.get(0);
         if (this.target != newTarget) this.smartPredictor = new SmartPredictor();
         return newTarget;
+    }
+
+    private int getDelay() {
+        if (!smartDelay.getValue()) {
+            return throwDelay.getValue();
+        }
+        if (mc.gameSettings.keyBindBack.isKeyDown()) return 1;
+        if (RotationUtil.distanceToEntity(getTarget()) <= 4.5) return 1;
+        if (RotationUtil.distanceToEntity(getTarget()) <= 6) return 2;
+        if (RotationUtil.distanceToEntity(getTarget()) <= 8) return 3;
+        if (RotationUtil.distanceToEntity(getTarget()) <= 9) return 5;
+        if (RotationUtil.distanceToEntity(getTarget()) <= 15) return 8;
+        if (RotationUtil.distanceToEntity(getTarget()) > 15) return 20;
+        return 1;
     }
 
     private boolean hasProjectile() {
@@ -190,7 +213,7 @@ public class AutoProjectiles extends Module {
 
         switch (this.throwState) {
             case 0:
-                if (System.currentTimeMillis() - this.lastThrowTime < this.throwDelay.getValue()) return;
+                if (System.currentTimeMillis() - this.lastThrowTime < getDelay() * 50F) return;
 
                 this.target = this.getTarget();
                 if (this.target == null) return;
@@ -220,9 +243,7 @@ public class AutoProjectiles extends Module {
                 break;
 
             case 3:
-                for (int i = 0; i < this.amount.getValue(); i++) {
-                    this.throwProjectile();
-                }
+                this.throwProjectile();
                 this.lastThrowTime = System.currentTimeMillis();
                 this.throwState = 4;
                 break;

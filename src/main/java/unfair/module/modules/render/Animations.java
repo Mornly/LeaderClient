@@ -56,16 +56,16 @@ public class Animations extends Module {
                     "Sigma4"
             }
     );
-    public final BooleanProperty cancelEquip = new BooleanProperty("cancelequip", false);
-    public final BooleanProperty cancelEquipBlockingOnly = new BooleanProperty("cancelequip-blockingonly", true, () -> this.cancelEquip.getValue());
-    public final FloatProperty itemSize = new FloatProperty("item-size", 0.0F, -0.5F, 0.5F);
-    public final FloatProperty itemFov = new FloatProperty("item-fov", 0.0F, -5.0F, 5.0F);
-    public final FloatProperty itemPosX = new FloatProperty("itempos-x", 0.0F, -1.0F, 1.0F);
-    public final FloatProperty itemPosY = new FloatProperty("itempos-y", 0.0F, -1.0F, 1.0F);
-    public final FloatProperty itemPosZ = new FloatProperty("itempos-z", 0.0F, -1.0F, 1.0F);
-    public final FloatProperty blockPosX = new FloatProperty("blockpos-x", 0.0F, -1.0F, 1.0F);
-    public final FloatProperty blockPosY = new FloatProperty("blockpos-y", 0.0F, -1.0F, 1.0F);
-    public final FloatProperty blockPosZ = new FloatProperty("blockpos-z", 0.0F, -1.0F, 1.0F);
+    public final BooleanProperty cancelEquip = new BooleanProperty("Cancel Equip", false);
+    public final BooleanProperty cancelEquipBlockingOnly = new BooleanProperty("Cancel Equip Blocking Only", true, () -> this.cancelEquip.getValue());
+    public final FloatProperty itemSize = new FloatProperty("Item Size", 0.0F, -0.5F, 0.5F);
+    public final FloatProperty itemFov = new FloatProperty("Item Fov", 0.0F, -5.0F, 5.0F);
+    public final FloatProperty itemPosX = new FloatProperty("Item Pos X", 0.0F, -1.0F, 1.0F);
+    public final FloatProperty itemPosY = new FloatProperty("Item Pos Y", 0.0F, -1.0F, 1.0F);
+    public final FloatProperty itemPosZ = new FloatProperty("Item Pos Z", 0.0F, -1.0F, 1.0F);
+    public final FloatProperty blockPosX = new FloatProperty("Block Pos X", 0.0F, -1.0F, 1.0F);
+    public final FloatProperty blockPosY = new FloatProperty("Block Pos Y", 0.0F, -1.0F, 1.0F);
+    public final FloatProperty blockPosZ = new FloatProperty("Block Pos Z", 0.0F, -1.0F, 1.0F);
 
     public Animations() {
         super("Animations", false);

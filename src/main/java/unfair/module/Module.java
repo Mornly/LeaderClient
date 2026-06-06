@@ -1,6 +1,5 @@
 package unfair.module;
 
-import scala.tools.nsc.backend.icode.Members;
 import unfair.Unfair;
 import unfair.module.modules.render.HUD;
 import unfair.module.modules.render.Notification;

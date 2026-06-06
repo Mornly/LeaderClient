@@ -3,10 +3,10 @@ package unfair.util.shader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.shader.Framebuffer;
-import unfair.util.RenderUtil;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL14;
+import unfair.util.RenderUtil;
 
 import java.util.ArrayList;
 import java.util.List;

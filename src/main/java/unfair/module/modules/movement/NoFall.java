@@ -31,10 +31,10 @@ import unfair.util.*;
 
 public class NoFall extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"PACKET", "BLINK", "NO_GROUND", "SPOOF","WATER_BUCKET"});
-    public final FloatProperty distance = new FloatProperty("distance", 3.0F, 0.0F, 20.0F);
-    public final IntProperty delay = new IntProperty("delay", 0, 0, 10000);
-    public  final BooleanProperty silent = new BooleanProperty("Rotation",false,() -> this.mode.getValue() == 4);
+    public final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Packet", "Blink", "NoGround", "Spoof", "MLG"});
+    public final FloatProperty distance = new FloatProperty("Distance", 3.0F, 0.0F, 20.0F);
+    public final IntProperty delay = new IntProperty("Delay", 0, 0, 10000);
+    public final BooleanProperty silent = new BooleanProperty("Rotation", false, () -> this.mode.getValue() == 4);
     private final TimerUtil packetDelayTimer = new TimerUtil();
     private final TimerUtil scoreboardResetTimer = new TimerUtil();
     private boolean slowFalling = false;

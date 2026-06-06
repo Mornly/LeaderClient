@@ -16,7 +16,6 @@ import unfair.events.*;
 import unfair.mixin.IAccessorRenderManager;
 import unfair.module.Module;
 import unfair.module.modules.combat.KillAura;
-import unfair.module.modules.player.Scaffold;
 import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.FloatProperty;
 import unfair.property.properties.ModeProperty;
@@ -32,9 +31,9 @@ import java.util.stream.Collectors;
 public class ChestAura extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
-    public final FloatProperty range = new FloatProperty("range", 4.0f, 1.0f, 6.0f);
-    public final BooleanProperty throughWalls = new BooleanProperty("through-walls", true);
-    public final ModeProperty moveFix = new ModeProperty("move-fix", 1, new String[]{"None", "Silent", "Strict"});
+    public final FloatProperty range = new FloatProperty("Range", 4.0f, 1.0f, 6.0f);
+    public final BooleanProperty throughWalls = new BooleanProperty("Through Walls", true);
+    public final ModeProperty moveFix = new ModeProperty("Move Fix", 1, new String[]{"None", "Silent", "Strict"});
     public final BooleanProperty noWorkWhenScaffold = new BooleanProperty("No Scaffold", true);
 
     private final List<BlockPos> openedChests = new ArrayList<>();
@@ -89,7 +88,6 @@ public class ChestAura extends Module {
         if (!isEnabled()) return;
         if (event.getType() != EventType.PRE) return;
 
-        // 检查 Scaffold 是否启用
         if (noWorkWhenScaffold.getValue()) {
             Scaffold scaffold = (Scaffold) Unfair.moduleManager.getModule(Scaffold.class);
             if (scaffold != null && scaffold.isEnabled()) {
@@ -99,7 +97,6 @@ public class ChestAura extends Module {
             }
         }
 
-        // KillAura 检查
         KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
         if (killAura != null && killAura.isEnabled() && killAura.getTarget() != null) {
             targetChest = null;
@@ -107,7 +104,6 @@ public class ChestAura extends Module {
             return;
         }
 
-        // 更新已开启的箱子列表
         for (TileEntity tileEntity : mc.theWorld.loadedTileEntityList) {
             if (tileEntity instanceof TileEntityChest) {
                 TileEntityChest chest = (TileEntityChest) tileEntity;
@@ -140,7 +136,6 @@ public class ChestAura extends Module {
                 event.setPervRotation(rotations[0], 1);
             }
 
-            // 尝试打开箱子
             if (mc.playerController.onPlayerRightClick(mc.thePlayer, mc.theWorld,
                     mc.thePlayer.inventory.getCurrentItem(),
                     targetChest.getPos(), EnumFacing.UP,
