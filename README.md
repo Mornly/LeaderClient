@@ -12,6 +12,7 @@ A New kind of [Myau Client](https://github.com/60124808866/OpenMyau),based on [U
 [@viakkkv](https://github.com/viakkkv)
 [@Mornly](https://github.com/Mornly)
 [@yourusername](https://github.com/qm123pz)
+[@UnfairGaming](https://github.com/UnfairGaming)
 
 # Communication Channel
 
