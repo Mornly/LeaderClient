@@ -36,11 +36,11 @@ import java.io.IOException;
 public class TargetESP extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
-    public final ModeProperty mode = new ModeProperty("MarkMode", 1, new String[]{"Points", "Ghost", "Image", "Exhi", "Circle"});
-    public final ModeProperty imageMode = new ModeProperty("ImageMode", 0, new String[]{"Rectangle", "QuadStapple", "TriangleStapple", "TriangleStipple", "Aim", "Custom"},
+    public final ModeProperty mode = new ModeProperty("Mark Mode", 1, new String[]{"Points", "Ghost", "Image", "Exhi", "Circle"});
+    public final ModeProperty imageMode = new ModeProperty("Image Mode", 0, new String[]{"Rectangle", "Quad Stapple", "Triangle Stapple", "Triangle Stipple", "Aim", "Custom"},
             () -> mode.getValue() == 2);
     public final BooleanProperty animation = new BooleanProperty("Animation", true, () -> mode.getValue() == 2 && imageMode.getValue() == 5);
-    public final BooleanProperty selectImage = new BooleanProperty("SelectImage", false, () -> mode.getValue() == 2 && imageMode.getValue() == 5) {
+    public final BooleanProperty selectImage = new BooleanProperty("Select Image", false, () -> mode.getValue() == 2 && imageMode.getValue() == 5) {
         @Override
         public boolean setValue(Object value) {
             boolean result = super.setValue(value);
@@ -51,11 +51,11 @@ public class TargetESP extends Module {
             return result;
         }
     };
-    public final FloatProperty circleSpeed = new FloatProperty("CircleSpeed", 2.0F, 1.0F, 5.0F, () -> mode.getValue() == 4);
-    public final BooleanProperty onlyPlayer = new BooleanProperty("OnlyPlayer", false);
-    public final BooleanProperty showHurt = new BooleanProperty("ShowHurt", false, () -> mode.getValue() == 2);
-    public final ModeProperty colorMode = new ModeProperty("ColorMode", 0,new String[]{"HUD","Simple"});
-    public final ColorProperty moduleColor = new ColorProperty("Color", 0xFFFFFF,() -> colorMode.getValue() == 1);
+    public final FloatProperty circleSpeed = new FloatProperty("Circle Speed", 2.0F, 1.0F, 5.0F, () -> mode.getValue() == 4);
+    public final BooleanProperty onlyPlayer = new BooleanProperty("Only Player", false);
+    public final BooleanProperty showHurt = new BooleanProperty("Show Hurt", false, () -> mode.getValue() == 2);
+    public final ModeProperty colorMode = new ModeProperty("Color Mode", 0, new String[]{"Hud", "Simple"});
+    public final ColorProperty moduleColor = new ColorProperty("Color", 0xFFFFFF, () -> colorMode.getValue() == 1);
 
     private ResourceLocation customImage = null;
     private long lastHurtTime = 0;
@@ -70,7 +70,7 @@ public class TargetESP extends Module {
 
     private final ResourceLocation glowCircle = new ResourceLocation("minecraft", "unfair/texture/targetesp/glow_circle.png");
     private final ResourceLocation rectangle = new ResourceLocation("minecraft", "unfair/texture/targetesp/rectangle.png");
-    private final ResourceLocation quadstapple = new ResourceLocation("minecraftr", "unfair/texture/targetesp/quadstapple.png");
+    private final ResourceLocation quadstapple = new ResourceLocation("minecraft", "unfair/texture/targetesp/quadstapple.png");
     private final ResourceLocation trianglestapple = new ResourceLocation("minecraft", "unfair/texture/targetesp/trianglestapple.png");
     private final ResourceLocation trianglestipple = new ResourceLocation("minecraft", "unfair/texture/targetesp/trianglestipple.png");
     private final ResourceLocation aim = new ResourceLocation("minecraft", "unfair/texture/targetesp/shenmi.png");

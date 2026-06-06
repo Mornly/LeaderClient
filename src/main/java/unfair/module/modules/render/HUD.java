@@ -26,42 +26,41 @@ import java.util.stream.Collectors;
 
 public class HUD extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private static final float ANIMATION_DURATION = 200.0F;
 
     private static final float SUFFIX_GAP = 3.0F;
     private static final float BAR_WIDTH = 1.0F;
     private static final float TEXT_Y_OFFSET = -0.5F;
     public final ModeProperty colorMode = new ModeProperty(
-            "color", 3, new String[]{"RAINBOW", "CHROMA", "ASTOLFO", "CUSTOM1", "CUSTOM12", "CUSTOM123"}
+            "Color", 3, new String[]{"Rainbow", "Chroma", "Astolfo", "Custom 1", "Custom 12", "Custom 123"}
     );
-    public static final ModeProperty font = new ModeProperty("Font", 0, new String[]{"Unfair", "MineCraft"});
-    public final IntProperty fontSize = new IntProperty("FontSize", 18, 12, 36);
-    public final FloatProperty colorSpeed = new FloatProperty("color-speed", 1.0F, 0.5F, 1.5F);
-    public final PercentProperty colorSaturation = new PercentProperty("color-saturation", 50);
-    public final PercentProperty colorBrightness = new PercentProperty("color-brightness", 100);
-    public final ColorProperty custom1 = new ColorProperty("custom-color-1", Color.WHITE.getRGB(), () -> this.colorMode.getValue() == 3 || this.colorMode.getValue() == 4 || this.colorMode.getValue() == 5);
-    public final ColorProperty custom2 = new ColorProperty("custom-color-2", Color.WHITE.getRGB(), () -> this.colorMode.getValue() == 4 || this.colorMode.getValue() == 5);
-    public final ColorProperty custom3 = new ColorProperty("custom-color-3", Color.WHITE.getRGB(), () -> this.colorMode.getValue() == 5);
-    public final ModeProperty posX = new ModeProperty("position-x", 0, new String[]{"LEFT", "RIGHT"});
-    public final ModeProperty posY = new ModeProperty("position-y", 0, new String[]{"TOP", "BOTTOM"});
-    public final IntProperty offsetX = new IntProperty("offset-x", 2, 0, 255);
-    public final IntProperty offsetY = new IntProperty("offset-y", 2, 0, 255);
-    public final IntProperty bgWidth = new IntProperty("bg-width", 1, 0, 10);
-    public final IntProperty bgHeight = new IntProperty("bg-height", 2, 0, 20);
-    public final FloatProperty scale = new FloatProperty("scale", 1.0F, 0.5F, 1.5F);
-    public final ColorProperty backgroundColor = new ColorProperty("background-color", new Color(0, 0, 0, 255).getRGB());
-    public final PercentProperty background = new PercentProperty("background-alpha", 50);
+    public static final ModeProperty font = new ModeProperty("Font", 0, new String[]{"Unfair", "Minecraft"});
+    public final IntProperty fontSize = new IntProperty("Font Size", 18, 12, 36);
+    public final FloatProperty colorSpeed = new FloatProperty("Color Speed", 1.0F, 0.5F, 1.5F);
+    public final PercentProperty colorSaturation = new PercentProperty("Color Saturation", 50);
+    public final PercentProperty colorBrightness = new PercentProperty("Color Brightness", 100);
+    public final ColorProperty custom1 = new ColorProperty("Custom Color 1", Color.WHITE.getRGB(), () -> this.colorMode.getValue() == 3 || this.colorMode.getValue() == 4 || this.colorMode.getValue() == 5);
+    public final ColorProperty custom2 = new ColorProperty("Custom Color 2", Color.WHITE.getRGB(), () -> this.colorMode.getValue() == 4 || this.colorMode.getValue() == 5);
+    public final ColorProperty custom3 = new ColorProperty("Custom Color 3", Color.WHITE.getRGB(), () -> this.colorMode.getValue() == 5);
+    public final ModeProperty posX = new ModeProperty("Position X", 0, new String[]{"Left", "Right"});
+    public final ModeProperty posY = new ModeProperty("Position Y", 0, new String[]{"Top", "Bottom"});
+    public final IntProperty offsetX = new IntProperty("Offset X", 2, 0, 255);
+    public final IntProperty offsetY = new IntProperty("Offset Y", 2, 0, 255);
+    public final IntProperty bgWidth = new IntProperty("Bg Width", 1, 0, 10);
+    public final IntProperty bgHeight = new IntProperty("Bg Height", 2, 0, 20);
+    public final FloatProperty scale = new FloatProperty("Scale", 1.0F, 0.5F, 1.5F);
+    public final ColorProperty backgroundColor = new ColorProperty("Background Color", new Color(0, 0, 0, 255).getRGB());
+    public final PercentProperty background = new PercentProperty("Background Alpha", 50);
 
-    public final BooleanProperty showBar = new BooleanProperty("bar", true);
-    public final IntProperty barHeight = new IntProperty("BarHeightLess", 0, 0, 10);
+    public final BooleanProperty showBar = new BooleanProperty("Bar", true);
+    public final IntProperty barHeight = new IntProperty("Bar Height Less", 0, 0, 10);
 
-    public final BooleanProperty shadow = new BooleanProperty("shadow", true);
-    public final BooleanProperty suffixes = new BooleanProperty("suffixes", true);
-    public final BooleanProperty lowerCase = new BooleanProperty("lower-case", false);
-    public final BooleanProperty chatOutline = new BooleanProperty("chat-outline", true);
-    public final BooleanProperty blinkTimer = new BooleanProperty("blink-timer", true);
-    public final BooleanProperty toggleSound = new BooleanProperty("toggle-sounds", true);
-    public final BooleanProperty toggleAlerts = new BooleanProperty("toggle-alerts", false);
+    public final BooleanProperty shadow = new BooleanProperty("Shadow", true);
+    public final BooleanProperty suffixes = new BooleanProperty("Suffixes", true);
+    public final BooleanProperty lowerCase = new BooleanProperty("Lower Case", false);
+    public final BooleanProperty chatOutline = new BooleanProperty("Chat Outline", true);
+    public final BooleanProperty blinkTimer = new BooleanProperty("Blink Timer", true);
+    public final BooleanProperty toggleSound = new BooleanProperty("Toggle Sounds", true);
+    public final BooleanProperty toggleAlerts = new BooleanProperty("Toggle Alerts", false);
 
     private final Map<Module, Float> animationMap = new HashMap<>();
     private List<Module> activeModules = new ArrayList<>();

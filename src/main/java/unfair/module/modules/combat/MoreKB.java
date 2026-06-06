@@ -16,15 +16,13 @@ import unfair.property.properties.ModeProperty;
 
 public class MoreKB extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"LEGIT", "LEGITFAST", "LESSPACKET", "PACKET", "DOUBLEPACKET"});
-    public final BooleanProperty intelligent = new BooleanProperty("intelligent", false);
-    public final BooleanProperty onlyGround = new BooleanProperty("only-ground", true);
-    private boolean shouldSprintReset;
+    public final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Legit", "LegitFast", "LessPacket", "Packet", "DoublePacket"});
+    public final BooleanProperty intelligent = new BooleanProperty("Intelligent", false);
+    public final BooleanProperty onlyGround = new BooleanProperty("Only Ground", true);
     private EntityLivingBase target;
 
     public MoreKB() {
         super("MoreKB", false);
-        this.shouldSprintReset = false;
         this.target = null;
     }
 
@@ -34,7 +32,7 @@ public class MoreKB extends Module {
             return;
         }
         Entity targetEntity = event.getTarget();
-        if (targetEntity != null && targetEntity instanceof EntityLivingBase) {
+        if (targetEntity instanceof EntityLivingBase) {
             this.target = (EntityLivingBase) targetEntity;
         }
     }
@@ -70,12 +68,10 @@ public class MoreKB extends Module {
         if (entity.hurtTime == 10) {
             switch (this.mode.getValue()) {
                 case 0:
-                    this.shouldSprintReset = true;
                     if (mc.thePlayer.isSprinting()) {
                         mc.thePlayer.setSprinting(false);
                         mc.thePlayer.setSprinting(true);
                     }
-                    this.shouldSprintReset = false;
                     break;
                 case 2:
                     if (mc.thePlayer.isSprinting()) {

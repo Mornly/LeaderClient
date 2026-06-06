@@ -24,20 +24,20 @@ import java.util.stream.Collectors;
 public class ChineseHat extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
-    private final ModeProperty colorMode = new ModeProperty("ColorMode", 0, new String[]{"Custom", "DistanceColor", "Rainbow"});
+    private final ModeProperty colorMode = new ModeProperty("Color Mode", 0, new String[]{"Custom", "Distance Color", "Rainbow"});
     private final ColorProperty customColor = new ColorProperty("Color", new Color(0, 160, 255, 150).getRGB(), () -> colorMode.getValue() == 0);
     private final PercentProperty opacity = new PercentProperty("Opacity", 100, 0, 100, null);
-    private final FloatProperty playerHeight = new FloatProperty("PlayerHeight", 0.5f, 0.25f, 2.0f);
-    private final FloatProperty coneWidth = new FloatProperty("ConeWidth", 0.5f, 0.0f, 2.0f);
-    private final FloatProperty coneHeight = new FloatProperty("ConeHeight", 0.5f, 0.1f, 2.0f);
-    private final BooleanProperty renderSelf = new BooleanProperty("RenderSelf", false);
-    private final IntProperty maxRenderDistance = new IntProperty("MaxRenderDistance", 100, 1, 200);
-    private final BooleanProperty onLook = new BooleanProperty("OnLook", false);
-    private final FloatProperty maxAngleDifference = new FloatProperty("MaxAngleDifference", 90.0f, 5.0f, 90.0f, () -> onLook.getValue());
+    private final FloatProperty playerHeight = new FloatProperty("Player Height", 0.5f, 0.25f, 2.0f);
+    private final FloatProperty coneWidth = new FloatProperty("Cone Width", 0.5f, 0.0f, 2.0f);
+    private final FloatProperty coneHeight = new FloatProperty("Cone Height", 0.5f, 0.1f, 2.0f);
+    private final BooleanProperty renderSelf = new BooleanProperty("Render Self", false);
+    private final IntProperty maxRenderDistance = new IntProperty("Max Render Distance", 100, 1, 200);
+    private final BooleanProperty onLook = new BooleanProperty("On Look", false);
+    private final FloatProperty maxAngleDifference = new FloatProperty("Max Angle Difference", 90.0f, 5.0f, 90.0f, () -> onLook.getValue());
     private final BooleanProperty bots = new BooleanProperty("Bots", true);
     private final BooleanProperty teams = new BooleanProperty("Teams", false);
     private final BooleanProperty mobs = new BooleanProperty("Mobs", false);
-    private final BooleanProperty thruBlocks = new BooleanProperty("ThruBlocks", true);
+    private final BooleanProperty thruBlocks = new BooleanProperty("Thru Blocks", true);
 
     public ChineseHat() {
         super("ChineseHat", false);

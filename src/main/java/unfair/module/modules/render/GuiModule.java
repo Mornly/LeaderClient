@@ -9,7 +9,7 @@ import unfair.ui.clickgui.panel.PanelGui;
 
 public class GuiModule extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("Mode", 1, new String[]{"DropDown", "Panel"});
+    public final ModeProperty mode = new ModeProperty("Mode", 1, new String[]{"Drop Down", "Panel"});
     private DropDownGui dropDownGui;
 
     public GuiModule() {

@@ -32,24 +32,7 @@ import java.util.Comparator;
 
 public class Scaffold extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private static final double[] placeOffsets = new double[]{
-            0.03125,
-            0.09375,
-            0.15625,
-            0.21875,
-            0.28125,
-            0.34375,
-            0.40625,
-            0.46875,
-            0.53125,
-            0.59375,
-            0.65625,
-            0.71875,
-            0.78125,
-            0.84375,
-            0.90625,
-            0.96875
-    };
+    private static final double[] placeOffsets = new double[]{0.03125, 0.09375, 0.15625, 0.21875, 0.28125, 0.34375, 0.40625, 0.46875, 0.53125, 0.59375, 0.65625, 0.71875, 0.78125, 0.84375, 0.90625, 0.96875};
     public final ModeProperty rotationMode = new ModeProperty("Rotate Mode", 3, new String[]{"None", "Vanilla", "Backwards", "Prediction"});
     public final ModeProperty towerMode = new ModeProperty("Tower Mode", 0, new String[]{"None", "Vanilla", "Motion", "Jump"});
     public final ModeProperty moveFix = new ModeProperty("Move Fix", 1, new String[]{"None", "Silent"});

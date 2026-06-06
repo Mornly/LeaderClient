@@ -36,13 +36,13 @@ public class BackTrack extends Module {
       super("BackTrack", false);
    }
    private static final Minecraft mc = Minecraft.getMinecraft();
-   private final IntProperty minLatency = new IntProperty("MinMS", 50, 10, 1000);
-   private final IntProperty maxLatency = new IntProperty("MaxMS", 100, 10, 1000);
-   private final FloatProperty minDistance = new FloatProperty("MinDistance", 0.0F, 0.0F, 3.0F);
-   private final FloatProperty maxDistance = new FloatProperty("MaxDistance", 6.0F, 0.0F, 10.0F);
-   private final IntProperty stopOnTargetHurtTime = new IntProperty("PlayerHurtTime", -1, -1, 10);
-   private final IntProperty stopOnSelfHurtTime = new IntProperty("StopOnSelfHurtTime", -1, -1, 10);
-   private final BooleanProperty drawRealPosition = new BooleanProperty("DrawRealPosition", true);
+   private final IntProperty minLatency = new IntProperty("Min MS", 50, 10, 1000);
+   private final IntProperty maxLatency = new IntProperty("Max MS", 100, 10, 1000);
+   private final FloatProperty minDistance = new FloatProperty("Min Distance", 0.0F, 0.0F, 3.0F);
+   private final FloatProperty maxDistance = new FloatProperty("Max Distance", 6.0F, 0.0F, 10.0F);
+   private final IntProperty stopOnTargetHurtTime = new IntProperty("Player HurtTime", -1, -1, 10);
+   private final IntProperty stopOnSelfHurtTime = new IntProperty("Stop On Get Hurt", -1, -1, 10);
+   private final BooleanProperty drawESP = new BooleanProperty("Draw ESP", true);
    private final Queue<TimedPacket> packetQueue = new ConcurrentLinkedQueue<>();
    private final List<Packet<?>> skipPackets = new ArrayList<>();
 
@@ -228,7 +228,7 @@ public class BackTrack extends Module {
       if (target == null || vec3 == null || target.isDead || !isEnabled())
          return;
       final net.minecraft.util.Vec3 pos = currentLatency > 0 ? vec3 : target.getPositionVector();
-      if (drawRealPosition.getValue())drawBox(pos);
+      if (drawESP.getValue())drawBox(pos);
    }
    @EventTarget
    public void onReceivePacket(PacketEvent e) {

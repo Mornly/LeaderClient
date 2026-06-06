@@ -20,8 +20,8 @@ import unfair.util.RandomUtil;
 
 public class AntiVoid extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"BLINK"});
-    public final FloatProperty distance = new FloatProperty("distance", 5.0F, 0.0F, 16.0F);
+    public final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Blink"});
+    public final FloatProperty distance = new FloatProperty("Distance", 5.0F, 0.0F, 16.0F);
     private boolean isInVoid = false;
     private boolean wasInVoid = false;
     private double[] lastSafePosition = null;

@@ -25,9 +25,9 @@ public class Island extends Module {
     public Island(){
         super("Island",false,false);
     }
-    public final ModeProperty blockCounterMode = new ModeProperty("BlockCounterStyle",0,new String[]{"Bar","Circle"});
-    public final ModeProperty blockCounterPosition = new ModeProperty("BlockCounterPosition",0,new String[]{"Middle","Top"});
-    public final FloatProperty backgroundRadius = new FloatProperty("BackgroundRadius", 4f, 0f, 20f);
+    public final ModeProperty blockCounterMode = new ModeProperty("Block Counter Style", 0, new String[]{"Bar", "Circle"});
+    public final ModeProperty blockCounterPosition = new ModeProperty("Block Counter Position", 0, new String[]{"Middle", "Top"});
+    public final FloatProperty backgroundRadius = new FloatProperty("Background Radius", 4f, 0f, 20f);
     public float x, y, width, height;
     private ScaledResolution sr;
     public ContinualAnimation animatedX = new ContinualAnimation();

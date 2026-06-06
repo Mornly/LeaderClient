@@ -46,27 +46,26 @@ import java.util.stream.Collectors;
 public class NameTags extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static final DecimalFormat healthFormatter = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.US));
-    public final FloatProperty scale = new FloatProperty("scale", 1.0F, 0.5F, 2.0F);
-    public final BooleanProperty autoScale = new BooleanProperty("auto-scale", true);
+    public final FloatProperty scale = new FloatProperty("Scale", 1.0F, 0.5F, 2.0F);
+    public final BooleanProperty autoScale = new BooleanProperty("Auto Scale", true);
     public final ModeProperty font = new ModeProperty("Font", 0, new String[]{"Unfair", "Minecraft"});
-    public final PercentProperty backgroundOpacity = new PercentProperty("background", 25);
-    public final BooleanProperty shadow = new BooleanProperty("shadow", true);
-    public final ModeProperty distanceMode = new ModeProperty("distance", 0, new String[]{"NONE", "DEFAULT", "VAPE"});
-    public final ModeProperty healthMode = new ModeProperty("health", 2, new String[]{"NONE", "HP", "HEARTS", "TAB"});
-    public final BooleanProperty armor = new BooleanProperty("armor", true);
-    public final BooleanProperty effects = new BooleanProperty("effects", true);
-    public final BooleanProperty players = new BooleanProperty("players", true);
-    public final BooleanProperty friends = new BooleanProperty("friends", true);
-    public final BooleanProperty enemies = new BooleanProperty("enemies", true);
-    public final BooleanProperty bossees = new BooleanProperty("bosses", false);
-    public final BooleanProperty mobs = new BooleanProperty("mobs", false);
-    public final BooleanProperty creepers = new BooleanProperty("creepers", false);
-    public final BooleanProperty endermans = new BooleanProperty("endermen", false);
-    public final BooleanProperty blazes = new BooleanProperty("blazes", false);
-    public final BooleanProperty animals = new BooleanProperty("animals", false);
-    public final BooleanProperty self = new BooleanProperty("self", false);
-    public final BooleanProperty bots = new BooleanProperty("bots", false);
-
+    public final PercentProperty backgroundOpacity = new PercentProperty("Background", 25);
+    public final BooleanProperty shadow = new BooleanProperty("Shadow", true);
+    public final ModeProperty distanceMode = new ModeProperty("Distance", 0, new String[]{"None", "Default", "Vape"});
+    public final ModeProperty healthMode = new ModeProperty("Health", 2, new String[]{"None", "Hp", "Hearts", "Tab"});
+    public final BooleanProperty armor = new BooleanProperty("Armor", true);
+    public final BooleanProperty effects = new BooleanProperty("Effects", true);
+    public final BooleanProperty players = new BooleanProperty("Players", true);
+    public final BooleanProperty friends = new BooleanProperty("Friends", true);
+    public final BooleanProperty enemies = new BooleanProperty("Enemies", true);
+    public final BooleanProperty bossees = new BooleanProperty("Bosses", false);
+    public final BooleanProperty mobs = new BooleanProperty("Mobs", false);
+    public final BooleanProperty creepers = new BooleanProperty("Creepers", false);
+    public final BooleanProperty endermans = new BooleanProperty("Endermen", false);
+    public final BooleanProperty blazes = new BooleanProperty("Blazes", false);
+    public final BooleanProperty animals = new BooleanProperty("Animals", false);
+    public final BooleanProperty self = new BooleanProperty("Self", false);
+    public final BooleanProperty bots = new BooleanProperty("Bots", false);
     public NameTags() {
         super("NameTags", false, true);
     }

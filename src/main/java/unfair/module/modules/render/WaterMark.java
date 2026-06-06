@@ -13,8 +13,8 @@ public class WaterMark extends Module {
         super("WaterMark", false, true);
     }
 
-    public final IntProperty rectLeft = new IntProperty("RectLeft", 5, 0, 20);
-    public final IntProperty rectTop = new IntProperty("RectTop", 5, 0, 20);
+    public final IntProperty rectLeft = new IntProperty("Rect Left", 5, 0, 20);
+    public final IntProperty rectTop = new IntProperty("Rect Top", 5, 0, 20);
     @EventTarget
     public void onRender2D(Render2DEvent event) {
         if (!this.isEnabled()) return;

@@ -21,10 +21,10 @@ import unfair.util.*;
 
 public class LongJump extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"FIREBALL", "FIREBALL_MANUAL", "FIREBALL_HIGH", "FIREBALL_FLAT"});
-    public final FloatProperty motion = new FloatProperty("motion", 1.0F, 1.0F, 20.0F);
-    public final FloatProperty speedMotion = new FloatProperty("speed-motion", 1.0F, 1.0F, 20.0F);
-    public final PercentProperty strafe = new PercentProperty("strafe", 0);
+    public final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Fireball", "Fireball Manual", "Fireball High", "Fireball Flat"});
+    public final FloatProperty motion = new FloatProperty("Motion", 1.0F, 1.0F, 20.0F);
+    public final FloatProperty speedMotion = new FloatProperty("Speed Motion", 1.0F, 1.0F, 20.0F);
+    public final PercentProperty strafe = new PercentProperty("Strafe", 0);
     private final TimerUtil fireballTimer = new TimerUtil();
     private final TimerUtil jumpTimer = new TimerUtil();
     private boolean isJumping = false;

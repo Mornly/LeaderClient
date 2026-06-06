@@ -29,10 +29,10 @@ public class LegitScaffold extends Module {
     private float pitch = 0.0F;
     private boolean canRotate = false;
     private boolean eagleSneaking = false;
-    public final ModeProperty rotationMode = new ModeProperty("rotations", 2, new String[]{"NONE", "DEFAULT", "BACKWARDS", "SIDEWAYS"});
-    public final ModeProperty moveFix = new ModeProperty("move-fix", 1, new String[]{"NONE", "SILENT"});
-    public final BooleanProperty eagle = new BooleanProperty("eagle", true);
-    public final BooleanProperty blocksOnly = new BooleanProperty("blocks-only", true);
+    public final ModeProperty rotationMode = new ModeProperty("Rotations", 2, new String[]{"None", "Default", "Backwards", "Sideways"});
+    public final ModeProperty moveFix = new ModeProperty("Move Fix", 1, new String[]{"None", "Silent"});
+    public final BooleanProperty eagle = new BooleanProperty("Eagle", true);
+    public final BooleanProperty blocksOnly = new BooleanProperty("Blocks Only", true);
 
     public LegitScaffold() {
         super("LegitScaffold", false);
@@ -46,7 +46,7 @@ public class LegitScaffold extends Module {
                 && !this.isModuleEnabled(Scaffold.class);
     }
 
-    private boolean isModuleEnabled(Class<? extends Module> moduleClass) {
+    private boolean isModuleEnabled(Class<? extends Module> moduleClass) { //写出来这个东西的人或者ai可以进场了
         Module module = Unfair.moduleManager.modules.get(moduleClass);
         return module != null && module.isEnabled();
     }

@@ -23,7 +23,7 @@ import static unfair.config.Config.mc;
 
 public class MotionBlur extends Module {
     public MotionBlur(){super("MotionBlur",false,false);}
-    public static final FloatProperty blurAmount = new FloatProperty("BlurAmount", 2f, 1f, 10f);
+    public static final FloatProperty blurAmount = new FloatProperty("Blur Amount", 2f, 1f, 10f);
     private Framebuffer blurBufferMain = null;
     private Framebuffer blurBufferInto = null;
     @EventTarget

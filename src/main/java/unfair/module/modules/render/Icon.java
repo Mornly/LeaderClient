@@ -15,13 +15,13 @@ import unfair.util.RenderUtil;
 public class Icon extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
-    public final ModeProperty styles = new ModeProperty("Styles", 0, new String[]{"pig", "shuaige", "liquidbounce", "rise"});
-    public final IntProperty width = new IntProperty("width", 32, 8, 256);
-    public final IntProperty height = new IntProperty("height", 32, 8, 256);
-    public final ModeProperty posX = new ModeProperty("position-x", 0, new String[]{"LEFT", "RIGHT"});
-    public final ModeProperty posY = new ModeProperty("position-y", 0, new String[]{"TOP", "BOTTOM"});
-    public final IntProperty offsetX = new IntProperty("offset-x", 2, 0, 255);
-    public final IntProperty offsetY = new IntProperty("offset-y", 2, 0, 255);
+    public final ModeProperty styles = new ModeProperty("Styles", 0, new String[]{"Pig", "Shuai ge", "Liquid bounce", "Rise"});
+    public final IntProperty width = new IntProperty("Width", 32, 8, 256);
+    public final IntProperty height = new IntProperty("Height", 32, 8, 256);
+    public final ModeProperty posX = new ModeProperty("Position X", 0, new String[]{"Left", "Right"});
+    public final ModeProperty posY = new ModeProperty("Position Y", 0, new String[]{"Top", "Bottom"});
+    public final IntProperty offsetX = new IntProperty("Offset X", 2, 0, 255);
+    public final IntProperty offsetY = new IntProperty("Offset Y", 2, 0, 255);
 
     public Icon() {
         super("Icon", false);

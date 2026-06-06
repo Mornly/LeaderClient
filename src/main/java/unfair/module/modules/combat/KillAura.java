@@ -115,40 +115,40 @@ public class KillAura extends Module {
 
     public KillAura() throws AWTException {
         super("KillAura", false);
-        this.mode = new ModeProperty("mode", 0, new String[]{"SINGLE", "SWITCH"});
-        this.sort = new ModeProperty("sort", 0, new String[]{"DISTANCE", "HEALTH", "HURT_TIME", "FOV"});
+        this.mode = new ModeProperty("Mode", 0, new String[]{"Single", "Switch"});
+        this.sort = new ModeProperty("Sort", 0, new String[]{"Distance", "Health", "Hurt Time", "FOV"});
 
         this.autoBlock = new ModeProperty(
-                "auto-block", 0, new String[]{"NONE", "VANILLA", "HYPIXEL", "LEGIT", "FAKE","HYPIXEL_TEST","HYPIXEL_CUSTOM"}
+                "AutoBlock", 0, new String[]{"None", "Vanilla", "Hypixel", "Legit", "Fake","Hypixel Test","Hypixel Custom"}
         );
-        this.autoBlockRequirePress = new BooleanProperty("auto-block-require-press", false);
-        this.autoBlockCPS = new IntProperty("auto-block-aps", 10, 1, 20);
-        this.autoBlockRange = new FloatProperty("auto-block-range", 6.0F, 3.0F, 8.0F);
-        this.swingRange = new FloatProperty("swing-range", 3.5F, 3.0F, 6.0F);
-        this.attackRange = new FloatProperty("attack-range", 3.0F, 3.0F, 6.0F);
-        this.fov = new IntProperty("fov", 360, 30, 360);
-        this.minCPS = new IntProperty("min-aps", 14, 1, 20);
-        this.maxCPS = new IntProperty("max-aps", 14, 1, 20);
-        this.switchDelay = new IntProperty("switch-delay", 150, 0, 1000);
-        this.rotations = new ModeProperty("rotations", 2, new String[]{"NONE", "LEGIT", "SILENT", "LOCK_VIEW"});
-        this.moveFix = new ModeProperty("move-fix", 1, new String[]{"NONE", "SILENT", "STRICT"});
-        this.smoothing = new PercentProperty("smoothing", 0);
-        this.angleStep = new IntProperty("angle-step", 90, 30, 180);
-        this.throughWalls = new BooleanProperty("through-walls", true);
-        this.requirePress = new BooleanProperty("require-press", false);
-        this.allowMining = new BooleanProperty("allow-mining", false);
-        this.weaponsOnly = new BooleanProperty("weapons-only", false);
-        this.allowTools = new BooleanProperty("allow-tools", false, this.weaponsOnly::getValue);
-        this.inventoryCheck = new BooleanProperty("inventory-check", true);
-        this.botCheck = new BooleanProperty("bot-check", true);
-        this.players = new BooleanProperty("players", true);
-        this.bosses = new BooleanProperty("bosses", false);
-        this.mobs = new BooleanProperty("mobs", false);
-        this.animals = new BooleanProperty("animals", false);
-        this.golems = new BooleanProperty("golems", false);
-        this.silverfish = new BooleanProperty("silverfish", false);
-        this.teams = new BooleanProperty("teams", true);
-        this.showTarget = new ModeProperty("show-target", 0, new String[]{"NONE", "DEFAULT", "HUD","SCAN"});
+        this.autoBlockRequirePress = new BooleanProperty("AutoBlock Require Press", false);
+        this.autoBlockCPS = new IntProperty("AutoBlock Aps", 10, 1, 20);
+        this.autoBlockRange = new FloatProperty("AutoBlock Range", 6.0F, 3.0F, 8.0F);
+        this.swingRange = new FloatProperty("Swing Range", 3.5F, 3.0F, 6.0F);
+        this.attackRange = new FloatProperty("Attack Range", 3.0F, 3.0F, 6.0F);
+        this.fov = new IntProperty("Fov", 360, 30, 360);
+        this.minCPS = new IntProperty("Min Aps", 14, 1, 20);
+        this.maxCPS = new IntProperty("Max Aps", 14, 1, 20);
+        this.switchDelay = new IntProperty("Switch Delay", 150, 0, 1000);
+        this.rotations = new ModeProperty("Rotations", 2, new String[]{"None", "Legit", "Silent", "Lock View"});
+        this.moveFix = new ModeProperty("Move Fix", 1, new String[]{"None", "Silent", "Strict"});
+        this.smoothing = new PercentProperty("Smoothing", 0);
+        this.angleStep = new IntProperty("Angle Step", 90, 30, 180);
+        this.throughWalls = new BooleanProperty("Through Walls", true);
+        this.requirePress = new BooleanProperty("Require Press", false);
+        this.allowMining = new BooleanProperty("Allow Mining", false);
+        this.weaponsOnly = new BooleanProperty("Weapons Only", false);
+        this.allowTools = new BooleanProperty("Allow Tools", false, this.weaponsOnly::getValue);
+        this.inventoryCheck = new BooleanProperty("Inventory Check", true);
+        this.botCheck = new BooleanProperty("Bot Check", true);
+        this.players = new BooleanProperty("Players", true);
+        this.bosses = new BooleanProperty("Bosses", false);
+        this.mobs = new BooleanProperty("Mobs", false);
+        this.animals = new BooleanProperty("Animals", false);
+        this.golems = new BooleanProperty("Golems", false);
+        this.silverfish = new BooleanProperty("Silverfish", false);
+        this.teams = new BooleanProperty("Teams", true);
+        this.showTarget = new ModeProperty("Show Target", 0, new String[]{"None", "Default", "Hud", "Scan"});
     }
 
     private long getAttackDelay() {

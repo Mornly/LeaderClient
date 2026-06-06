@@ -12,7 +12,7 @@ import unfair.property.properties.ModeProperty;
 import unfair.util.SoundUtil;
 
 public class KillSound extends Module {
-    private static final String[] SOUNDS = {"Zako", "ZhangXueFeng", "FAHHHH"};
+    private static final String[] SOUNDS = {"Zako", "Zhang Xue Feng", "FAHHHH"};
 
     public final ModeProperty audio = new ModeProperty("Audio", 0, SOUNDS);
 

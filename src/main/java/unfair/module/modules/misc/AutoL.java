@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutoL extends Module {
-    private final ModeProperty wordPattern = new ModeProperty("WordPattern", 0,
-            new String[]{"Poem", "Mama", "PridePlus", "Cixiaogui", "CrystalPVP", "Clear", "English", "SanGuo", "Custom"});
+    private final ModeProperty wordPattern = new ModeProperty("Word Pattern", 0,
+            new String[]{"Poem", "Ma Ma", "Pride Plus", "Ci xiao gui", "Crystal PVP", "Clear", "English", "San Guo", "Custom"});
     private final BooleanProperty nameInFront = new BooleanProperty("NameInFront", true);
     private final TextProperty content = new TextProperty("Content", "");
 

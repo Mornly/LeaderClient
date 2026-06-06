@@ -13,7 +13,6 @@ import unfair.events.TickEvent;
 import unfair.mixin.IAccessorGuiScreen;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
-import unfair.property.properties.FloatProperty;
 import unfair.property.properties.IntProperty;
 import unfair.util.ItemUtil;
 import unfair.util.KeyBindUtil;
@@ -23,15 +22,13 @@ import java.util.Objects;
 
 public class AutoClicker extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final IntProperty minCPS = new IntProperty("min-cps", 8, 1, 20);
-    public final IntProperty maxCPS = new IntProperty("max-cps", 12, 1, 20);
-    public final BooleanProperty blockHit = new BooleanProperty("block-hit", false);
-    public final FloatProperty blockHitTicks = new FloatProperty("block-hit-ticks", 1.5F, 1.0F, 20.0F, this.blockHit::getValue);
-    public final BooleanProperty weaponsOnly = new BooleanProperty("weapons-only", true);
-    public final BooleanProperty allowTools = new BooleanProperty("allow-tools", false, this.weaponsOnly::getValue);
-    public final BooleanProperty breakBlocks = new BooleanProperty("break-blocks", true);
-    public final BooleanProperty invClick = new BooleanProperty("inv-click", false);
-    public final IntProperty invCps = new IntProperty("inv-cps", 1, 1, 20, this.invClick::getValue);
+    public final IntProperty minCPS = new IntProperty("Min CPS", 8, 1, 20);
+    public final IntProperty maxCPS = new IntProperty("Max CPS", 12, 1, 20);
+    public final BooleanProperty weaponsOnly = new BooleanProperty("Weapons Only", true);
+    public final BooleanProperty allowTools = new BooleanProperty("Allow Tools", false, this.weaponsOnly::getValue);
+    public final BooleanProperty breakBlocks = new BooleanProperty("Break Blocks", true);
+    public final BooleanProperty invClick = new BooleanProperty("Allow In GUI", false);
+    public final IntProperty invCps = new IntProperty("GUI CPS", 1, 1, 20, this.invClick::getValue);
     private boolean clickPending = false;
     private long clickDelay = 0L;
     private boolean blockHitPending = false;
@@ -44,10 +41,6 @@ public class AutoClicker extends Module {
 
     private long getNextClickDelay() {
         return 1000L / RandomUtil.nextLong(this.minCPS.getValue(), this.maxCPS.getValue());
-    }
-
-    private long getBlockHitDelay() {
-        return (long) (50.0F * this.blockHitTicks.getValue());
     }
 
     private boolean isBreakingBlock() {
@@ -112,17 +105,6 @@ public class AutoClicker extends Module {
                             this.clickDelay = this.clickDelay + this.getNextClickDelay();
                             KeyBindUtil.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), false);
                             KeyBindUtil.pressKeyOnce(mc.gameSettings.keyBindAttack.getKeyCode());
-                        }
-                    }
-                    if (this.blockHit.getValue()
-                            && this.blockHitDelay <= 0L
-                            && mc.gameSettings.keyBindUseItem.isKeyDown()
-                            && ItemUtil.isHoldingSword()) {
-                        this.blockHitPending = true;
-                        KeyBindUtil.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
-                        if (!mc.thePlayer.isUsingItem()) {
-                            this.blockHitDelay = this.blockHitDelay + this.getBlockHitDelay();
-                            KeyBindUtil.pressKeyOnce(mc.gameSettings.keyBindUseItem.getKeyCode());
                         }
                     }
                 }

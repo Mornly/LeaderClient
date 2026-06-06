@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class InvWalk extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("mode", 1, new String[]{"VANILLA", "LEGIT", "HYPIXEL"});
+    public final ModeProperty mode = new ModeProperty("Mode", 1, new String[]{"Vanilla", "Legit", "Hypixel"});
     public final BooleanProperty guiEnabled = new BooleanProperty("ClickGUI", true);
     private final Queue<C0EPacketClickWindow> clickQueue = new ConcurrentLinkedQueue<>();
     private boolean keysPressed = false;

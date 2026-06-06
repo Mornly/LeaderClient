@@ -37,7 +37,7 @@ public class InvManager extends Module {
     public final IntProperty throwsSlot = new IntProperty("Throws Slot", 4, 0, 9);
     public final IntProperty throwsAmount = new IntProperty("Throws Amount", 64, 16, 320);
     public final IntProperty gappleSlot = new IntProperty("Gapple Slot", 3, 0, 9);
-    public final BooleanProperty keepOre = new BooleanProperty("KeepOre",true);
+    public final BooleanProperty keepOre = new BooleanProperty("Keep Ore",true);
     private int actionDelay = 0;
     private int oDelay = 0;
     private boolean inventoryOpen = false;

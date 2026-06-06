@@ -28,12 +28,12 @@ public class Potion extends Module {
         super("Potion", false, false);
     }
 
-    private final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Circle", "GlowCircle", "Bar"});
-    public final PercentProperty background = new PercentProperty("background", 15, () -> mode.getValue() != 1);
-    private final ModeProperty fontColorMode = new ModeProperty("FontColorMode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
-    private final ModeProperty circleColorMode = new ModeProperty("CircleColorMode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
-    private final IntProperty postx = new IntProperty("PostX", 240, -480, 640);
-    private final IntProperty posty = new IntProperty("PostY", 60, -280, 350);
+    private final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Circle", "Glow Circle", "Bar"});
+    public final PercentProperty background = new PercentProperty("BackGround", 15, () -> mode.getValue() != 1);
+    private final ModeProperty fontColorMode = new ModeProperty("Font Color Mode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
+    private final ModeProperty circleColorMode = new ModeProperty("Circle Color Mode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
+    private final IntProperty posX = new IntProperty("Pos X", 240, -480, 640);
+    private final IntProperty posY = new IntProperty("Pos Y", 60, -280, 350);
     private final Map<Integer, Integer> potionMaxDurations = new HashMap<>();
 
     private static class AnimData {
@@ -143,8 +143,8 @@ public class Potion extends Module {
         renderList.sort(Comparator.comparingInt(this::getEffectFullWidth).reversed());
 
         HUD hud = (HUD) Unfair.moduleManager.modules.get(HUD.class);
-        int baseX = postx.getValue();
-        int baseY = posty.getValue();
+        int baseX = posX.getValue();
+        int baseY = posY.getValue();
 
         if (mode.getValue() == 0) {
             renderCircleMode(renderList, hud, baseX, baseY);

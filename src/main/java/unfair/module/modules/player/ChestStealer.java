@@ -32,7 +32,7 @@ public class ChestStealer extends Module {
     public final BooleanProperty autoClose = new BooleanProperty("Auto Close", true);
     public final BooleanProperty nameCheck = new BooleanProperty("Name Check", true);
     public final BooleanProperty skipTrash = new BooleanProperty("Skip Trash", true);
-    public final BooleanProperty keepProjectiles = new BooleanProperty("SkipProjectiles", true);
+    public final BooleanProperty keepProjectiles = new BooleanProperty("Skip Projectiles", true);
 
     private int clickDelay = 0;
     private int oDelay = 0;
