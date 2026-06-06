@@ -6,8 +6,10 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -15,6 +17,7 @@ import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C02PacketUseEntity.Action;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
@@ -23,6 +26,7 @@ import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.PacketEvent;
 import unfair.events.Render2DEvent;
+import unfair.font.impl.UFontRenderer;
 import unfair.module.Module;
 import unfair.module.modules.combat.KillAura;
 import unfair.property.properties.*;
@@ -42,7 +46,10 @@ public class TargetHUD extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static final DecimalFormat healthFormat = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.US));
     private static final DecimalFormat diffFormat = new DecimalFormat("+0.0;-0.0", new DecimalFormatSymbols(Locale.US));
-    public final ModeProperty style = new ModeProperty("style", 3, new String[]{"UNFAIR", "RAVENBS-MODERN", "RAVENBS-LEGACY","LEADER","ROUNDED"});
+
+    // 原有样式增加 ASTOLFO (5) 和 EXHIBITION (6)
+    public final ModeProperty style = new ModeProperty("style", 3, new String[]{"MYAU", "RAVENBS-MODERN", "RAVENBS-LEGACY","LEADER","ROUNDED","ASTOLFO","EXHIBITION"});
+    public final ModeProperty font = new ModeProperty("Font", 0, new String[]{"Unfair", "Minecraft"});
     public final ModeProperty color = new ModeProperty("color", 0, new String[]{"DEFAULT", "HUD"});
     public final ModeProperty posX = new ModeProperty("position-x", 1, new String[]{"LEFT", "MIDDLE", "RIGHT"});
     public final ModeProperty posY = new ModeProperty("position-y", 1, new String[]{"TOP", "MIDDLE", "BOTTOM"});
@@ -73,6 +80,32 @@ public class TargetHUD extends Module {
 
     public TargetHUD() {
         super("TargetHUD", false, true);
+    }
+
+    private UFontRenderer getCustomFontRenderer() {
+        if (font.getValue() == 0) {
+            return Unfair.fontManager.getFont(18);
+        }
+        return null;
+    }
+
+    private void drawText(String text, float x, float y, int color, boolean shadow) {
+        if (font.getValue() == 1) {
+            if (shadow) {
+                mc.fontRendererObj.drawStringWithShadow(text, x, y, color);
+            } else {
+                mc.fontRendererObj.drawString(text, (int)x, (int)y, color);
+            }
+        } else {
+            UFontRenderer fr = getCustomFontRenderer();
+            if (fr != null) {
+                if (shadow) {
+                    fr.drawStringWithShadow(text, x, y - 2, color);
+                } else {
+                    fr.drawString(text, x, y - 2, color);
+                }
+            }
+        }
     }
 
     private EntityLivingBase resolveTarget() {
@@ -124,38 +157,145 @@ public class TargetHUD extends Module {
         }
     }
 
+    // ========== 新增辅助方法 (ASTOLFO / EXHIBITION) ==========
+    private Color getAstolfoColor(int offset) {
+        if (this.color.getValue() == 1) {
+            HUD hud = (HUD) Unfair.moduleManager.modules.get(HUD.class);
+            if (hud != null) {
+                return hud.getColor(System.currentTimeMillis(), offset);
+            }
+        }
+        return getTargetColor(target);
+    }
+
+    private void drawEntityOnScreen(int x, int y, EntityLivingBase entity) {
+        GlStateManager.enableColorMaterial();
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 50.0F);
+        float size = 16 / Math.max(entity.height / 1.8F, 1);
+        GlStateManager.scale(-size, size, size);
+        GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+        RenderHelper.enableStandardItemLighting();
+        RenderManager rm = mc.getRenderManager();
+        rm.setRenderShadow(false);
+        rm.renderEntityWithPosYaw(entity, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F);
+        rm.setRenderShadow(true);
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.popMatrix();
+    }
+
+    private void drawHorizontalGradientRect(float x, float y, float width, float height, int startColor, int endColor) {
+        float startA = (float) (startColor >> 24 & 255) / 255.0F;
+        float startR = (float) (startColor >> 16 & 255) / 255.0F;
+        float startG = (float) (startColor >> 8 & 255) / 255.0F;
+        float startB = (float) (startColor & 255) / 255.0F;
+        float endA = (float) (endColor >> 24 & 255) / 255.0F;
+        float endR = (float) (endColor >> 16 & 255) / 255.0F;
+        float endG = (float) (endColor >> 8 & 255) / 255.0F;
+        float endB = (float) (endColor & 255) / 255.0F;
+
+        GlStateManager.disableTexture2D();
+        GlStateManager.enableBlend();
+        GlStateManager.disableAlpha();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+        GlStateManager.shadeModel(7425);
+
+        Tessellator tessellator = Tessellator.getInstance();
+        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
+        worldrenderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+        worldrenderer.pos(x, y, 0.0D).color(startR, startG, startB, startA).endVertex();
+        worldrenderer.pos(x, y + height, 0.0D).color(startR, startG, startB, startA).endVertex();
+        worldrenderer.pos(x + width, y + height, 0.0D).color(endR, endG, endB, endA).endVertex();
+        worldrenderer.pos(x + width, y, 0.0D).color(endR, endG, endB, endA).endVertex();
+        tessellator.draw();
+        GlStateManager.shadeModel(7424);
+        GlStateManager.disableBlend();
+        GlStateManager.enableAlpha();
+        GlStateManager.enableTexture2D();
+    }
+
+    private void drawExhibitionBorderedRect(float x1, float y1, float x2, float y2, float border, int fill, int out) {
+        RenderUtil.drawRect(x1, y1, x2, y2, out);
+        RenderUtil.drawRect(x1 + border, y1 + border, x2 - border, y2 - border, fill);
+    }
+
+    private int getExhibitionColor(int b) {
+        return new Color(b, b, b, 255).getRGB();
+    }
+
+    private int getExhibitionColor(int b, int a) {
+        return new Color(b, b, b, a).getRGB();
+    }
+
+    private Color blendColors(float[] fr, Color[] c, float p) {
+        if (p >= 1) return c[c.length - 1];
+        if (p <= 0) return c[0];
+        int i = 0;
+        while (fr[i + 1] <= p) i++;
+        float f = (p - fr[i]) / (fr[i + 1] - fr[i]);
+        return new Color((int) (c[i].getRed() + (c[i + 1].getRed() - c[i].getRed()) * f),
+                (int) (c[i].getGreen() + (c[i + 1].getGreen() - c[i].getGreen()) * f),
+                (int) (c[i].getBlue() + (c[i + 1].getBlue() - c[i].getBlue()) * f));
+    }
+
+    private float getTextWidth(String text) {
+        if (font.getValue() == 1) {
+            return mc.fontRendererObj.getStringWidth(text);
+        } else {
+            UFontRenderer fr = getCustomFontRenderer();
+            return fr != null ? fr.getStringWidth(text) : 0;
+        }
+    }
+
+    private float[] getPosition(float width, float height) {
+        ScaledResolution sr = new ScaledResolution(mc);
+        float x = offX.getValue().floatValue();
+        float y = offY.getValue().floatValue();
+        switch (posX.getValue()) {
+            case 1:
+                x += sr.getScaledWidth() / 2f - width / 2f;
+                break;
+            case 2:
+                x = sr.getScaledWidth() - width - x;
+                break;
+        }
+        switch (posY.getValue()) {
+            case 1:
+                y += sr.getScaledHeight() / 2f - height / 2f;
+                break;
+            case 2:
+                y = sr.getScaledHeight() - height - y;
+                break;
+        }
+        return new float[]{x, y};
+    }
+    // ========== 辅助方法结束 ==========
+
     @EventTarget
     public void onRender(Render2DEvent event) {
         if (this.isEnabled() && mc.thePlayer != null) {
             EntityLivingBase entityLivingBase = this.target;
             this.target = this.resolveTarget();
 
-            // Handle fade in/out logic
             if (this.target != null) {
-                // Target exists
                 if (entityLivingBase == null && fadeTimer == null) {
-                    // Target just appeared - start fade in
                     fadeTimer = new TimerUtil();
                     fadeTimer.reset();
                     fadingIn = true;
                 } else if (fadingIn && fadeTimer != null && fadeTimer.getElapsedTime() >= 400) {
-                    // Fade in complete
                     fadeTimer = null;
                     fadingIn = false;
                 }
             } else {
-                // Target is null - check if we should fade out
                 if (entityLivingBase != null && fadeTimer == null) {
                     fadeTimer = new TimerUtil();
                     fadeTimer.reset();
                     fadingIn = false;
-                    fadingEntity = entityLivingBase; // Store the entity for fade out
+                    fadingEntity = entityLivingBase;
                 }
             }
 
-            // Render if we have a target or we're fading out
             if (entityLivingBase != null || fadeTimer != null) {
-                // Use this.target if available, otherwise use fadingEntity for fade out
                 EntityLivingBase entity = this.target != null ? this.target : fadingEntity;
                 float health = (mc.thePlayer.getHealth() + mc.thePlayer.getAbsorptionAmount()) / 2.0F;
                 float abs = entity.getAbsorptionAmount() / 2.0F;
@@ -184,23 +324,91 @@ public class TargetHUD extends Module {
                 if (target != null) {
                     if (styleMode == 0) {
                         drawUnfairStyle(health, abs, heal);
-                    } else {
-                        if (styleMode <= 2) {
-                            drawRavenBSStyle(styleMode - 1, entity, health, abs, heal);
-                        } else {
-                            if (styleMode == 3) {
-                                drawLeaderStyle(health, abs, heal);
-                            }
-                            if (styleMode == 4) {
-                                drawSimplifiedRoundedTargetHUD(health, abs, heal);
-                            }
-                        }
+                    } else if (styleMode <= 2) {
+                        drawRavenBSStyle(styleMode - 1, entity, health, abs, heal);
+                    } else if (styleMode == 3) {
+                        drawLeaderStyle(health, abs, heal);
+                    } else if (styleMode == 4) {
+                        drawSimplifiedRoundedTargetHUD(health, abs, heal);
+                    } else if (styleMode == 5) {
+                        renderAstolfo(heal);
+                    } else if (styleMode == 6) {
+                        renderExhibition(heal);
                     }
                 }
             }
         }
     }
 
+    // ========== ASTOLFO 样式 ==========
+    private void renderAstolfo(float heal) {
+        String name = TeamUtil.stripName(target);
+        float nameWidth = getTextWidth(name);
+        float width = Math.max(130, nameWidth + 60);
+        float height = 56;
+        float[] pos = getPosition(width, height);
+        float x = pos[0];
+        float y = pos[1];
+        int bgAlpha = (int) (this.background.getValue() / 100.0F * 255);
+        int bgColor = new Color(0, 0, 0, bgAlpha).getRGB();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 0);
+        RenderUtil.drawRect(0, 0, width, height, bgColor);
+        drawEntityOnScreen(25, 45, target);
+        drawText(name, 50, 6, -1, this.shadow.getValue());
+
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(1.5f, 1.5f, 1.0f);
+        String healthText = String.format("%.1f", heal) + " ❤";
+        int color = getAstolfoColor(0).getRGB();
+        drawText(healthText, 50 / 1.5f, 22 / 1.5f, color, this.shadow.getValue());
+        GlStateManager.popMatrix();
+
+        float healthPct = MathHelper.clamp_float(heal / target.getMaxHealth(), 0, 1);
+        float barWidth = width - 54;
+        RenderUtil.drawRect(48, 42, 48 + barWidth, 49, ColorUtil.darker(getAstolfoColor(0), 0.3f).getRGB());
+        if (healthPct > 0) {
+            float fillWidth = barWidth * healthPct;
+            drawHorizontalGradientRect(48, 42, fillWidth, 7, getAstolfoColor(0).getRGB(), getAstolfoColor((int) (fillWidth * 2)).getRGB());
+        }
+        GlStateManager.popMatrix();
+    }
+
+    // ========== EXHIBITION 样式 ==========
+    private void renderExhibition(float heal) {
+        String name = TeamUtil.stripName(target);
+        float nameWidth = getTextWidth(name);
+        float width = Math.max(120, nameWidth + 50);
+        float height = 40;
+        float[] pos = getPosition(width, height);
+        float x = pos[0];
+        float y = pos[1];
+        int bgAlpha = (int) (this.background.getValue() / 100.0F * 255);
+        int bgColor = new Color(0, 0, 0, bgAlpha).getRGB();
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(x, y, 0);
+        drawExhibitionBorderedRect(-2.5f, -2.5f, width + 2.5f, height + 2.5f, 0.5f, getExhibitionColor(60), getExhibitionColor(10));
+        drawExhibitionBorderedRect(-1.5f, -1.5f, width + 1.5f, height + 1.5f, 1.5f, getExhibitionColor(60), getExhibitionColor(40));
+        drawExhibitionBorderedRect(0, 0, width, height, 0.5f, getExhibitionColor(22), getExhibitionColor(60));
+        drawExhibitionBorderedRect(2, 2, 38, 38, 0.5f, getExhibitionColor(0, 0), getExhibitionColor(10));
+        drawExhibitionBorderedRect(2.5f, 2.5f, 37.5f, 37.5f, 0.5f, getExhibitionColor(17), getExhibitionColor(48));
+        drawEntityOnScreen(20, 36, target);
+
+        drawText(name, 46, 4, -1, this.shadow.getValue());
+
+        float pct = MathHelper.clamp_float(heal / target.getMaxHealth(), 0, 1);
+        Color hpColor = blendColors(new float[]{0f, 0.5f, 1f}, new Color[]{Color.RED, Color.YELLOW, Color.GREEN}, pct);
+        RenderUtil.drawRect(42, 12, width - 8, 16, getExhibitionColor(0, 0));
+        RenderUtil.drawRect(42.5f, 12.5f, 42.5f + (width - 51f) * pct, 15.5f, hpColor.getRGB());
+
+        String infoText = "HP: " + (int) heal + " | Dist: " + (int) mc.thePlayer.getDistanceToEntity(target);
+        drawText(infoText, 46, 19, -1, this.shadow.getValue());
+        GlStateManager.popMatrix();
+    }
+
+    // ========== 原有样式方法（完整保留） ==========
     private void drawRoundedStyle(float health, float abs, float heal) {
         float elapsedTime = (float) Math.min(Math.max(this.animTimer.getElapsedTime(), 0L), 150L);
         float lerpedHealthRatio = Math.min(Math.max(RenderUtil.lerpFloat(this.newHealth, this.oldHealth, elapsedTime / 150.0F) / this.maxHealth, 0.0F), 1.0F);
@@ -267,15 +475,15 @@ public class TargetHUD extends Module {
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        RenderUtil.drawFont(targetNameText, (int) (headIconOffset + 6.0F), 4, -1, this.shadow.getValue());
-        RenderUtil.drawFont(healthText, (int) (headIconOffset + 6.0F), 16, -1, this.shadow.getValue());
+        drawText(targetNameText, headIconOffset + 6.0F, 4, -1, this.shadow.getValue());
+        drawText(healthText, headIconOffset + 6.0F, 16, -1, this.shadow.getValue());
 
         if (this.indicator.getValue()) {
-            RenderUtil.drawFont(statusText, (int) (barTotalWidth - 6.0F - (float) statusTextWidth), 4, healthDeltaColor.getRGB(), this.shadow.getValue());
-            RenderUtil.drawFont(healthDiffText, (int) (barTotalWidth - 6.0F - (float) healthDiffWidth), 16, ColorUtil.darker(healthDeltaColor, 0.8F).getRGB(), this.shadow.getValue());
+            drawText(statusText, barTotalWidth - 6.0F - statusTextWidth, 4, healthDeltaColor.getRGB(), this.shadow.getValue());
+            drawText(healthDiffText, barTotalWidth - 6.0F - healthDiffWidth, 16, ColorUtil.darker(healthDeltaColor, 0.8F).getRGB(), this.shadow.getValue());
         }
         if (this.head.getValue() && this.headTexture != null) {
-           RenderUtil.drawRoundedRect(4.0F, 4.0F, 30.0F, 30.0F, 4.0F, new Color(0, 0, 0, 180).getRGB());
+            RenderUtil.drawRoundedRect(4.0F, 4.0F, 30.0F, 30.0F, 4.0F, new Color(0, 0, 0, 180).getRGB());
 
             GlStateManager.color(1.0F, 1.0F, 1.0F);
             mc.getTextureManager().bindTexture(this.headTexture);
@@ -336,7 +544,6 @@ public class TargetHUD extends Module {
         RenderUtil.drawRect(barLeft, barBgTop - 8, barRight, barBgBottom - 8,
                 ColorUtil.darker(this.color.getValue() == 0 ? ColorUtil.getHealthBlend(lerpedHealthRatio) : targetColor, 0.2F).getRGB());
 
-        // 血条填充（分段）
         float fillWidth = lerpedHealthRatio * (barRight - barLeft);
         if (fillWidth > 0) {
             int segments = Math.max(1, (int)(fillWidth / 4F));
@@ -354,14 +561,14 @@ public class TargetHUD extends Module {
         String hpText = String.format("%.0f%%", lerpedHealthRatio * 100);
         int hpTextWidth = RenderUtil.getWidth(hpText);
         int hpTextX = (int)(barRight - hpTextWidth - 78);
-        int hpTextY = (int)(barBgTop + (BAR_HEIGHT - 10) / 2 - 8); // 大致垂直居中
-        RenderUtil.drawFont(hpText, hpTextX, hpTextY, -1, this.shadow.getValue());
+        int hpTextY = (int)(barBgTop + (BAR_HEIGHT - 10) / 2 - 8);
+        drawText(hpText, hpTextX, hpTextY, -1, this.shadow.getValue());
 
         RenderUtil.disableRenderState();
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        RenderUtil.drawFont(targetNameText, (int)HEAD_OFFSET, (int)NAME_Y + 2, -1, this.shadow.getValue());
+        drawText(targetNameText, HEAD_OFFSET, NAME_Y + 2, -1, this.shadow.getValue());
 
         if (this.head.getValue() && this.headTexture != null) {
             GlStateManager.color(1F, 1F, 1F);
@@ -374,7 +581,6 @@ public class TargetHUD extends Module {
         GlStateManager.enableDepth();
         GlStateManager.popMatrix();
     }
-
 
     private void drawLeaderStyle(float health, float abs, float heal) {
         float elapsedTime = (float) Math.min(Math.max(this.animTimer.getElapsedTime(), 0L), 150L);
@@ -442,7 +648,7 @@ public class TargetHUD extends Module {
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-        RenderUtil.drawFont(targetNameText, (int) (headIconOffset + 2.0F), 3, -1, this.shadow.getValue());
+        drawText(targetNameText, headIconOffset + 2.0F, 3, -1, this.shadow.getValue());
 
         if (this.headTexture != null) {
             GlStateManager.color(1.0F, 1.0F, 1.0F);
@@ -457,9 +663,6 @@ public class TargetHUD extends Module {
         GlStateManager.popMatrix();
     }
 
-    /**
-     * 绘制发光的血条
-     */
     private void drawGlowingHealthBar(float startX, float startY, float endX, float endY, float healthRatio, Color healthBarColor) {
         float healthBarWidth = (endX - startX) * healthRatio;
         GlStateManager.enableBlend();
@@ -472,9 +675,6 @@ public class TargetHUD extends Module {
         GlStateManager.disableBlend();
     }
 
-    /**
-     * 绘制发光层
-     */
     private void drawGlowLayer_(float startX, float startY, float endX, float endY, Color color, float alpha, float expandSize) {
         Color glowColor = new Color(color.getRed() / 255.0F, color.getGreen() / 255.0F, color.getBlue() / 255.0F, alpha);
         RenderUtil.drawRect(
@@ -486,9 +686,6 @@ public class TargetHUD extends Module {
         );
     }
 
-    /**
-     * 绘制血条高光
-     */
     private void drawHighlight_(float startX, float startY, float endX, float endY, Color color) {
         float highlightHeight = (endY - startY) / 3.0F;
         Color highlightColor = new Color(
@@ -499,6 +696,7 @@ public class TargetHUD extends Module {
         );
         RenderUtil.drawRect(startX, startY, endX, startY + highlightHeight, highlightColor.getRGB());
     }
+
     private void drawUnfairStyle(float health, float abs, float heal) {
         float elapsedTime = (float) Math.min(Math.max(this.animTimer.getElapsedTime(), 0L), 150L);
         float lerpedHealthRatio = Math.min(Math.max(RenderUtil.lerpFloat(this.newHealth, this.oldHealth, elapsedTime / 150.0F) / this.maxHealth, 0.0F), 1.0F);
@@ -556,11 +754,11 @@ public class TargetHUD extends Module {
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        RenderUtil.drawFont(targetNameText, (int) (headIconOffset + 2.0F), 2, -1, this.shadow.getValue());
-        RenderUtil.drawFont(healthText, (int) (headIconOffset + 2.0F), 12, -1, this.shadow.getValue());
+        drawText(targetNameText, headIconOffset + 2.0F, 2, -1, this.shadow.getValue());
+        drawText(healthText, headIconOffset + 2.0F, 12, -1, this.shadow.getValue());
         if (this.indicator.getValue()) {
-            RenderUtil.drawFont(statusText, (int) (barTotalWidth - 2.0F - (float) statusTextWidth), 2, healthDeltaColor.getRGB(), this.shadow.getValue());
-            RenderUtil.drawFont(healthDiffText, (int) (barTotalWidth - 2.0F - (float) healthDiffWidth), 12, ColorUtil.darker(healthDeltaColor, 0.8F).getRGB(), this.shadow.getValue());
+            drawText(statusText, barTotalWidth - 2.0F - statusTextWidth, 2, healthDeltaColor.getRGB(), this.shadow.getValue());
+            drawText(healthDiffText, barTotalWidth - 2.0F - healthDiffWidth, 12, ColorUtil.darker(healthDeltaColor, 0.8F).getRGB(), this.shadow.getValue());
         }
         if (this.head.getValue() && this.headTexture != null) {
             GlStateManager.color(1.0F, 1.0F, 1.0F);
@@ -573,7 +771,6 @@ public class TargetHUD extends Module {
         GlStateManager.enableDepth();
         GlStateManager.popMatrix();
     }
-
 
     private void drawRavenBSStyle(int mode, EntityLivingBase entity, float health, float abs, float heal) {
         String playerInfo = entity.getDisplayName().getFormattedText();
@@ -593,10 +790,8 @@ public class TargetHUD extends Module {
             long elapsed = fadeTimer.getElapsedTime();
             if (elapsed < 400) {
                 if (fadingIn) {
-                    // Fade in: 0 -> 255
                     alpha = (int) ((elapsed / 400.0f) * 255);
                 } else {
-                    // Fade out: 255 -> 0
                     alpha = (int) (255 - (elapsed / 400.0f) * 255);
                 }
             } else {
@@ -623,14 +818,13 @@ public class TargetHUD extends Module {
         final int maxAlphaOutline = Math.min(alpha, 110);
         final int maxAlphaBackground = Math.min(alpha, 210);
 
-        // Get gradient colors from HUD
         HUD hud = (HUD) Unfair.moduleManager.modules.get(HUD.class);
         int gradientLeft = hud.getColor(System.currentTimeMillis()).getRGB();
         int gradientRight = hud.getColor(System.currentTimeMillis() + 500).getRGB();
         int[] gradientColors = new int[]{gradientLeft, gradientRight};
 
         switch (mode) {
-            case 0: // Modern - with blur like ClickGUI (exact RavenBS implementation)
+            case 0:
                 float bloomRadius = (fadeTimer == null) ? 2f : (2f * alpha / 255f);
                 float blurRadius = (fadeTimer == null) ? 3 : (3f * alpha / 255f);
                 BlurUtils.prepareBloom();
@@ -640,7 +834,7 @@ public class TargetHUD extends Module {
                 RoundedUtils.drawRound((float) n6, (float) n7, (float) (n8 - n6), (float) (n9 + 13 - n7), 8.0f, true, new Color(RenderUtil.mergeAlpha(Color.black.getRGB(), maxAlphaOutline)));
                 BlurUtils.blurEnd(2, blurRadius);
                 break;
-            case 1: // Legacy - no blur
+            case 1:
                 RenderUtil.drawRoundedGradientOutlinedRectangle((float) n6, (float) n7, (float) n8, (float) (n9 + 13), 10.0f,
                         RenderUtil.mergeAlpha(Color.black.getRGB(), maxAlphaOutline),
                         RenderUtil.mergeAlpha(gradientColors[0], alpha),
@@ -652,7 +846,6 @@ public class TargetHUD extends Module {
         final int n14 = n8 - 6;
         final int n15 = n9;
 
-        // Bar background
         RenderUtil.drawRoundedRectangle((float) n13, (float) n15, (float) n14, (float) (n15 + 5), 4.0f,
                 RenderUtil.mergeAlpha(Color.black.getRGB(), maxAlphaOutline));
 
@@ -661,7 +854,6 @@ public class TargetHUD extends Module {
 
         float healthBar = (float) (n14 + (n13 - n14) * (1 - healthRatio));
 
-        // Smooth health bar animation
         if (lastHealthBar != healthBar && lastHealthBar - n13 >= 3) {
             float diff = lastHealthBar - healthBar;
             if (diff > 0) {
@@ -678,13 +870,13 @@ public class TargetHUD extends Module {
         }
 
         switch (mode) {
-            case 0: // Modern
+            case 0:
                 RenderUtil.drawRoundedRectangle((float) n13, (float) n15, lastHealthBar, (float) (n15 + 5), 4.0f,
                         RenderUtil.darkenColor(mergedGradientRight, 25));
                 RenderUtil.drawRoundedGradientRect((float) n13, (float) n15, healthBar, (float) (n15 + 5), 4.0f,
                         mergedGradientLeft, mergedGradientLeft, mergedGradientRight, mergedGradientRight);
                 break;
-            case 1: // Legacy
+            case 1:
                 RenderUtil.drawRoundedGradientRect((float) n13, (float) n15, lastHealthBar, (float) (n15 + 5), 4.0f,
                         mergedGradientLeft, mergedGradientLeft, mergedGradientRight, mergedGradientRight);
                 break;
@@ -692,8 +884,7 @@ public class TargetHUD extends Module {
 
         GL11.glPushMatrix();
         GL11.glEnable(GL11.GL_BLEND);
-        RenderUtil.drawFont(playerInfo, x, y,
-                (new Color(220, 220, 220, 255).getRGB() & 0xFFFFFF) | Math.min(alpha + 15, 255) << 24, true);
+        drawText(playerInfo, x, y, (new Color(220, 220, 220, 255).getRGB() & 0xFFFFFF) | Math.min(alpha + 15, 255) << 24, true);
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glPopMatrix();
     }

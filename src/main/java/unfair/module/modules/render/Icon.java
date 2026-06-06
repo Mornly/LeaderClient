@@ -16,7 +16,7 @@ import unfair.util.RenderUtil;
 public class Icon extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
 
-    public final ModeProperty styles = new ModeProperty("Styles", 0, new String[]{"pig", "shuaige", "liquidbounce", "leader"});
+    public final ModeProperty styles = new ModeProperty("Styles", 0, new String[]{"pig", "shuaige", "liquidbounce", "rise"});
     public final IntProperty width = new IntProperty("width", 32, 8, 256);
     public final IntProperty height = new IntProperty("height", 32, 8, 256);
     public final ModeProperty posX = new ModeProperty("position-x", 0, new String[]{"LEFT", "RIGHT"});
@@ -41,11 +41,11 @@ public class Icon extends Module {
             case "liquidbounce":
                 fileName = "liquidbounce.png";
                 break;
-            case "leader":
-                fileName = "leader.png";
+            case "rise":
+                fileName = "rise.png";
                 break;
             default:
-                fileName = "style1.png";
+                fileName = "pig.png";
         }
         return new ResourceLocation("minecraft", "unfair/texture/icon/" + fileName);
     }

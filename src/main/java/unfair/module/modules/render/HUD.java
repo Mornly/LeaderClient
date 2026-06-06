@@ -37,6 +37,7 @@ public class HUD extends Module {
             "color", 3, new String[]{"RAINBOW", "CHROMA", "ASTOLFO", "CUSTOM1", "CUSTOM12", "CUSTOM123"}
     );
     public static final ModeProperty font = new ModeProperty("Font", 0, new String[]{"Unfair", "MineCraft"});
+    public final IntProperty fontSize = new IntProperty("FontSize", 18, 12, 36);
     public final FloatProperty colorSpeed = new FloatProperty("color-speed", 1.0F, 0.5F, 1.5F);
     public final PercentProperty colorSaturation = new PercentProperty("color-saturation", 50);
     public final PercentProperty colorBrightness = new PercentProperty("color-brightness", 100);
@@ -79,7 +80,7 @@ public class HUD extends Module {
     }
 
     private UFontRenderer getCurrentFontRenderer() {
-        int size = (int) (18 * this.scale.getValue());
+        int size = this.fontSize.getValue();
         if (font.getValue() == 0) {
             return Unfair.fontManager.getFont(size);
         }
@@ -273,7 +274,7 @@ public class HUD extends Module {
 
                     float targetSlide = module.isEnabled() ? totalWidth : 0.0F;
                     float currentSlide = this.animationMap.getOrDefault(module, 0.0F);
-                    currentSlide = animateSmooth(targetSlide, currentSlide, 15.0F, deltaTime);
+                    currentSlide = animateSmooth(targetSlide, currentSlide, 10.0F, deltaTime);
                     currentSlide = Math.max(0.0F, Math.min(totalWidth, currentSlide));
                     this.animationMap.put(module, currentSlide);
                     float heightFactor = (totalWidth > 0.0F) ? (currentSlide / totalWidth) : 0.0F;

@@ -57,7 +57,7 @@ public class JumpReset extends Module {
     public void onLivingUpdate(LivingUpdateEvent event) {
         if (this.isEnabled() && this.jumpFlag) {
             this.jumpFlag = false;
-            if (mc.thePlayer.onGround && MoveUtil.isForwardPressed() && !mc.thePlayer.isPotionActive(Potion.jump) && !this.isInLiquidOrWeb()) {
+            if (mc.thePlayer.onGround && MoveUtil.isForwardPressed() && !mc.thePlayer.isPotionActive(Potion.jump) && !this.isInLiquidOrWeb() && mc.thePlayer.isSprinting()) {
                 mc.thePlayer.movementInput.jump = true;
                 if (this.dbg.getValue()) ChatUtil.sendFormatted(Unfair.clientName + "jump");
             }

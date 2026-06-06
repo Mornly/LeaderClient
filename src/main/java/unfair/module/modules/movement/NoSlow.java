@@ -39,6 +39,7 @@ public class NoSlow extends Module {
     public final IntProperty swapDelay = new IntProperty("SwapDelay",0,0,3,() -> swordMode.getValue() == 3);
     public final BooleanProperty test = new BooleanProperty("Test",false,() -> swordMode.getValue() == 3);
     public final BooleanProperty c17 = new BooleanProperty("C17Packet",false,() -> swordMode.getValue() == 3);
+    public final BooleanProperty noAttack = new BooleanProperty("NoAttack",false,() -> swordMode.getValue() == 3);
     public final IntProperty cancelTick = new IntProperty("cancel-tick",1,0,2,() -> swordMode.getValue() == 2);
     public final IntProperty cancelTick2 = new IntProperty("cancel-tick2",1,0,2,() -> swordMode.getValue() == 2);
     public final PercentProperty swordMotion = new PercentProperty("sword-motion", 100, () -> this.swordMode.getValue() != 0);
@@ -91,7 +92,10 @@ public class NoSlow extends Module {
            return killAura.isEnabled() && killAura.shouldAutoBlock() && (killAura.blockTick == cancelTick.getValue() || killAura.blockTick == cancelTick2.getValue());
         }
         else if (swordMode.getValue() == 3 && isSwordActive()){
-            return delay == 0;
+            KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
+            if (!noAttack.getValue() || !((killAura.blockTick == 0 && killAura.autoBlock.getValue() == 2) || (killAura.autoBlock.getValue() == 6 && killAura.blockTick == killAura.attackTick.getValue()) || (killAura.autoBlock.getValue() != 6 && killAura.autoBlock.getValue() != 2) || (killAura.autoBlock.getValue() == 5 && killAura.blockTick == 0) && killAura.isEnabled() && killAura.isPlayerBlocking())) {
+                return delay == 0;
+            }
         }
         return false;
     }
@@ -120,18 +124,21 @@ public class NoSlow extends Module {
                     if (event.getType() == EventType.PRE) {
                         delay--;
                         if (delay < 0) {
-                            int randomSlot = new Random().nextInt(9);
-                            while (randomSlot == mc.thePlayer.inventory.currentItem) {
-                                randomSlot = new Random().nextInt(9);
+                            KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
+                            if (!noAttack.getValue() || !((killAura.blockTick == 0 && killAura.autoBlock.getValue() == 2) || (killAura.autoBlock.getValue() == 6 && killAura.blockTick == killAura.attackTick.getValue()) || (killAura.autoBlock.getValue() != 6 && killAura.autoBlock.getValue() != 2) || (killAura.autoBlock.getValue() == 5 && killAura.blockTick == 0) && killAura.isEnabled() && killAura.isPlayerBlocking())) {
+                                int randomSlot = new Random().nextInt(9);
+                                while (randomSlot == mc.thePlayer.inventory.currentItem) {
+                                    randomSlot = new Random().nextInt(9);
+                                }
+                                if (test.getValue()) {
+                                    Unfair.blinkManager.setBlinkState(true, BlinkModules.NO_SLOW);
+                                }
+                                PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
+                                if (c17.getValue()) {
+                                    PacketUtil.sendPacket(new C17PacketCustomPayload("woshijiejue", new PacketBuffer(Unpooled.buffer())));
+                                }
+                                PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
                             }
-                            if (test.getValue()) {
-                                Unfair.blinkManager.setBlinkState(true, BlinkModules.NO_SLOW);
-                            }
-                            PacketUtil.sendPacket(new C09PacketHeldItemChange(randomSlot));
-                            if (c17.getValue()) {
-                                PacketUtil.sendPacket(new C17PacketCustomPayload("woshijiejue", new PacketBuffer(Unpooled.buffer())));
-                            }
-                            PacketUtil.sendPacket(new C09PacketHeldItemChange(mc.thePlayer.inventory.currentItem));
                             post = true;
                             delay = swapDelay.getValue();
                         }

@@ -2,6 +2,7 @@ package unfair.module.modules.combat;
 
 import com.google.common.base.CaseFormat;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,12 +21,14 @@ import unfair.management.RotationState;
 import unfair.mixin.IAccessorEntity;
 import unfair.module.Module;
 import unfair.module.modules.movement.LongJump;
+import unfair.module.modules.player.Scaffold;
 import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.IntProperty;
 import unfair.property.properties.ModeProperty;
 import unfair.property.properties.PercentProperty;
 import unfair.util.*;
 
+import javax.security.sasl.SaslClient;
 import java.util.Objects;
 
 import static unfair.config.Config.mc;
@@ -33,17 +36,19 @@ import static unfair.config.Config.mc;
 public class Velocity extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
     public final ModeProperty mode = new ModeProperty("mode", 0, new String[]{"VANILLA", "Prediction","Reduce"});
-    private final BooleanProperty reduceWhenCanAttack = new BooleanProperty("ReduceWhenCanAttack",true, () -> mode.getValue() != 0);
-    public final IntProperty attackTimes = new IntProperty("AttackTimes", 1, 1, 5, () -> this.mode.getValue() == 1 && this.reduce.getValue());
     public final BooleanProperty reduce = new BooleanProperty("reduce", true, () -> mode.getValue() == 1);
+    private final BooleanProperty reduceWhenCanAttack = new BooleanProperty("ReduceWhenCanAttack",true, () -> mode.getValue() != 0);
+    private final BooleanProperty onlySprinting = new BooleanProperty("OnlySprinting",true, () -> mode.getValue() == 1);
+    public final IntProperty attackTimes = new IntProperty("AttackTimes", 1, 1, 5, () -> this.mode.getValue() == 1 && this.reduce.getValue());
+
     public final BooleanProperty jump = new BooleanProperty("Jump", true, () -> mode.getValue() == 1);
     public final BooleanProperty delay = new BooleanProperty("delay", false, () -> mode.getValue() == 1);
     public final IntProperty delayTicks = new IntProperty("delay-ticks", 1, 1, 5, () -> mode.getValue() == 1 && delay.getValue() && !this.airBuffer.getValue());
+    public final BooleanProperty airBuffer = new BooleanProperty("DelayTillOnGround", true, () -> mode.getValue() == 1 && delay.getValue());
+    public final BooleanProperty groundDelay = new BooleanProperty("GroundDelay",false, () -> mode.getValue() == 1 && delay.getValue() && !airBuffer.getValue());
     public final BooleanProperty rotate = new BooleanProperty("Rotate", false, () -> this.mode.getValue() == 1);
     public final IntProperty rotateTick = new IntProperty("Rotate Tick", 3, 1, 12, () -> this.mode.getValue() == 1 && this.rotate.getValue());
     public final BooleanProperty autoMove = new BooleanProperty("Auto Move", false, () -> this.mode.getValue() == 1 && this.rotate.getValue());
-    public final BooleanProperty airBuffer = new BooleanProperty("DelayTillOnGround", true, () -> mode.getValue() == 1 && delay.getValue());
-    public final BooleanProperty groundDelay = new BooleanProperty("GroundDelay",false, () -> mode.getValue() == 1 && delay.getValue() && !airBuffer.getValue());
     public final PercentProperty chance = new PercentProperty("chance", 100, () -> mode.getValue() == 0);
     public final PercentProperty horizontal = new PercentProperty("horizontal", 100, () -> mode.getValue() == 0);
     public final PercentProperty vertical = new PercentProperty("vertical", 100, () -> mode.getValue() == 0);
@@ -160,7 +165,8 @@ public class Velocity extends Module {
         }
     }
         private void handleJumpReset() {
-            if (mc.thePlayer == null) return;
+            Scaffold scaffold = (Scaffold) Unfair.moduleManager.getModule(Scaffold.class);
+            if (mc.thePlayer == null || mc.currentScreen instanceof GuiInventory || scaffold.isEnabled()) return;
             if (ticksSinceVelocity >= 0) {
                 handleReset = true;
                 if (ticksSinceVelocity <= 2 && mc.thePlayer.onGround) {
@@ -218,10 +224,10 @@ public class Velocity extends Module {
                         reduceTick = 0;
                         hasReceivedVelocity = false;
                     }
-                    RayCastUtil.RayCastResult targetA = RayCastUtil.rayCast(new RotationUtil.RotationVec(event.getYaw(),event.getPitch()),3.2);
+                    RayCastUtil.RayCastResult targetA = RayCastUtil.rayCast(new RotationUtil.RotationVec(event.getYaw(),event.getPitch()),3);
                     if (targetA != null) {
                         if (targetA.entityHit instanceof EntityPlayer && targetA.entityHit != mc.thePlayer) {
-                            if (mc.thePlayer.isSprinting()) {
+                            if (mc.thePlayer.isSprinting() || !this.onlySprinting.getValue()) {
                                 KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
                                 if (killAura.getTarget() != null) {
                                     if (!reduceWhenCanAttack.getValue() || (killAura.blockTick == 0 && killAura.autoBlock.getValue() == 2) || (killAura.autoBlock.getValue() == 6 && killAura.blockTick == killAura.attackTick.getValue()) || (killAura.autoBlock.getValue() != 6 && killAura.autoBlock.getValue() != 2) || (killAura.autoBlock.getValue() == 5 && killAura.blockTick == 0)) {
@@ -261,7 +267,7 @@ public class Velocity extends Module {
                     RayCastUtil.RayCastResult targetA = RayCastUtil.rayCast(new RotationUtil.RotationVec(event.getYaw(),event.getPitch()),3.2);
                     if (targetA != null) {
                         if (targetA.entityHit instanceof EntityPlayer && targetA.entityHit != mc.thePlayer) {
-                            if (mc.thePlayer.isSprinting()) {
+                            if (mc.thePlayer.isSprinting() || !this.onlySprinting.getValue()) {
                                 KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
                                 if (killAura.getTarget() != null) {
                                     if (!reduceWhenCanAttack.getValue() || (killAura.blockTick == 0 && killAura.autoBlock.getValue() == 2) || (killAura.autoBlock.getValue() == 6 && killAura.blockTick == killAura.attackTick.getValue()) || (killAura.autoBlock.getValue() != 6 && killAura.autoBlock.getValue() != 2) || (killAura.autoBlock.getValue() == 5 && killAura.blockTick == 0)) {

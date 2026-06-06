@@ -35,7 +35,7 @@ public class ChestAura extends Module {
     public final FloatProperty range = new FloatProperty("range", 4.0f, 1.0f, 6.0f);
     public final BooleanProperty throughWalls = new BooleanProperty("through-walls", true);
     public final ModeProperty moveFix = new ModeProperty("move-fix", 1, new String[]{"None", "Silent", "Strict"});
-    public final BooleanProperty noWorkWhenScaffold = new BooleanProperty("no-work-when-scaffold", true);
+    public final BooleanProperty noWorkWhenScaffold = new BooleanProperty("No Scaffold", true);
 
     private final List<BlockPos> openedChests = new ArrayList<>();
     private TileEntityChest targetChest;

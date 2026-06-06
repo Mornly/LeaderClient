@@ -13,6 +13,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import org.lwjgl.opengl.GL11;
+import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.PacketEvent;
@@ -57,7 +58,8 @@ public class TargetESP extends Module {
     public final FloatProperty circleSpeed = new FloatProperty("CircleSpeed", 2.0F, 1.0F, 5.0F, () -> mode.getValue() == 4);
     public final BooleanProperty onlyPlayer = new BooleanProperty("OnlyPlayer", false);
     public final BooleanProperty showHurt = new BooleanProperty("ShowHurt", false, () -> mode.getValue() == 2);
-    public final ColorProperty moduleColor = new ColorProperty("Color", 0xFFFFFF);
+    public final ModeProperty colorMode = new ModeProperty("ColorMode", 0,new String[]{"HUD","Simple"});
+    public final ColorProperty moduleColor = new ColorProperty("Color", 0xFFFFFF,() -> colorMode.getValue() == 1);
 
     private ResourceLocation customImage = null;
     private long lastHurtTime = 0;
@@ -112,7 +114,11 @@ public class TargetESP extends Module {
     }
 
     private Color getModuleColor() {
-        return new Color(moduleColor.getValue());
+        HUD hud = (HUD) Unfair.moduleManager.getModule(HUD.class);
+        if (colorMode.getValue() == 1) {
+            return new Color(moduleColor.getValue());
+        }
+        else return hud.getColor(System.currentTimeMillis());
     }
 
     @Override

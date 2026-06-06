@@ -795,39 +795,41 @@ public class RenderUtil {
         y *= 2.0;
         x2 *= 2.0;
         y2 *= 2.0;
-        GL11.glPushAttrib(0);
+        GL11.glPushAttrib(GL11.GL_CURRENT_BIT | GL11.GL_ENABLE_BIT);
         GL11.glScaled(0.5, 0.5, 0.5);
-        glEnable(3042);
-        GL11.glDisable(3553);
-        glEnable(2848);
-        GL11.glBegin(9);
+
+        glEnable(3042);       // GL_BLEND
+        GL11.glDisable(3553); // GL_TEXTURE_2D
+        glEnable(2848);       // GL_LINE_SMOOTH (或 POLYGON_SMOOTH)
+
+        GL11.glBegin(9); // GL_POLYGON
         glColor(color);
         for (int i = 0; i <= 90; i += 3) {
             final double n7 = i * 0.017453292f;
-            GL11.glVertex2d((double) (x + radius) + Math.sin(n7) * radius * -1.0, (double) (y + radius) + Math.cos(n7) * radius * -1.0);
+            GL11.glVertex2d((double) (x + radius) + Math.sin(n7) * radius * -1.0,
+                    (double) (y + radius) + Math.cos(n7) * radius * -1.0);
         }
         for (int j = 90; j <= 180; j += 3) {
             final double n8 = j * 0.017453292f;
-            GL11.glVertex2d((double) (x + radius) + Math.sin(n8) * radius * -1.0, (double) (y2 - radius) + Math.cos(n8) * radius * -1.0);
+            GL11.glVertex2d((double) (x + radius) + Math.sin(n8) * radius * -1.0,
+                    (double) (y2 - radius) + Math.cos(n8) * radius * -1.0);
         }
         if (x2 - x >= 4.5) {
             for (int k = 0; k <= 90; k += 1) {
                 final double n9 = k * 0.017453292f;
-                GL11.glVertex2d((double) (x2 - radius) + Math.sin(n9) * radius, (double) (y2 - radius) + Math.cos(n9) * radius);
+                GL11.glVertex2d((double) (x2 - radius) + Math.sin(n9) * radius,
+                        (double) (y2 - radius) + Math.cos(n9) * radius);
             }
             for (int l = 90; l <= 180; l += 1) {
                 final double n10 = l * 0.017453292f;
-                GL11.glVertex2d((double) (x2 - radius) + Math.sin(n10) * radius, (double) (y + radius) + Math.cos(n10) * radius);
+                GL11.glVertex2d((double) (x2 - radius) + Math.sin(n10) * radius,
+                        (double) (y + radius) + Math.cos(n10) * radius);
             }
         }
         GL11.glEnd();
-        glEnable(3553);
-        GL11.glDisable(3042);
-        GL11.glDisable(2848);
-        glEnable(3553);
+
         GL11.glScaled(2.0, 2.0, 2.0);
         GL11.glPopAttrib();
-        GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
     }
 
     public static void drawRoundedGradientRect(float x, float y, float x2, float y2, float radius, final int n6, final int n7, final int n8, final int n9) {

@@ -127,7 +127,7 @@ public class Potion extends Module {
 
     @EventTarget
     public void onRender2D(Render2DEvent event) {
-        if (!isEnabled()) return;
+        if (!isEnabled() || mc.thePlayer.getActivePotionEffects().isEmpty()) return;
 
         long now = System.currentTimeMillis();
         float deltaTime = Math.min(0.05f, (now - lastFrameTime) / 1000.0f);
@@ -168,8 +168,6 @@ public class Potion extends Module {
 
         drawFont("Potions", baseX + 6, baseY - 8, hud.getColor(System.currentTimeMillis()).getRGB(), true);
         drawRect(baseX, baseY - 8, baseX + 2, baseY, hud.getColor(System.currentTimeMillis()).getRGB());
-
-        // 收集所有动画进度，用于背景透明度取最大值
         float maxProgress = 0f;
         for (PotionEffect effect : renderList) {
             AnimData anim = animationMap.get(effect.getPotionID());
@@ -208,7 +206,6 @@ public class Potion extends Module {
 
             int cx = baseX + offsetX - 20;
             int cy = (int) drawY + 16 - offsetY + getHeight() - 3;
-            // 圆环背景透明度也随progress变化
             circle(cx, cy, 24, 360, false, new Color(0, 0, 0, (int)(70 * progress)));
             circle(cx, cy, 24, ratio * 360, false, fadedText);
 
@@ -217,11 +214,9 @@ public class Potion extends Module {
 
             currentY += effectiveHeight;
         }
-
-        // 背景矩形透明度随最大进度变化
         if (background.getValue() > 0 && !renderList.isEmpty() && maxProgress > 0.01f) {
             int bgAlpha = (int) (background.getValue().floatValue() / 100f * 255 * maxProgress);
-            drawRoundedRectangle(baseX + offsetX - 22, baseY - 10, baseX + maxString + 8 + offsetX, (int) currentY + baseY, 4f, new Color(0, 0, 0, bgAlpha).getRGB());
+            drawRoundedRectangle(baseX + offsetX - 22, baseY - 10, baseX + maxString + 8 + offsetX, (int) currentY + baseY - 50, 4f, new Color(0, 0, 0, bgAlpha).getRGB());
         }
     }
 
