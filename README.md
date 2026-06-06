@@ -1,5 +1,3 @@
-﻿﻿# LeaderClient
-
 Powerful free Minecraft 1.8.9 hacker client
 
 # Introduce

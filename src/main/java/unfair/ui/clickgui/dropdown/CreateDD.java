@@ -5,6 +5,7 @@ import unfair.config.Config;
 import unfair.util.RenderUtil;
 import unfair.util.ChatUtil;
 import unfair.property.properties.TextProperty;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -39,7 +40,7 @@ public class CreateDD {
 
     public void render(int mouseX, int mouseY) {
         Unfair.fontManager.getFont(20).drawString("+ New Config", x + 7, y + 2,
-                new Color(100, 180, 255).getRGB(), false);
+                ClientSettings.INSTANCE.getAccentColor().getRGB(), false);
 
         if (settingsOpen) {
             float totalSettingsHeight = 0;
@@ -47,7 +48,7 @@ public class CreateDD {
             if (totalSettingsHeight > 0) totalSettingsHeight -= 3;
 
             RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight,
-                    new Color(0, 0, 0, 110).getRGB());
+                    ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
 
             float settingY = y + HEIGHT;
             for (ValueItem s : settings) {

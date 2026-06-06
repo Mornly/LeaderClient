@@ -3,6 +3,7 @@ package unfair.ui.clickgui.panel.config;
 import net.minecraft.client.renderer.GlStateManager;
 import unfair.Unfair;
 import unfair.config.Config;
+import unfair.management.ClientSettings;
 import unfair.ui.clickgui.panel.PanelValueItem;
 import unfair.util.ChatUtil;
 import unfair.util.RenderUtil;
@@ -35,10 +36,13 @@ public class CreateConfigEntry extends PanelValueItem {
     public CreateConfigEntry() {
         this.newName = "";
         this.cursorPos = 0;
+        initVisibility(true);
     }
 
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
+        setTargetVisibility(true);
         if (focused) {
             focusAnim = lerp(focusAnim, 1f, 0.15f, deltaTime);
             widthAnim = lerp(widthAnim, 1f, 0.15f, deltaTime);
@@ -72,7 +76,7 @@ public class CreateConfigEntry extends PanelValueItem {
         float inputY = y;
 
         float bgAlpha = (0.3f + 0.7f * widthAnim) * alpha;
-        Color bgColor = blendAlpha(new Color(235, 238, 242), bgAlpha);
+        Color bgColor = blendAlpha(ClientSettings.INSTANCE.getInputBgColor(), bgAlpha);
 
         if (focusAnim > 0.01f) {
             RoundedUtils.drawRoundedRectRise(inputX, inputY, currentInputW, inputH, 5,
@@ -83,7 +87,7 @@ public class CreateConfigEntry extends PanelValueItem {
 
         if (focusAnim > 0.001f && alpha > 0.01f) {
             float underlineAlpha = focusAnim * 0.6f;
-            Color borderColor = blendAlpha(new Color(70, 130, 180), underlineAlpha);
+            Color borderColor = blendAlpha(ClientSettings.INSTANCE.getInputBorder_color(), underlineAlpha);
 
             float underlineStartX = inputX + currentInputW * (1f - widthAnim) / 2f;
             float underlineEndX = inputX + currentInputW - currentInputW * (1f - widthAnim) / 2f;
@@ -98,7 +102,7 @@ public class CreateConfigEntry extends PanelValueItem {
             float placeholderAlpha = (0.5f + 0.5f * (1f - widthAnim)) * alpha;
             float placeholderOffset = (float) Math.sin(System.currentTimeMillis() / 1000.0 * Math.PI * 2) * 0.5f;
             Unfair.fontManager.getFont(13).drawString("Config name...", inputX + 10, inputY + 8 + placeholderOffset,
-                    blendAlpha(new Color(170, 175, 185), placeholderAlpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getInputPlaceholderColor(), placeholderAlpha).getRGB(), false);
         } else {
             float textScale = 1f + (1f - textAnimProgress) * 0.05f;
             float textAlpha = (0.7f + 0.3f * textAnimProgress) * alpha;
@@ -111,7 +115,7 @@ public class CreateConfigEntry extends PanelValueItem {
             GlStateManager.translate(-textCenterX, -textCenterY, 0);
 
             Unfair.fontManager.getFont(13).drawString(newName, inputX + 10, inputY + 8,
-                    blendAlpha(new Color(40, 50, 65), focusAnim * textAlpha).getRGB(), false);
+                    blendAlpha(ClientSettings.INSTANCE.getInputTextColor(), focusAnim * textAlpha).getRGB(), false);
 
             GlStateManager.popMatrix();
 
@@ -129,20 +133,20 @@ public class CreateConfigEntry extends PanelValueItem {
 
                     if (successAnim > 0.01f) {
                         RenderUtil.drawRect(cursorX, inputY + 8, cursorX + 1, inputY + 21,
-                                blendAlpha(new Color(76, 175, 80), alpha * cursorAlpha).getRGB());
+                                blendAlpha(ClientSettings.INSTANCE.getSuccessColor(), alpha * cursorAlpha).getRGB());
                     } else if (errorAnim > 0.01f) {
                         RenderUtil.drawRect(cursorX, inputY + 8, cursorX + 1, inputY + 21,
-                                blendAlpha(new Color(244, 67, 54), alpha * cursorAlpha).getRGB());
+                                blendAlpha(ClientSettings.INSTANCE.getErrorColor(), alpha * cursorAlpha).getRGB());
                     } else {
                         RenderUtil.drawRect(cursorX, inputY + 8, cursorX + 1, inputY + 21,
-                                blendAlpha(new Color(70, 130, 180), focusAnim * cursorAlpha).getRGB());
+                                blendAlpha(ClientSettings.INSTANCE.getInputBorder_color(), focusAnim * cursorAlpha).getRGB());
 
                         if (textAnimProgress < 0.95f) {
                             float glowW = 2f + (1f - textAnimProgress) * 3f;
                             float glowAlpha = (1f - textAnimProgress) * 0.3f * alpha;
                             RenderUtil.drawRect(cursorX - glowW/2, inputY + 8,
                                     cursorX + glowW/2, inputY + 21,
-                                    blendAlpha(new Color(70, 130, 180), glowAlpha).getRGB());
+                                    blendAlpha(ClientSettings.INSTANCE.getInputBorder_color(), glowAlpha).getRGB());
                         }
                     }
                 }
@@ -153,9 +157,9 @@ public class CreateConfigEntry extends PanelValueItem {
         boolean btnHovered = mouseX >= btnX && mouseX <= btnX + btnW &&
                            mouseY >= inputY && mouseY <= inputY + inputH;
         
-        Color btnColor = new Color(70, 130, 180);
+        Color btnColor = ClientSettings.INSTANCE.getButtonPrimaryColor();
         if (btnHovered) btnColor = btnColor.brighter();
-        if (successAnim > 0.3f) btnColor = blendColor(btnColor, new Color(76, 175, 80), successAnim);
+        if (successAnim > 0.3f) btnColor = blendColor(btnColor, ClientSettings.INSTANCE.getSuccessColor(), successAnim);
         
         RoundedUtils.drawRound(btnX, inputY, btnW, inputH, 5, blendAlpha(btnColor, alpha));
         
@@ -167,11 +171,11 @@ public class CreateConfigEntry extends PanelValueItem {
 
         if (successAnim > 0.05f) {
             RoundedUtils.drawRound(x, y, width, h, 5, 
-                blendAlpha(new Color(76, 175, 80), alpha * successAnim * 0.15f));
+                blendAlpha(ClientSettings.INSTANCE.getSuccessColor(), alpha * successAnim * 0.15f));
         }
         if (errorAnim > 0.05f) {
             RoundedUtils.drawRound(x, y, width, h, 5, 
-                blendAlpha(new Color(244, 67, 54), alpha * errorAnim * 0.15f));
+                blendAlpha(ClientSettings.INSTANCE.getErrorColor(), alpha * errorAnim * 0.15f));
         }
     }
 

@@ -4,6 +4,7 @@ import unfair.property.Property;
 import unfair.property.properties.*;
 import unfair.Unfair;
 import unfair.ui.clickgui.panel.PanelValueItem;
+import unfair.management.ClientSettings;
 import unfair.util.shader.RoundedUtils;
 
 import java.awt.*;
@@ -13,18 +14,9 @@ public class SliderSetting extends PanelValueItem {
     private boolean dragging = false;
     private float displayValue = 0;
 
-    private static final Color TRACK_BG = new Color(210, 212, 216);
-    private static final Color FILL_COLOR = new Color(70, 130, 180);
-    private static final Color KNOB_COLOR = new Color(70, 130, 180);
-
     public SliderSetting(Property<?> v) {
         this.value = v;
         this.displayValue = (float) getVal();
-    }
-
-    @Override
-    public void update(float deltaTime) {
-        displayValue = lerp(displayValue, (float) getVal(), 0.12f, deltaTime);
     }
 
     private double getMin() {
@@ -55,9 +47,19 @@ public class SliderSetting extends PanelValueItem {
     }
 
     @Override
+    public void update(float deltaTime) {
+        super.update(deltaTime);
+        setTargetVisibility(visible());
+        displayValue = lerp(displayValue, (float) getVal(), 0.12f, deltaTime);
+    }
+
+    @Override
     public void render(int mouseX, int mouseY) {
+        float visAlpha = getVisibilityAlpha();
+        if (visAlpha < 0.01f) return;
+
         Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 1,
-                blendAlpha(new Color(80, 90, 105), alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
         String displayStr;
         if (value instanceof FloatProperty || value instanceof PercentProperty)
@@ -67,22 +69,22 @@ public class SliderSetting extends PanelValueItem {
 
         float textWidth = Unfair.fontManager.getFont(13).getStringWidth(displayStr);
         Unfair.fontManager.getFont(13).drawString(displayStr, x + width - textWidth, y + 1,
-                blendAlpha(new Color(120, 130, 145), alpha).getRGB(), false);
+                blendAlpha(ClientSettings.INSTANCE.getValueTextColor(), alpha * visAlpha).getRGB(), false);
 
         float sliderX = x;
         float sliderW = width;
         float sliderY = y + 16;
         float sliderH = 3;
 
-        RoundedUtils.drawRound(sliderX, sliderY, sliderW, sliderH, 2, blendAlpha(TRACK_BG, alpha));
+        RoundedUtils.drawRound(sliderX, sliderY, sliderW, sliderH, 2, blendAlpha(ClientSettings.INSTANCE.getSliderTrackColor(), alpha * visAlpha));
 
         double range = getMax() - getMin();
         float fillW = range > 0 ? (float)(sliderW * ((displayValue - getMin()) / range)) : 0;
         if (fillW > 0) {
-            RoundedUtils.drawRound(sliderX, sliderY - 1, fillW, sliderH + 2, 2, blendAlpha(FILL_COLOR, alpha));
+            RoundedUtils.drawRound(sliderX, sliderY - 1, fillW, sliderH + 2, 2, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha));
         }
 
-        RoundedUtils.drawRound(sliderX + fillW - 3, sliderY - 2, 6, sliderH + 4, 3, blendAlpha(KNOB_COLOR, alpha));
+        RoundedUtils.drawRound(sliderX + fillW - 3, sliderY - 2, 6, sliderH + 4, 3, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha));
 
         if (dragging) {
             double pct = Math.max(0, Math.min(1, (mouseX - x) / width));

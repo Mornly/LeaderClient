@@ -5,6 +5,7 @@ import unfair.property.Property;
 import unfair.property.properties.*;
 import unfair.Unfair;
 import unfair.util.RenderUtil;
+import unfair.management.ClientSettings;
 
 import java.awt.*;
 
@@ -47,7 +48,7 @@ public class SliderSetting extends ValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
-        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y + 1, new Color(160, 160, 160).getRGB(), false);
+        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y + 1, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
 
         String displayStr;
         if (value instanceof FloatProperty || value instanceof PercentProperty)
@@ -56,14 +57,14 @@ public class SliderSetting extends ValueItem {
             displayStr = String.valueOf((int) Math.round(getVal()));
 
         float textWidth = Unfair.fontManager.getFont(17).getStringWidth(displayStr);
-        Unfair.fontManager.getFont(17).drawString(displayStr, x + width - textWidth, y + 1, new Color(140, 140, 140).getRGB(), false);
+        Unfair.fontManager.getFont(17).drawString(displayStr, x + width - textWidth, y + 1, ClientSettings.INSTANCE.getValueTextColor().getRGB(), false);
 
         float sliderX = x;
         float sliderW = width;
         float sliderY = y + 18;
         float sliderH = 3;
 
-        RenderUtil.drawRect(sliderX, sliderY, sliderX + sliderW, sliderY + sliderH, new Color(40, 40, 45).getRGB());
+        RenderUtil.drawRect(sliderX, sliderY, sliderX + sliderW, sliderY + sliderH, ClientSettings.INSTANCE.getSliderTrackColor().getRGB());
 
         double range = getMax() - getMin();
         float fillW = range > 0 ? (float)(sliderW * ((getVal() - getMin()) / range)) : 0;

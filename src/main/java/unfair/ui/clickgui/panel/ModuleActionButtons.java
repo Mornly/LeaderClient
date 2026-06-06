@@ -3,6 +3,7 @@ package unfair.ui.clickgui.panel;
 import org.lwjgl.input.Keyboard;
 import unfair.Unfair;
 import unfair.module.Module;
+import unfair.management.ClientSettings;
 import unfair.util.KeyBindUtil;
 import unfair.util.shader.RoundedUtils;
 
@@ -22,32 +23,23 @@ public class ModuleActionButtons extends PanelValueItem {
     private float bindActiveAnim = 0f;
     private float hideActiveAnim = 0f;
     
-    private static final Color BG_NORMAL = new Color(240, 243, 247);
-    private static final Color BG_HOVER = new Color(225, 230, 238);
-    private static final Color BIND_ACTIVE = new Color(235, 242, 252);
-    private static final Color HIDE_ACTIVE = new Color(242, 235, 250);
-    private static final Color BIND_ACTIVE_BG = new Color(220, 235, 245);
-    private static final Color HIDE_ACTIVE_BG = new Color(230, 220, 240);
-    private static final Color TEXT_NORMAL = new Color(85, 95, 110);
-    private static final Color TEXT_BIND = new Color(70, 130, 180);
-    private static final Color TEXT_HIDE = new Color(120, 80, 150);
-    private static final Color BIND_ACTIVE_TEXT = new Color(50, 100, 150);
-    private static final Color HIDE_ACTIVE_TEXT = new Color(100, 60, 130);
-    
     private boolean binding = false;
 
     public ModuleActionButtons(Module module) {
         this.module = module;
         this.width = (buttonWidth + gap) * 2 - gap;
+        initVisibility(true);
     }
 
     @Override
     public void update(float deltaTime) {
+        super.update(deltaTime);
+        setTargetVisibility(true);
         float targetBindAnim = bindHovered ? 1f : 0f;
         float targetHideAnim = hideHovered ? 1f : 0f;
         float targetBindActive = module.getKey() != 0 ? 1f : 0f;
         float targetHideActive = module.isHidden() ? 1f : 0f;
-        
+
         bindHoverAnim = lerp(bindHoverAnim, targetBindAnim, 0.18f, deltaTime);
         hideHoverAnim = lerp(hideHoverAnim, targetHideAnim, 0.18f, deltaTime);
         bindActiveAnim = lerp(bindActiveAnim, targetBindActive, 0.18f, deltaTime);
@@ -56,34 +48,39 @@ public class ModuleActionButtons extends PanelValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
+        float visAlpha = getVisibilityAlpha();
+        if (visAlpha < 0.01f) return;
 
         float bindX = x;
         float hideX = x + buttonWidth + gap;
         float btnY = y;
-        
+
         bindHovered = isHovering(mouseX, mouseY, bindX, btnY, buttonWidth, buttonHeight);
         hideHovered = isHovering(mouseX, mouseY, hideX, btnY, buttonWidth, buttonHeight);
-        
+
+        Color bgNormal = ClientSettings.INSTANCE.getActionBtnNormalColor();
+        Color bgHover = ClientSettings.INSTANCE.getActionBtnHoverColor();
+
         Color bindBgColor;
         if (binding) {
-            bindBgColor = BIND_ACTIVE;
+            bindBgColor = ClientSettings.INSTANCE.getBindActiveColor();
         } else if (bindActiveAnim > 0.01f) {
-            bindBgColor = blendColor(BG_NORMAL, BIND_ACTIVE_BG, bindActiveAnim);
+            bindBgColor = blendColor(bgNormal, ClientSettings.INSTANCE.getBindActiveBgColor(), bindActiveAnim);
         } else {
-            bindBgColor = blendColor(BG_NORMAL, BG_HOVER, bindHoverAnim);
+            bindBgColor = blendColor(bgNormal, bgHover, bindHoverAnim);
         }
-        
+
         Color hideBgColor;
         if (hideActiveAnim > 0.01f) {
-            hideBgColor = blendColor(BG_NORMAL, HIDE_ACTIVE_BG, hideActiveAnim);
+            hideBgColor = blendColor(bgNormal, ClientSettings.INSTANCE.getHideActiveBgColor(), hideActiveAnim);
         } else {
-            hideBgColor = blendColor(BG_NORMAL, HIDE_ACTIVE, hideHoverAnim);
+            hideBgColor = blendColor(bgNormal, ClientSettings.INSTANCE.getHideActiveColor(), hideHoverAnim);
         }
-        
-        RoundedUtils.drawRound(bindX, btnY, buttonWidth, buttonHeight, 3, 
-                blendAlpha(bindBgColor, alpha));
-        RoundedUtils.drawRound(hideX, btnY, buttonWidth, buttonHeight, 3, 
-                blendAlpha(hideBgColor, alpha));
+
+        RoundedUtils.drawRound(bindX, btnY, buttonWidth, buttonHeight, 3,
+                blendAlpha(bindBgColor, alpha * visAlpha));
+        RoundedUtils.drawRound(hideX, btnY, buttonWidth, buttonHeight, 3,
+                blendAlpha(hideBgColor, alpha * visAlpha));
         
         String bindText;
         if (binding) {
@@ -95,31 +92,35 @@ public class ModuleActionButtons extends PanelValueItem {
         }
         String hideText = module.isHidden() ? "Show" : "Hide";
         
+        Color textNormal = ClientSettings.INSTANCE.getTextNormalColor();
+        Color textBind = ClientSettings.INSTANCE.getAccentColor();
+        Color textHide = ClientSettings.INSTANCE.getTextHideColor();
+        
         Color bindTextColor;
         if (binding) {
-            bindTextColor = TEXT_BIND;
+            bindTextColor = textBind;
         } else if (bindActiveAnim > 0.01f) {
-            bindTextColor = blendColor(TEXT_NORMAL, BIND_ACTIVE_TEXT, bindActiveAnim);
+            bindTextColor = blendColor(textNormal, ClientSettings.INSTANCE.getBindActiveTextColor(), bindActiveAnim);
         } else {
-            bindTextColor = blendColor(TEXT_NORMAL, TEXT_BIND, bindHoverAnim);
+            bindTextColor = blendColor(textNormal, textBind, bindHoverAnim);
         }
         
         Color hideTextColor;
         if (hideActiveAnim > 0.01f) {
-            hideTextColor = blendColor(TEXT_NORMAL, HIDE_ACTIVE_TEXT, hideActiveAnim);
+            hideTextColor = blendColor(textNormal, ClientSettings.INSTANCE.getHideActiveTextColor(), hideActiveAnim);
         } else {
-            hideTextColor = blendColor(TEXT_NORMAL, TEXT_HIDE, hideHoverAnim);
+            hideTextColor = blendColor(textNormal, textHide, hideHoverAnim);
         }
         
         float bindTextW = Unfair.fontManager.getFont(11).getStringWidth(bindText);
         float hideTextW = Unfair.fontManager.getFont(11).getStringWidth(hideText);
-        
+
         Unfair.fontManager.getFont(11).drawString(bindText,
                 bindX + (buttonWidth - bindTextW) / 2f, btnY + (buttonHeight - 11) / 2f + 2.5f,
-                blendAlpha(bindTextColor, alpha).getRGB(), false);
+                blendAlpha(bindTextColor, alpha * visAlpha).getRGB(), false);
         Unfair.fontManager.getFont(11).drawString(hideText,
                 hideX + (buttonWidth - hideTextW) / 2f, btnY + (buttonHeight - 11) / 2f + 2.5f,
-                blendAlpha(hideTextColor, alpha).getRGB(), false);
+                blendAlpha(hideTextColor, alpha * visAlpha).getRGB(), false);
     }
 
     @Override
@@ -140,7 +141,6 @@ public class ModuleActionButtons extends PanelValueItem {
         
         if (isHovering(mx, my, hideX, btnY, buttonWidth, buttonHeight)) {
             module.setHidden(!module.isHidden());
-            return;
         }
     }
 
