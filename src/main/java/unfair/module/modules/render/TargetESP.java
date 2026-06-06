@@ -74,7 +74,7 @@ public class TargetESP extends Module {
 
     private final ResourceLocation glowCircle = new ResourceLocation("minecraft", "unfair/texture/targetesp/glow_circle.png");
     private final ResourceLocation rectangle = new ResourceLocation("minecraft", "unfair/texture/targetesp/rectangle.png");
-    private final ResourceLocation quadstapple = new ResourceLocation("minecraftr", "unfair/texture/targetesp/quadstapple.png");
+    private final ResourceLocation quadstapple = new ResourceLocation("minecraft", "unfair/texture/targetesp/quadstapple.png");
     private final ResourceLocation trianglestapple = new ResourceLocation("minecraft", "unfair/texture/targetesp/trianglestapple.png");
     private final ResourceLocation trianglestipple = new ResourceLocation("minecraft", "unfair/texture/targetesp/trianglestipple.png");
     private final ResourceLocation aim = new ResourceLocation("minecraft", "unfair/texture/targetesp/shenmi.png");
