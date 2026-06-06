@@ -1,12 +1,10 @@
 package unfair.module.modules.render;
 
+import net.minecraft.client.Minecraft;
 import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;
-import unfair.font.impl.UFontRenderer;
 import unfair.module.Module;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import unfair.property.properties.IntProperty;
 import unfair.util.RenderUtil;
 

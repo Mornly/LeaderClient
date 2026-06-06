@@ -2,12 +2,10 @@ package unfair.ui.clickgui.dropdown;
 
 import unfair.Unfair;
 import unfair.config.Config;
-import unfair.util.RenderUtil;
-import unfair.util.ChatUtil;
-import unfair.property.properties.TextProperty;
 import unfair.management.ClientSettings;
-
-import java.awt.*;
+import unfair.property.properties.TextProperty;
+import unfair.util.ChatUtil;
+import unfair.util.RenderUtil;
 
 public class CreateDD {
     public float x, y, width;

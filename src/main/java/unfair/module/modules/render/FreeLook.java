@@ -5,8 +5,6 @@ import unfair.event.EventTarget;
 import unfair.events.TickEvent;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
-import unfair.property.properties.IntProperty;
-import unfair.util.KeyBindUtil;
 
 public class FreeLook extends Module {
     public static FreeLook INSTANCE;

@@ -31,7 +31,7 @@ import java.util.Comparator;
 
 public class AutoProjectiles extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final FloatProperty range = new FloatProperty("Range", 8.0F, 3.0F, 15.0F);
+    public final FloatProperty range = new FloatProperty("Range", 8.0F, 3.0F, 10F);
     public final IntProperty amount = new IntProperty("Amount", 3, 1, 10);
 
     public final IntProperty throwDelay = new IntProperty("Throw Delay", 200, 50, 1000);

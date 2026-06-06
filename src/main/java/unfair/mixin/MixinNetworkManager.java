@@ -2,7 +2,8 @@ package unfair.mixin;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.GenericFutureListener;
-import net.minecraft.network.*;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -15,7 +16,6 @@ import unfair.event.EventManager;
 import unfair.event.types.EventType;
 import unfair.events.PacketEvent;
 import unfair.module.modules.misc.Disabler;
-import unfair.util.PacketUtil;
 
 import java.util.concurrent.Future;
 

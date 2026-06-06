@@ -5,7 +5,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
-import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;
 import unfair.module.Module;

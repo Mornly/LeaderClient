@@ -1,12 +1,9 @@
 package unfair.ui.clickgui.dropdown;
 
+import unfair.Unfair;
+import unfair.management.ClientSettings;
 import unfair.module.modules.render.HUD;
 import unfair.property.properties.ModeProperty;
-import unfair.Unfair;
-import unfair.util.RenderUtil;
-import unfair.management.ClientSettings;
-
-import java.awt.*;
 
 public class ModeSetting extends ValueItem {
     private final ModeProperty value;

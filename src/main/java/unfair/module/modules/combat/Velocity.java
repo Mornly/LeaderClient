@@ -3,10 +3,10 @@ package unfair.module.modules.combat;
 import com.google.common.base.CaseFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.client.*;
+import net.minecraft.network.play.client.C02PacketUseEntity;
+import net.minecraft.network.play.client.C0APacketAnimation;
 import net.minecraft.network.play.server.S12PacketEntityVelocity;
 import net.minecraft.network.play.server.S19PacketEntityStatus;
 import net.minecraft.network.play.server.S27PacketExplosion;
@@ -28,10 +28,7 @@ import unfair.property.properties.ModeProperty;
 import unfair.property.properties.PercentProperty;
 import unfair.util.*;
 
-import javax.security.sasl.SaslClient;
 import java.util.Objects;
-
-import static unfair.config.Config.mc;
 
 public class Velocity extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();

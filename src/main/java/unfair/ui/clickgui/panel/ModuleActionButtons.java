@@ -2,8 +2,8 @@ package unfair.ui.clickgui.panel;
 
 import org.lwjgl.input.Keyboard;
 import unfair.Unfair;
-import unfair.module.Module;
 import unfair.management.ClientSettings;
+import unfair.module.Module;
 import unfair.util.KeyBindUtil;
 import unfair.util.shader.RoundedUtils;
 

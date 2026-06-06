@@ -5,7 +5,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
-import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;

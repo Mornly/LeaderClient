@@ -1,7 +1,6 @@
 package unfair.module.modules.render;
 
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;
 import unfair.module.Module;
@@ -11,7 +10,6 @@ import unfair.util.NotificationTask;
 import unfair.util.RenderUtil;
 
 import java.awt.*;
-
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static unfair.config.Config.mc;

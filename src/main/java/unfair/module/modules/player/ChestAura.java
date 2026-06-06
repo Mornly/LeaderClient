@@ -16,7 +16,6 @@ import unfair.events.*;
 import unfair.mixin.IAccessorRenderManager;
 import unfair.module.Module;
 import unfair.module.modules.combat.KillAura;
-import unfair.module.modules.player.Scaffold;
 import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.FloatProperty;
 import unfair.property.properties.ModeProperty;

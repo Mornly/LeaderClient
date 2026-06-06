@@ -1,5 +1,6 @@
 package unfair.module.modules.player;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import unfair.Unfair;
 import unfair.enums.BlinkModules;
@@ -9,10 +10,8 @@ import unfair.events.MoveInputEvent;
 import unfair.events.StrafeEvent;
 import unfair.events.UpdateEvent;
 import unfair.mixin.IAccessorMinecraft;
-import unfair.module.Category;
 import unfair.module.Module;
 import unfair.property.properties.FloatProperty;
-import net.minecraft.client.Minecraft;
 
 public class Stuck extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();

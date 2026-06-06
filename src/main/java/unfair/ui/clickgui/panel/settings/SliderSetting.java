@@ -1,10 +1,12 @@
 package unfair.ui.clickgui.panel.settings;
 
-import unfair.property.Property;
-import unfair.property.properties.*;
 import unfair.Unfair;
-import unfair.ui.clickgui.panel.PanelValueItem;
 import unfair.management.ClientSettings;
+import unfair.property.Property;
+import unfair.property.properties.FloatProperty;
+import unfair.property.properties.IntProperty;
+import unfair.property.properties.PercentProperty;
+import unfair.ui.clickgui.panel.PanelValueItem;
 import unfair.util.shader.RoundedUtils;
 
 import java.awt.*;

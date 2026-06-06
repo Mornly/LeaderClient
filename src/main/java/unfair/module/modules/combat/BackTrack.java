@@ -2,17 +2,16 @@
 
 package unfair.module.modules.combat;
 
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.*;
+import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import unfair.event.EventTarget;
@@ -25,19 +24,12 @@ import unfair.property.properties.FloatProperty;
 import unfair.property.properties.IntProperty;
 import unfair.util.PacketUtil;
 import unfair.util.TimedPacket;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S02PacketChat;
-import net.minecraft.network.play.server.S06PacketUpdateHealth;
-import net.minecraft.network.play.server.S08PacketPlayerPosLook;
-import net.minecraft.network.play.server.S0BPacketAnimation;
-import net.minecraft.network.play.server.S13PacketDestroyEntities;
-import net.minecraft.network.play.server.S14PacketEntity;
-import net.minecraft.network.play.server.S18PacketEntityTeleport;
-import net.minecraft.network.play.server.S19PacketEntityStatus;
-import net.minecraft.network.play.server.S40PacketDisconnect;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class BackTrack extends Module {
    public BackTrack() {

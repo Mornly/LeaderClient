@@ -3,10 +3,10 @@ package unfair.config;
 import com.google.gson.*;
 import net.minecraft.client.Minecraft;
 import unfair.Unfair;
+import unfair.management.ClientSettings;
 import unfair.mixin.IAccessorMinecraft;
 import unfair.module.Module;
 import unfair.property.Property;
-import unfair.management.ClientSettings;
 import unfair.util.ChatUtil;
 
 import java.io.*;

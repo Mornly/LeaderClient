@@ -19,7 +19,6 @@ import unfair.event.EventManager;
 import unfair.event.types.EventType;
 import unfair.events.*;
 import unfair.management.RotationState;
-import unfair.module.modules.misc.Disabler;
 import unfair.module.modules.movement.NoSlow;
 import unfair.module.modules.player.AntiDebuff;
 

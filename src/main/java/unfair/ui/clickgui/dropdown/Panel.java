@@ -1,17 +1,15 @@
 package unfair.ui.clickgui.dropdown;
 
+import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
+import unfair.management.ClientSettings;
 import unfair.module.Category;
 import unfair.module.Module;
 import unfair.module.modules.render.HUD;
 import unfair.util.RenderUtil;
 import unfair.util.shader.BlurUtils;
-import unfair.management.ClientSettings;
 
-import net.minecraft.client.renderer.GlStateManager;
-import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
 import java.util.List;
 
 public class Panel {

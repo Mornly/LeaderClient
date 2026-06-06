@@ -1,6 +1,11 @@
 package unfair.module.modules.player;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.inventory.GuiInventory;
+import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.item.*;
+import net.minecraft.world.WorldSettings.GameType;
+import org.apache.commons.lang3.RandomUtils;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.UpdateEvent;
@@ -10,11 +15,6 @@ import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.IntProperty;
 import unfair.property.properties.ModeProperty;
 import unfair.util.ItemUtil;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.inventory.GuiInventory;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.world.WorldSettings.GameType;
-import org.apache.commons.lang3.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -29,9 +29,6 @@ import net.minecraft.network.play.client.C02PacketUseEntity.Action;
 import net.minecraft.util.*;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.world.WorldSettings.GameType;
-import org.lwjgl.LWJGLUtil;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 import unfair.Unfair;
@@ -42,12 +39,10 @@ import unfair.event.types.EventType;
 import unfair.event.types.Priority;
 import unfair.events.*;
 import unfair.management.RotationState;
-import unfair.mixin.IAccessorEntity;
 import unfair.mixin.IAccessorPlayerControllerMP;
 import unfair.mixin.IAccessorRenderManager;
 import unfair.module.Module;
 import unfair.module.modules.misc.BedNuker;
-import unfair.module.modules.movement.NoSlow;
 import unfair.module.modules.player.AutoBlockIn;
 import unfair.module.modules.player.AutoHeal;
 import unfair.module.modules.player.Scaffold;
@@ -56,9 +51,7 @@ import unfair.property.properties.*;
 import unfair.util.*;
 
 import java.awt.*;
-import java.awt.event.InputEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 
 public class KillAura extends Module {

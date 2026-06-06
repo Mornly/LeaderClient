@@ -11,7 +11,6 @@ import net.minecraft.network.play.client.C07PacketPlayerDigging.Action;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
-import scala.tools.nsc.backend.icode.Members;
 import unfair.Unfair;
 import unfair.enums.BlinkModules;
 import unfair.event.EventTarget;

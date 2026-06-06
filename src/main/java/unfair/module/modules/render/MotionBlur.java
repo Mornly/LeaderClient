@@ -12,13 +12,12 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;
-import unfair.events.Render3DEvent;
-import unfair.events.TickEvent;
-import unfair.events.UpdateEvent;
 import unfair.mixin.IShaderGroupAccessor;
 import unfair.module.Module;
 import unfair.property.properties.FloatProperty;
+
 import java.util.List;
+
 import static unfair.config.Config.mc;
 
 

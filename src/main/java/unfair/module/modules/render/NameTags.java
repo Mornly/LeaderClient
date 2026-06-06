@@ -1,10 +1,7 @@
 package unfair.module.modules.render;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragon;
@@ -23,20 +20,17 @@ import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.EnumChatFormatting;
 import org.apache.commons.lang3.StringUtils;
-import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
-import unfair.enums.BlinkModules;
 import unfair.enums.ChatColors;
 import unfair.event.EventTarget;
-import unfair.event.types.EventType;
-import unfair.events.Render2DEvent;
 import unfair.events.Render3DEvent;
-import unfair.events.TickEvent;
 import unfair.font.impl.UFontRenderer;
-import unfair.mixin.IAccessorGuiChat;
 import unfair.mixin.IAccessorRenderManager;
 import unfair.module.Module;
-import unfair.property.properties.*;
+import unfair.property.properties.BooleanProperty;
+import unfair.property.properties.FloatProperty;
+import unfair.property.properties.ModeProperty;
+import unfair.property.properties.PercentProperty;
 import unfair.util.ColorUtil;
 import unfair.util.RenderUtil;
 import unfair.util.TeamUtil;
@@ -44,8 +38,9 @@ import unfair.util.TeamUtil;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class NameTags extends Module {

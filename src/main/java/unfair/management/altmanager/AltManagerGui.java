@@ -8,7 +8,6 @@ import org.lwjgl.input.Keyboard;
 import unfair.Unfair;
 import unfair.management.altmanager.microsoft.MicrosoftOAuthTranslation;
 import unfair.module.modules.render.HUD;
-import unfair.ui.clickgui.dropdown.DropDownGui;
 import unfair.util.RenderUtil;
 
 import java.awt.*;

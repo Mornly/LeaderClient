@@ -1,33 +1,22 @@
 package unfair.module.modules.combat;
 
 import com.google.common.base.CaseFormat;
-import io.netty.buffer.Unpooled;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.*;
-import net.minecraft.network.play.server.S12PacketEntityVelocity;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.WorldSettings;
+import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import unfair.Unfair;
 import unfair.enums.BlinkModules;
-import unfair.enums.DelayModules;
-import unfair.event.EventManager;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
-import unfair.event.types.Priority;
-import unfair.events.*;
-import unfair.mixin.IAccessorEntityPlayer;
-import unfair.mixin.IAccessorPlayerControllerMP;
+import unfair.events.AttackEvent;
+import unfair.events.TickEvent;
 import unfair.module.Module;
 import unfair.property.properties.*;
-import unfair.util.*;
-import net.minecraft.client.Minecraft;
-
-import java.util.Random;
+import unfair.util.ItemUtil;
+import unfair.util.KeyBindUtil;
+import unfair.util.PacketUtil;
+import unfair.util.TimerUtil;
 
 public class BlockHit extends Module {
 

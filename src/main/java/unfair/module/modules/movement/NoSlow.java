@@ -7,15 +7,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.C07PacketPlayerDigging;
 import net.minecraft.network.play.client.C08PacketPlayerBlockPlacement;
 import net.minecraft.network.play.client.C09PacketHeldItemChange;
 import net.minecraft.network.play.client.C17PacketCustomPayload;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
 import unfair.Unfair;
 import unfair.enums.BlinkModules;
-import unfair.enums.DelayModules;
 import unfair.enums.FloatModules;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
@@ -30,8 +27,6 @@ import unfair.property.properties.PercentProperty;
 import unfair.util.*;
 
 import java.util.Random;
-
-import static net.minecraft.util.EnumFacing.DOWN;
 
 public class NoSlow extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();

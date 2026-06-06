@@ -1,9 +1,9 @@
 package unfair.ui.clickgui.panel.settings;
 
-import unfair.property.properties.ColorProperty;
 import unfair.Unfair;
-import unfair.ui.clickgui.panel.PanelValueItem;
 import unfair.management.ClientSettings;
+import unfair.property.properties.ColorProperty;
+import unfair.ui.clickgui.panel.PanelValueItem;
 import unfair.util.shader.RoundedUtils;
 
 import java.awt.*;
