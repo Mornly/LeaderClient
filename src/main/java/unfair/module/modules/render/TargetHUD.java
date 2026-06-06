@@ -15,10 +15,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.C02PacketUseEntity;
 import net.minecraft.network.play.client.C02PacketUseEntity.Action;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
 import unfair.enums.ChatColors;
@@ -40,6 +42,8 @@ import unfair.util.shader.RoundedUtils;
 import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class TargetHUD extends Module {
@@ -47,8 +51,7 @@ public class TargetHUD extends Module {
     private static final DecimalFormat healthFormat = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.US));
     private static final DecimalFormat diffFormat = new DecimalFormat("+0.0;-0.0", new DecimalFormatSymbols(Locale.US));
 
-    // 原有样式增加 ASTOLFO (5) 和 EXHIBITION (6)
-    public final ModeProperty style = new ModeProperty("style", 3, new String[]{"MYAU", "RAVENBS-MODERN", "RAVENBS-LEGACY","LEADER","ROUNDED","ASTOLFO","EXHIBITION"});
+    public final ModeProperty style = new ModeProperty("style", 3, new String[]{"MYAU", "RAVENBS-MODERN", "RAVENBS-LEGACY","LEADER","ROUNDED","ASTOLFO","EXHIBITION","ADJUST"});
     public final ModeProperty font = new ModeProperty("Font", 0, new String[]{"Unfair", "Minecraft"});
     public final ModeProperty color = new ModeProperty("color", 0, new String[]{"DEFAULT", "HUD"});
     public final ModeProperty posX = new ModeProperty("position-x", 1, new String[]{"LEFT", "MIDDLE", "RIGHT"});
@@ -65,6 +68,8 @@ public class TargetHUD extends Module {
     public final BooleanProperty shadow = new BooleanProperty("shadow", true, () -> this.style.getValue() == 0);
     public final BooleanProperty kaOnly = new BooleanProperty("ka-only", true);
     public final BooleanProperty chatPreview = new BooleanProperty("chat-preview", false);
+    public final BooleanProperty armor = new BooleanProperty("armor", true, () -> this.style.getValue() == 7);
+
     private final TimerUtil lastAttackTimer = new TimerUtil();
     private final TimerUtil animTimer = new TimerUtil();
     private EntityLivingBase lastTarget = null;
@@ -77,6 +82,14 @@ public class TargetHUD extends Module {
     private TimerUtil fadeTimer = null;
     private boolean fadingIn = false;
     private EntityLivingBase fadingEntity = null;
+
+    private float animHealth = 0.0F;
+    private float ghostHealth = 0.0F;
+    private long lastRenderMs = 0L;
+    private boolean dragging = false;
+    private boolean prevMouseDown = false;
+    private float dragOffsetX = 0.0F;
+    private float dragOffsetY = 0.0F;
 
     public TargetHUD() {
         super("TargetHUD", false, true);
@@ -157,7 +170,6 @@ public class TargetHUD extends Module {
         }
     }
 
-    // ========== 新增辅助方法 (ASTOLFO / EXHIBITION) ==========
     private Color getAstolfoColor(int offset) {
         if (this.color.getValue() == 1) {
             HUD hud = (HUD) Unfair.moduleManager.modules.get(HUD.class);
@@ -269,7 +281,253 @@ public class TargetHUD extends Module {
         }
         return new float[]{x, y};
     }
-    // ========== 辅助方法结束 ==========
+
+    private List<ItemStack> collectItems(EntityLivingBase entity) {
+        List<ItemStack> items = new ArrayList<>();
+        if (!this.armor.getValue()) {
+            return items;
+        }
+        ItemStack held = entity.getHeldItem();
+        if (held != null) {
+            items.add(held);
+        }
+        for (int slot = 4; slot >= 1; slot--) {
+            ItemStack piece = entity.getEquipmentInSlot(slot);
+            if (piece != null) {
+                items.add(piece);
+            }
+        }
+        return items;
+    }
+
+    private void drawItem(ItemStack stack, float x, float y, float size) {
+        float factor = size / 16.0F;
+        GlStateManager.pushMatrix();
+        GlStateManager.depthMask(true);
+        GlStateManager.clear(GL11.GL_DEPTH_BUFFER_BIT);
+        GlStateManager.enableDepth();
+        RenderHelper.enableGUIStandardItemLighting();
+        GlStateManager.translate(x, y, 0.0F);
+        GlStateManager.scale(factor, factor, factor);
+        mc.getRenderItem().zLevel = 0.0F;
+        mc.getRenderItem().renderItemIntoGUI(stack, 0, 0);
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.disableDepth();
+        GlStateManager.popMatrix();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+    }
+
+    private void renderAdjustStyle() {
+        EntityLivingBase entity = this.target;
+        if (entity == null) return;
+
+        float heal = entity.getHealth() + entity.getAbsorptionAmount();
+        float maxHeal = Math.max(entity.getMaxHealth(), heal);
+        float ratio = maxHeal <= 0.0F ? 0.0F : Math.min(Math.max(heal / maxHeal, 0.0F), 1.0F);
+
+        long now = System.currentTimeMillis();
+        if (this.target != this.lastTarget) {
+            this.animHealth = ratio;
+            this.ghostHealth = ratio;
+            this.lastRenderMs = now;
+        }
+        float delta = Math.min((now - this.lastRenderMs) / 1000.0F, 0.1F);
+        this.lastRenderMs = now;
+        if (this.animations.getValue()) {
+            this.animHealth += (ratio - this.animHealth) * Math.min(1.0F, delta * 9.0F);
+            if (this.ghostHealth < this.animHealth) {
+                this.ghostHealth = this.animHealth;
+            } else {
+                this.ghostHealth = Math.max(this.animHealth, this.ghostHealth - delta * 0.55F);
+            }
+        } else {
+            this.animHealth = ratio;
+            this.ghostHealth = ratio;
+        }
+
+        String name = ChatColors.formatColor(String.format("&r%s&r", TeamUtil.stripName(entity)));
+        List<ItemStack> items = this.collectItems(entity);
+        int itemCount = items.size();
+
+        float pad = 3.0F;
+        boolean showHead = this.head.getValue() && this.headTexture != null;
+        float headGap = 4.0F;
+        float nameHeight = getTextWidth("A") - 2;
+        float innerGap = 2.0F;
+        float itemSize = 11.0F;
+        float itemGap = 1.0F;
+        float gapBeforeBar = 2.0F;
+        float barHeight = 3.0F;
+        float barBottomPad = 3.0F;
+        float barSidePad = 3.0F;
+
+        float contentHeight = nameHeight + innerGap + itemSize;
+        float height = pad + contentHeight + gapBeforeBar + barHeight + barBottomPad;
+        float barY1 = height - barBottomPad - barHeight;
+        float barY2 = height - barBottomPad;
+
+        float headX = pad;
+        float headY = pad;
+        float headSize = barY1 - pad - headY;
+        float leftWidth = showHead ? headX + headSize + headGap : pad;
+
+        float itemsWidth = itemCount > 0 ? itemCount * (itemSize + itemGap) - itemGap : 0.0F;
+        float nameWidth = getTextWidth(name);
+        float rightWidth = Math.max(nameWidth, itemsWidth);
+        float width = Math.max(120.0F, leftWidth + rightWidth + pad);
+
+        float rightX = leftWidth;
+        float nameY = pad;
+        float itemsY = pad + nameHeight + innerGap;
+        float barX1 = barSidePad;
+        float barX2 = width - barSidePad;
+
+        ScaledResolution sr = new ScaledResolution(mc);
+        float sw = sr.getScaledWidth();
+        float sh = sr.getScaledHeight();
+        float scaleV = this.scale.getValue();
+
+        float localX = this.offX.getValue().floatValue() / scaleV;
+        switch (this.posX.getValue()) {
+            case 1:
+                localX += sw / scaleV / 2.0F - width / 2.0F;
+                break;
+            case 2:
+                localX = -this.offX.getValue().floatValue() / scaleV + sw / scaleV - width;
+                break;
+        }
+        float localY = this.offY.getValue().floatValue() / scaleV;
+        switch (this.posY.getValue()) {
+            case 1:
+                localY += sh / scaleV / 2.0F - height / 2.0F;
+                break;
+            case 2:
+                localY = -this.offY.getValue().floatValue() / scaleV + sh / scaleV - height;
+                break;
+        }
+
+        float screenX = localX * scaleV;
+        float screenY = localY * scaleV;
+        float screenW = width * scaleV;
+        float screenH = height * scaleV;
+
+        boolean chatOpen = mc.currentScreen instanceof GuiChat;
+        if (chatOpen) {
+            float mouseX = Mouse.getX() * sw / mc.displayWidth;
+            float mouseY = sh - Mouse.getY() * sh / mc.displayHeight - 1.0F;
+            boolean hovered = mouseX >= screenX && mouseX <= screenX + screenW && mouseY >= screenY && mouseY <= screenY + screenH;
+
+            boolean mouseDown = Mouse.isButtonDown(0);
+            if (mouseDown && !this.prevMouseDown && hovered) {
+                this.dragging = true;
+                this.dragOffsetX = mouseX - screenX;
+                this.dragOffsetY = mouseY - screenY;
+            }
+            if (!mouseDown) {
+                this.dragging = false;
+            }
+            if (this.dragging) {
+                float targetX = mouseX - this.dragOffsetX;
+                float targetY = mouseY - this.dragOffsetY;
+                this.offX.setValue(this.clampOffset(this.invertX(targetX, this.posX.getValue(), sw, screenW)));
+                this.offY.setValue(this.clampOffset(this.invertY(targetY, this.posY.getValue(), sh, screenH)));
+            }
+            this.prevMouseDown = mouseDown;
+        } else {
+            this.dragging = false;
+            this.prevMouseDown = false;
+        }
+
+        Color targetColor = this.getTargetColor(entity);
+        Color barColor = this.color.getValue() == 0 ? ColorUtil.getHealthBlend(this.animHealth) : targetColor;
+        int backgroundColor = new Color(0.0F, 0.0F, 0.0F, this.background.getValue() / 100.0F).getRGB();
+        int trackColor = ColorUtil.darker(barColor, 0.22F).getRGB();
+        float barInner = barX2 - barX1;
+
+        GlStateManager.pushMatrix();
+        GlStateManager.scale(scaleV, scaleV, scaleV);
+        GlStateManager.translate(localX, localY, 0.0F);
+
+        RenderUtil.enableRenderState();
+        RenderUtil.drawRect(0.0F, 0.0F, width, height, backgroundColor);
+        RenderUtil.drawRect(barX1, barY1, barX2, barY2, trackColor);
+        if (this.animHealth > 0.0F) {
+            RenderUtil.drawRect(barX1, barY1, barX1 + barInner * this.animHealth, barY2, barColor.getRGB() | 0xFF000000);
+        }
+        if (this.ghostHealth > this.animHealth + 0.001F) {
+            int ghostAlpha = (int) (175.0F * Math.min(1.0F, (this.ghostHealth - this.animHealth) / 0.3F));
+            int ghostColor = new Color(255, 255, 255, ghostAlpha).getRGB();
+            RenderUtil.drawRect(barX1 + barInner * this.animHealth, barY1, barX1 + barInner * this.ghostHealth, barY2, ghostColor);
+        }
+        RenderUtil.disableRenderState();
+
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GlStateManager.disableDepth();
+        if (showHead) {
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            mc.getTextureManager().bindTexture(this.headTexture);
+            Gui.drawScaledCustomSizeModalRect((int) headX, (int) headY, 8.0F, 8.0F, 8, 8, (int) headSize, (int) headSize, 64.0F, 64.0F);
+            Gui.drawScaledCustomSizeModalRect((int) headX, (int) headY, 40.0F, 8.0F, 8, 8, (int) headSize, (int) headSize, 64.0F, 64.0F);
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        }
+
+        if (itemCount > 0) {
+            float drawX = rightX;
+            for (ItemStack stack : items) {
+                this.drawItem(stack, drawX, itemsY, itemSize);
+                drawX += itemSize + itemGap;
+            }
+        }
+
+        GlStateManager.disableDepth();
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        drawText(name, rightX, nameY, -1, this.shadow.getValue());
+
+        if (chatOpen && (this.dragging || (Mouse.getX() * sw / mc.displayWidth >= screenX && Mouse.getX() * sw / mc.displayWidth <= screenX + screenW &&
+                sh - Mouse.getY() * sh / mc.displayHeight - 1.0F >= screenY && sh - Mouse.getY() * sh / mc.displayHeight - 1.0F <= screenY + screenH))) {
+            RenderUtil.enableRenderState();
+            int boxColor = new Color(255, 255, 255, 235).getRGB();
+            RenderUtil.drawRect(0.0F, 0.0F, width, 1.0F, boxColor);
+            RenderUtil.drawRect(0.0F, height - 1.0F, width, height, boxColor);
+            RenderUtil.drawRect(0.0F, 0.0F, 1.0F, height, boxColor);
+            RenderUtil.drawRect(width - 1.0F, 0.0F, width, height, boxColor);
+            RenderUtil.disableRenderState();
+        }
+
+        GlStateManager.enableDepth();
+        GlStateManager.disableBlend();
+        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+        GlStateManager.popMatrix();
+    }
+
+    private int invertX(float screenTarget, int mode, float sw, float scaledWidth) {
+        switch (mode) {
+            case 1:
+                return Math.round(screenTarget - sw / 2.0F + scaledWidth / 2.0F);
+            case 2:
+                return Math.round(sw - scaledWidth - screenTarget);
+            default:
+                return Math.round(screenTarget);
+        }
+    }
+
+    private int invertY(float screenTarget, int mode, float sh, float scaledHeight) {
+        switch (mode) {
+            case 1:
+                return Math.round(screenTarget - sh / 2.0F + scaledHeight / 2.0F);
+            case 2:
+                return Math.round(sh - scaledHeight - screenTarget);
+            default:
+                return Math.round(screenTarget);
+        }
+    }
+
+    private int clampOffset(int value) {
+        return Math.max(-255, Math.min(255, value));
+    }
 
     @EventTarget
     public void onRender(Render2DEvent event) {
@@ -334,13 +592,14 @@ public class TargetHUD extends Module {
                         renderAstolfo(heal);
                     } else if (styleMode == 6) {
                         renderExhibition(heal);
+                    } else if (styleMode == 7) {
+                        renderAdjustStyle();
                     }
                 }
             }
         }
     }
 
-    // ========== ASTOLFO 样式 ==========
     private void renderAstolfo(float heal) {
         String name = TeamUtil.stripName(target);
         float nameWidth = getTextWidth(name);
@@ -375,7 +634,6 @@ public class TargetHUD extends Module {
         GlStateManager.popMatrix();
     }
 
-    // ========== EXHIBITION 样式 ==========
     private void renderExhibition(float heal) {
         String name = TeamUtil.stripName(target);
         float nameWidth = getTextWidth(name);
@@ -408,7 +666,6 @@ public class TargetHUD extends Module {
         GlStateManager.popMatrix();
     }
 
-    // ========== 原有样式方法（完整保留） ==========
     private void drawRoundedStyle(float health, float abs, float heal) {
         float elapsedTime = (float) Math.min(Math.max(this.animTimer.getElapsedTime(), 0L), 150L);
         float lerpedHealthRatio = Math.min(Math.max(RenderUtil.lerpFloat(this.newHealth, this.oldHealth, elapsedTime / 150.0F) / this.maxHealth, 0.0F), 1.0F);
