@@ -24,24 +24,7 @@ import java.util.Comparator;
 
 public class LegitScaffold extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private static final double[] placeOffsets = new double[]{
-            0.03125,
-            0.09375,
-            0.15625,
-            0.21875,
-            0.28125,
-            0.34375,
-            0.40625,
-            0.46875,
-            0.53125,
-            0.59375,
-            0.65625,
-            0.71875,
-            0.78125,
-            0.84375,
-            0.90625,
-            0.96875
-    };
+    private static final double[] placeOffsets = new double[]{0.03125, 0.09375, 0.15625, 0.21875, 0.28125, 0.34375, 0.40625, 0.46875, 0.53125, 0.59375, 0.65625, 0.71875, 0.78125, 0.84375, 0.90625, 0.96875};
     private float yaw = -180.0F;
     private float pitch = 0.0F;
     private boolean canRotate = false;
@@ -187,7 +170,7 @@ public class LegitScaffold extends Module {
 
         double[] x = placeOffsets;
         double[] y = placeOffsets;
-        double[] z = placeOffsets;
+        double[] z = placeOffsets;//?
         switch (blockData.facing()) {
             case NORTH:
                 z = new double[]{0.0};
