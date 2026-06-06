@@ -11,13 +11,6 @@ public class ColorUtil {
     public static Color fromHSB(float hue, float saturation, float brightness) {
         return new Color(Color.HSBtoRGB(hue, saturation, brightness));
     }
-    public static Color getTechBlend(float ratio) {
-        // 科技蓝 -> 青 -> 红
-        int r = (int) (Math.min(1.0F, ratio * 2) * 255);
-        int g = (int) (Math.min(1.0F, (1.0F - Math.abs(ratio - 0.5F) * 2)) * 200);
-        int b = (int) ((1.0F - ratio) * 255);
-        return new Color(r, g, b);
-    }
 
     public static Color interpolate(float progress, Color startColor, Color endColor) {
         progress = Math.min(Math.max(progress, 0.0f), 1.0f);

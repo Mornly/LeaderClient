@@ -4,7 +4,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.entity.RenderManager;
 import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
 import unfair.enums.BlinkModules;
@@ -19,7 +18,6 @@ import unfair.module.Module;
 import unfair.property.properties.*;
 import unfair.util.ColorUtil;
 import unfair.util.RenderUtil;
-import unfair.util.Timer;
 
 import java.awt.*;
 import java.util.*;

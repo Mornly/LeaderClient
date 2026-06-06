@@ -10,11 +10,11 @@
  */
 package unfair.util.animations.advanced;
 
-import unfair.util.TimerUtils;
+import unfair.util.TimerUtil;
 
 public abstract class Animation {
 
-    public TimerUtils timerUtil = new TimerUtils();
+    public TimerUtil timerUtil = new TimerUtil();
     protected int duration;
     protected double endPoint;
     protected Direction direction;

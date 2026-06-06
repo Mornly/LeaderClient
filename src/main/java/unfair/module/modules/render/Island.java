@@ -13,7 +13,7 @@ import unfair.property.properties.FloatProperty;
 import unfair.property.properties.ModeProperty;
 import unfair.util.NotificationTask;
 import unfair.util.RenderUtil;
-import unfair.util.TimerUtils;
+import unfair.util.TimerUtil;
 import unfair.util.animations.advanced.ContinualAnimation;
 
 import java.awt.*;
@@ -58,7 +58,7 @@ public class Island extends Module {
     }
 
     private int fps = 0;
-    private TimerUtils timer = new TimerUtils();
+    private TimerUtil timer = new TimerUtil();
     public String title, description;
 
     @Override

@@ -63,7 +63,7 @@ public class BlockHit extends Module {
     private boolean canBlock = false;
     private int getBlockTicks = 0;
     private EntityLivingBase target;
-    private TimerUtils timer = new TimerUtils();
+    private TimerUtil timer = new TimerUtil();
     @EventTarget
     public void onTick(TickEvent event) {
         if (!this.isEnabled() || mc.thePlayer == null || mc.theWorld == null) return;
