@@ -10,7 +10,6 @@ import java.awt.*;
 import java.io.InputStream;
 
 public class UFontRenderer extends FontRenderer {
-    private final int FONT_HEIGHT = 8;
     private StringCache stringCache;
     private final int size;
 

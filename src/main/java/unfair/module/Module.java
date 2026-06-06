@@ -81,9 +81,6 @@ public abstract class Module {
             return false;
         }
     }
-    private float lerp(float current, float target, float speed) {
-        return current + (target - current) * speed;
-    }
 
     public int getKey() {
         return this.key;
