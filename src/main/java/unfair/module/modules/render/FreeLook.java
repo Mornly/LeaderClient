@@ -5,10 +5,12 @@ import unfair.event.EventTarget;
 import unfair.events.TickEvent;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
+import unfair.util.KeyBindUtil;
 
 public class FreeLook extends Module {
     public static FreeLook INSTANCE;
     public final BooleanProperty autoF5 = new BooleanProperty("AutoF5", true);
+    public final BooleanProperty hold = new BooleanProperty("Hold", false);
     public boolean active = false;
     public float cameraYaw;
     public float cameraPitch;
@@ -28,40 +30,64 @@ public class FreeLook extends Module {
                 this.active = false;
                 Minecraft.getMinecraft().gameSettings.thirdPersonView = this.prevPerspective;
             }
-        } else {
-            Minecraft mc = Minecraft.getMinecraft();
-            if (mc.thePlayer != null) {
-                this.prevCameraYaw = this.cameraYaw;
-                this.prevCameraPitch = this.cameraPitch;
-                boolean isKeyDown = mc.currentScreen == null;
-                if (isKeyDown) {
-                    if (!this.active) {
-                        this.active = true;
-                        this.prevPerspective = mc.gameSettings.thirdPersonView;
-                        if (this.autoF5.getValue()) {
-                            mc.gameSettings.thirdPersonView = 1;
-                        }
+            return;
+        }
 
-                        this.cameraYaw = mc.thePlayer.rotationYaw;
-                        this.cameraPitch = mc.thePlayer.rotationPitch;
-                        this.prevCameraYaw = this.cameraYaw;
-                        this.prevCameraPitch = this.cameraPitch;
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.thePlayer == null) return;
+
+        if (hold.getValue()) {
+            boolean keyDown = KeyBindUtil.isKeyDown(this.getKey());
+            if (keyDown) {
+                if (!this.active) {
+                    this.active = true;
+                    this.prevPerspective = mc.gameSettings.thirdPersonView;
+                    if (this.autoF5.getValue()) {
+                        mc.gameSettings.thirdPersonView = 1;
                     }
-                } else if (this.active) {
+                    this.cameraYaw = mc.thePlayer.rotationYaw;
+                    this.cameraPitch = mc.thePlayer.rotationPitch;
+                    this.prevCameraYaw = this.cameraYaw;
+                    this.prevCameraPitch = this.cameraPitch;
+                }
+            } else {
+                if (this.active) {
                     this.active = false;
                     mc.gameSettings.thirdPersonView = this.prevPerspective;
                 }
-
             }
+        } else {
+            boolean isKeyDown = mc.currentScreen == null && KeyBindUtil.isKeyDown(this.getKey());
+            if (isKeyDown) {
+                if (!this.active) {
+                    this.active = true;
+                    this.prevPerspective = mc.gameSettings.thirdPersonView;
+                    if (this.autoF5.getValue()) {
+                        mc.gameSettings.thirdPersonView = 1;
+                    }
+                    this.cameraYaw = mc.thePlayer.rotationYaw;
+                    this.cameraPitch = mc.thePlayer.rotationPitch;
+                    this.prevCameraYaw = this.cameraYaw;
+                    this.prevCameraPitch = this.cameraPitch;
+                }
+            } else if (this.active) {
+                this.active = false;
+                mc.gameSettings.thirdPersonView = this.prevPerspective;
+            }
+        }
+
+        if (this.active) {
+            this.prevCameraYaw = this.cameraYaw;
+            this.prevCameraPitch = this.cameraPitch;
         }
     }
 
+    @Override
     public void onDisabled() {
         if (this.active) {
             this.active = false;
             Minecraft.getMinecraft().gameSettings.thirdPersonView = this.prevPerspective;
         }
-
     }
 
     public boolean isActive() {

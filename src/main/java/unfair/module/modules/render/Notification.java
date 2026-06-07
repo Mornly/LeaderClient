@@ -17,6 +17,7 @@ import static unfair.config.Config.mc;
 public class Notification extends Module {
     public Notification(){super("Notification",true,true);}
     public final ModeProperty mode = new ModeProperty("Mode",0,new String[]{"Normal","Clean"});
+    public final ModeProperty cleanColor = new ModeProperty("Color", 0, new String[]{"White", "Black"}, () -> mode.getValue() == 1);
     public static final IntProperty showTime = new IntProperty("Show Time",2000,0,10000);
     private final IntProperty space = new IntProperty("Space",20,0,10);
     public final IntProperty rectLeft = new IntProperty("Rect Left", 5, 0, 20);
@@ -99,8 +100,16 @@ public class Notification extends Module {
                 float progress = task.getProgress();
                 float width = x - renderX;
                 float progressWidth = width * (1.0f - progress);
+
+                int bgColor;
+                if (cleanColor.getValue() == 0) {
+                    bgColor = new Color(252, 252, 252, 142).getRGB();
+                } else {
+                    bgColor = new Color(0, 0, 0, 142).getRGB();
+                }
+
                 RenderUtil.drawRoundedRectangle(renderX - 1, y - 1, x + 1, y + HEIGHT + 1,4.0f,new Color(0,0,0, 40).getRGB());
-                RenderUtil.drawRoundedRectangle(renderX, y, x, y + HEIGHT,4.0f, new Color(252, 252, 252, 142).getRGB());
+                RenderUtil.drawRoundedRectangle(renderX, y, x, y + HEIGHT,4.0f, bgColor);
                 RenderUtil.drawFont(task.message, (int) (renderX + PADDING), (int) (y + 7), accentColor.getRGB(),false);
                 RenderUtil.drawRect(renderX, y + HEIGHT - 2, renderX + progressWidth, y + HEIGHT, accentColor.getRGB());
                 y -= (HEIGHT + space.getValue());
