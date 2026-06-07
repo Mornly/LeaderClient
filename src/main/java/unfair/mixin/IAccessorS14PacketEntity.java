@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(S14PacketEntity.class)
-public interface S14PacketEntityAccessor {
+public interface IAccessorS14PacketEntity {
 
     @Accessor("entityId")
     int getEntityId();

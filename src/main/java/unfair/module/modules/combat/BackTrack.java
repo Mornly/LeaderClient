@@ -17,7 +17,7 @@ import org.lwjgl.opengl.GL11;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.*;
-import unfair.mixin.S14PacketEntityAccessor;
+import unfair.mixin.IAccessorS14PacketEntity;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.FloatProperty;
@@ -287,7 +287,7 @@ public class BackTrack extends Module {
             }
          } else if (p instanceof S14PacketEntity) {
             S14PacketEntity wrapper = (S14PacketEntity) p;
-            if (((S14PacketEntityAccessor) wrapper).getEntityId() == target.getEntityId()) {
+            if (((IAccessorS14PacketEntity) wrapper).getEntityId() == target.getEntityId()) {
                vec3 = vec3.add(new Vec3(wrapper.func_149062_c() / 32.0D, wrapper.func_149061_d() / 32.0D,
                        wrapper.func_149064_e() / 32.0D));
             }
