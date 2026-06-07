@@ -2,6 +2,7 @@ package unfair.module.modules.combat;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -38,6 +39,8 @@ public class AutoProjectiles extends Module {
     public final IntProperty throwDelay = new IntProperty("Throw Delay Ticks", 3, 1, 15, () -> !smartDelay.getValue());
     public final BooleanProperty prediction = new BooleanProperty("Prediction", true);
     public final BooleanProperty teams = new BooleanProperty("Teams", true);
+    public final BooleanProperty invCheck = new BooleanProperty("Inv Check", true);
+    public final BooleanProperty botCheck = new BooleanProperty("Bot Check", true);
 
     private EntityLivingBase target = null;
     private int lastSlot = -1;
@@ -203,6 +206,8 @@ public class AutoProjectiles extends Module {
     @EventTarget(Priority.HIGH)
     public void onUpdate(UpdateEvent event) {
         if (!this.isEnabled() || event.getType() != EventType.PRE) return;
+
+        if ((this.invCheck.getValue() && mc.currentScreen instanceof GuiContainer) || (!this.botCheck.getValue() || !TeamUtil.isBot((EntityPlayer) getTarget()))) return;
 
         if (!this.hasProjectile()) {
             this.target = null;
