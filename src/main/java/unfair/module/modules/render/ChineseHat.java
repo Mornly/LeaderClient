@@ -149,7 +149,7 @@ public class ChineseHat extends Module {
 
                 Color color = getColorForEntity(entity, indexHolder[0]);
                 RenderUtil.color(color);
-                RenderUtil.drawCone(width, height, false);
+                RenderUtil.drawCone(width, height);
 
                 GlStateManager.popMatrix();
                 indexHolder[0]++;

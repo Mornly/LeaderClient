@@ -1,12 +1,12 @@
 package unfair.ui.clickgui.dropdown;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
 import unfair.management.ClientSettings;
 import unfair.module.modules.render.HUD;
 import unfair.util.RenderUtil;
-import unfair.util.shader.BlurUtils;
 
 import java.awt.*;
 import java.io.File;
@@ -22,12 +22,12 @@ public class ConfigPanel {
     private final List<ConfigDD> configDDs = new ArrayList<>();
     private String currentConfig = "default.json";
     private static final FilenameFilter JSON_FILTER = (dir, name) -> name.endsWith(".json");
-    private final boolean blurEnabled;
+    private static final float PANEL_WIDTH = 100;
+    private static final float HEADER_HEIGHT = 18;
 
-    public ConfigPanel(float x, float y, boolean blur) {
+    public ConfigPanel(float x, float y) {
         this.x = x;
         this.y = y;
-        this.blurEnabled = blur;
         initConfigs();
     }
 
@@ -69,52 +69,54 @@ public class ConfigPanel {
     public void removeConfig(ConfigDD toRemove) { configDDs.remove(toRemove); }
     public String getCurrentConfig() { return currentConfig; }
     public void setCurrentConfig(String name) { this.currentConfig = name; }
-    public boolean isBlurEnabled() { return blurEnabled; }
 
     public void render(int mouseX, int mouseY, float scrollY) {
         float panelY = y + scrollY;
-        float pw = 95;
-        float ph = 18;
 
         long time = System.currentTimeMillis();
         HUD hud = (HUD) Unfair.moduleManager.modules.get(HUD.class);
-        int c1 = hud.getColor(time).getRGB();
-        int c2 = hud.getColor(time + 400).getRGB();
-        RenderUtil.drawGradientRect((int)x, (int)panelY, x + pw, (int)(panelY + ph), c1, c2);
+        Color c1 = hud.getColor(time);
+        Color c2 = hud.getColor(time + 400);
 
-        Unfair.fontManager.getFont(20).drawString("Config", x + 7, panelY + 3, Color.WHITE.getRGB(), false);
+        // Header: solid gradient rect
+        RenderUtil.drawGradientRect((int) x, (int) panelY, x + PANEL_WIDTH, (int) (panelY + HEADER_HEIGHT),
+                c1.getRGB(), c2.getRGB());
+
+        Unfair.fontManager.getFont(18).drawString("Config", x + 8, panelY + 4, new Color(200, 200, 220).getRGB(), false);
 
         float contentHeight = calculateContentHeight();
 
-        if (blurEnabled && contentHeight > 0) {
-            BlurUtils.prepareBlur();
-            RenderUtil.drawRect(x, panelY + ph, x + pw, panelY + ph + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
-            BlurUtils.blurEnd(2, 3f);
-        } else {
-            RenderUtil.drawRect(x, panelY + ph, x + pw, panelY + ph + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
+        // Content background: solid rect
+        if (contentHeight > 0) {
+            int bgColor = ClientSettings.INSTANCE.getPanelContentBgColor().getRGB();
+            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight, bgColor);
         }
 
-        GlStateManager.enableBlend();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        RenderUtil.scissor(x, panelY + ph, pw, contentHeight);
+        Minecraft mc = Minecraft.getMinecraft();
+        float scaleFactor = mc.displayWidth / (float)mc.currentScreen.width;
+        int scissorX = (int)(x * scaleFactor);
+        int scissorY = (int)((mc.currentScreen.height - (panelY + HEADER_HEIGHT + contentHeight)) * scaleFactor);
+        int scissorW = (int)(PANEL_WIDTH * scaleFactor);
+        int scissorH = (int)(contentHeight * scaleFactor);
+        GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
 
-        float moduleY = ph + 3;
-        createDD.x = x;
+        float moduleY = HEADER_HEIGHT + 2;
+        createDD.x = x + 2;
         createDD.y = panelY + moduleY;
-        createDD.width = pw;
+        createDD.width = PANEL_WIDTH - 4;
         createDD.render(mouseX, mouseY);
-        moduleY += createDD.getTotalHeight() + 3;
+        moduleY += createDD.getTotalHeight() + 2;
 
         for (ConfigDD cfg : configDDs) {
-            cfg.x = x;
+            cfg.x = x + 2;
             cfg.y = panelY + moduleY;
-            cfg.width = pw;
+            cfg.width = PANEL_WIDTH - 4;
             cfg.render(mouseX, mouseY);
-            moduleY += cfg.getTotalHeight() + 3;
+            moduleY += cfg.getTotalHeight() + 2;
         }
 
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
-        GlStateManager.disableBlend();
     }
 
     public void mouseClicked(int mx, int my, int button) {
@@ -138,8 +140,8 @@ public class ConfigPanel {
     }
 
     public float calculateContentHeight() {
-        float h = createDD.getTotalHeight() + 3;
-        for (ConfigDD cfg : configDDs) h += cfg.getTotalHeight() + 3;
-        return Math.max(h - 3, 0);
+        float h = createDD.getTotalHeight() + 2;
+        for (ConfigDD cfg : configDDs) h += cfg.getTotalHeight() + 2;
+        return Math.max(h - 2, 0);
     }
 }

@@ -9,7 +9,7 @@ import unfair.util.RenderUtil;
 
 public class CreateDD {
     public float x, y, width;
-    public static final float HEIGHT = 20;
+    public static final float HEIGHT = 17;
     private boolean settingsOpen = false;
     private final ValueItem[] settings;
     private TextProperty nameProp;
@@ -37,13 +37,13 @@ public class CreateDD {
     }
 
     public void render(int mouseX, int mouseY) {
-        Unfair.fontManager.getFont(20).drawString("+ New Config", x + 7, y + 2,
+        Unfair.fontManager.getFont(17).drawString("+ New Config", x + 7, y + 1,
                 ClientSettings.INSTANCE.getAccentColor().getRGB(), false);
 
         if (settingsOpen) {
             float totalSettingsHeight = 0;
-            for (ValueItem s : settings) totalSettingsHeight += s.getHeight() + 3;
-            if (totalSettingsHeight > 0) totalSettingsHeight -= 3;
+            for (ValueItem s : settings) totalSettingsHeight += s.getHeight() + 2;
+            if (totalSettingsHeight > 0) totalSettingsHeight -= 2;
 
             RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight,
                     ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
@@ -52,7 +52,7 @@ public class CreateDD {
             for (ValueItem s : settings) {
                 s.x = x; s.y = settingY; s.width = width; s.masterAlpha = 1f;
                 s.render(mouseX, mouseY);
-                settingY += s.getHeight() + 3;
+                settingY += s.getHeight() + 2;
             }
         }
     }
@@ -72,8 +72,8 @@ public class CreateDD {
 
     private float getSettingsHeight() {
         float h = 0;
-        for (ValueItem s : settings) h += s.getHeight() + 3;
-        return h > 3 ? h - 3 : 0;
+        for (ValueItem s : settings) h += s.getHeight() + 2;
+        return h > 2 ? h - 2 : 0;
     }
 
     protected boolean isHovering(int mx, int my, float x, float y, float w, float h) {

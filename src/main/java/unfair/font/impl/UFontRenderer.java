@@ -8,8 +8,31 @@ import unfair.Unfair;
 
 import java.awt.*;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UFontRenderer extends FontRenderer {
+    private static final int[] COLOR_CODE = new int[32];
+    private static final Map<String, Font> FONT_CACHE = new HashMap<>();
+
+    static {
+        for (int i = 0; i <= 31; i++) {
+            int j = (i >> 3 & 1) * 85;
+            int k = (i >> 2 & 1) * 170 + j;
+            int l = (i >> 1 & 1) * 170 + j;
+            int i1 = (i & 1) * 170 + j;
+            if (i == 6) {
+                k += 85;
+            }
+            if (i >= 16) {
+                k /= 4;
+                l /= 4;
+                i1 /= 4;
+            }
+            COLOR_CODE[i] = (k & 255) << 16 | (l & 255) << 8 | (i1 & 255);
+        }
+    }
+
     private StringCache stringCache;
     private final int size;
 
@@ -21,52 +44,32 @@ public class UFontRenderer extends FontRenderer {
                 false
         );
         this.size = size;
-        boolean antiAlias = true;
-        Font font;
+        Font font = loadFont(name, size);
+        stringCache = new StringCache(COLOR_CODE);
+        stringCache.setDefaultFont(font, size, true);
+    }
+
+    private static Font loadFont(String name, int size) {
+        Font base = FONT_CACHE.get(name);
+        if (base != null) {
+            return base.deriveFont(Font.PLAIN, size);
+        }
         try {
-            InputStream is = getClass().getResourceAsStream("/assets/unfair/fonts/" + name + ".ttf");
-            font = Font.createFont(0, is);
-            font = font.deriveFont(Font.PLAIN, size);
-        } catch (Exception ex) {
-            font = new Font("Arial", Font.PLAIN, size);
-        }
-
-        ResourceLocation res = new ResourceLocation("textures/font/ascii.png");
-        int[] colorCode = new int[32];
-        for (int i = 0; i <= 31; i++) {
-            int j = (i >> 3 & 1) * 85;
-            int k = (i >> 2 & 1) * 170 + j;
-            int l = (i >> 1 & 1) * 170 + j;
-            int i1 = (i & 1) * 170 + j;
-            if (i == 6) {
-                k += 85;
+            InputStream is = UFontRenderer.class.getResourceAsStream("/assets/unfair/fonts/" + name + ".ttf");
+            if (is != null) {
+                base = Font.createFont(Font.TRUETYPE_FONT, is);
+                is.close();
+                FONT_CACHE.put(name, base);
+                return base.deriveFont(Font.PLAIN, size);
             }
-            if (Minecraft.getMinecraft().gameSettings.anaglyph) {
-                int j1 = (k * 30 + l * 59 + i1 * 11) / 100;
-                int k1 = (k * 30 + l * 70) / 100;
-                int l1 = (k * 30 + i1 * 70) / 100;
-                k = j1;
-                l = k1;
-                i1 = l1;
-            }
-            if (i >= 16) {
-                k /= 4;
-                l /= 4;
-                i1 /= 4;
-            }
-            colorCode[i] = (k & 255) << 16 | (l & 255) << 8 | (i1 & 255);
+        } catch (Exception ignored) {
         }
-
-        if (res.getResourcePath().equalsIgnoreCase("textures/font/ascii.png")) {
-            stringCache = new StringCache(colorCode);
-            stringCache.setDefaultFont(font, size, antiAlias);
-        }
+        return new Font("Arial", Font.PLAIN, size);
     }
 
     @Override
     public int drawStringWithShadow(String text, float x, float y, int color) {
-        Color color1 = toColor(color);
-        this.drawString(text, x, y, new Color(color1.getRed(), color1.getGreen(), color1.getBlue(), color1.getAlpha()).getRGB(), true);
+        drawString(text, x, y, color, true);
         return getStringWidth(text);
     }
 
@@ -86,8 +89,7 @@ public class UFontRenderer extends FontRenderer {
     }
 
     public int drawString(String text, float x, int y, int color) {
-        Color color1 = new Color(color);
-        return this.drawString(text, x, y, new Color(color1.getRed(), color1.getGreen(), color1.getBlue()).getRGB(), false);
+        return this.drawString(text, x, (float) y, color, false);
     }
 
     public int drawString(String text, float x, float y, int color) {
@@ -151,20 +153,14 @@ public class UFontRenderer extends FontRenderer {
     }
 
     private int drawStringInternal(String text, float x, float y, int color, boolean dropShadow, float shadowOffset) {
-        int i;
         if (dropShadow) {
-            if (toColor(color).getAlpha() > 50) {
-                stringCache.renderString(
-                        text,
-                        x + shadowOffset,
-                        y + shadowOffset,
-                        new Color(20, 20, 20, toColor(color).getAlpha()).getRGB(),
-                        true
-                );
+            int alpha = (color >> 24) & 0xFF;
+            if (alpha > 50) {
+                int shadowColor = (20 << 16) | (20 << 8) | 20 | (alpha << 24);
+                stringCache.renderString(text, x + shadowOffset, y + shadowOffset, shadowColor, true);
             }
         }
-        i = stringCache.renderString(text, x, y, color, false);
-        return i;
+        return stringCache.renderString(text, x, y, color, false);
     }
 
     @Override
@@ -221,9 +217,5 @@ public class UFontRenderer extends FontRenderer {
             text = text.replaceAll(sb, "");
         }
         return drawStringWithShadow(text, x, y, color);
-    }
-
-    private Color toColor(int color) {
-        return new Color(color >> 16 & 255, color >> 8 & 255, color & 255, color >> 24 & 255);
     }
 }

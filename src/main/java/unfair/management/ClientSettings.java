@@ -150,8 +150,56 @@ public class ClientSettings {
             new Color(242, 230, 242), new Color(248, 238, 245),
             new Color(95, 82, 92), new Color(140, 85, 105),
             new Color(80, 55, 95), new Color(115, 72, 88),
-            new Color(90, 82, 88));
-        
+            new Color(90, 82, 88)),
+
+        MIDNIGHT_BLACK("Midnight Black",
+            // bg, sidebar, card
+            new Color(15, 18, 30), new Color(20, 24, 38), new Color(28, 32, 46),
+            // text primary
+            new Color(200, 205, 220),
+            // accent, accentHover
+            new Color(80, 170, 255), new Color(110, 190, 255),
+            // border, borderLight
+            new Color(45, 50, 68), new Color(40, 44, 60),
+            // entryBg, entryHover, entryActive
+            new Color(32, 36, 52), new Color(38, 42, 60), new Color(42, 48, 68),
+            // entryIcon, entryValue
+            new Color(130, 140, 165), new Color(100, 180, 255),
+            // sliderTrack, toggleOff
+            new Color(50, 55, 75), new Color(45, 50, 65),
+            // inputBg, inputBorder, inputPlaceholder, inputText
+            new Color(22, 26, 42), new Color(55, 60, 80), new Color(100, 105, 125), new Color(180, 185, 200),
+            // buttonPrimary, buttonDanger
+            new Color(70, 140, 240), new Color(230, 70, 60),
+            // success, error
+            new Color(76, 175, 80), new Color(244, 67, 54),
+            // actionBtnNormal, actionBtnHover
+            new Color(38, 42, 58), new Color(48, 52, 70),
+            // logoText, categoryText, sectionHeader
+            new Color(100, 190, 255), new Color(150, 155, 175), new Color(130, 135, 155),
+            // cardEnabled, cardHiddenEnabled
+            new Color(35, 42, 62), new Color(30, 36, 55),
+            // searchBg, selCatBg
+            new Color(30, 34, 50), new Color(40, 45, 65),
+            // titleMain, titleSub, searchPlaceholder
+            new Color(200, 210, 230), new Color(140, 145, 165), new Color(90, 95, 115),
+            // hpBarTrack, settingName, valueText
+            new Color(45, 48, 62), new Color(175, 180, 200), new Color(200, 205, 225),
+            // pickerBg, circleFill
+            new Color(22, 26, 42), new Color(100, 180, 240),
+            // modeBgNormal, modeBgHover, modeItemSelected, modeItemHover
+            new Color(32, 36, 52), new Color(42, 46, 62), new Color(45, 50, 72), new Color(50, 55, 75),
+            // modeTextNormal, tipBg, tipText
+            new Color(170, 175, 195), new Color(35, 38, 50), new Color(190, 195, 210),
+            // bindActive, hideActive, bindActiveBg, hideActiveBg
+            new Color(42, 48, 72), new Color(50, 42, 68), new Color(32, 38, 60), new Color(38, 34, 55),
+            // textNormal, textHide
+            new Color(195, 200, 215), new Color(140, 100, 170),
+            // bindActiveText, hideActiveText
+            new Color(110, 175, 250), new Color(165, 125, 205),
+            // configNameInactive
+            new Color(130, 135, 150));
+
         private final String displayName;
         private final Color[] colors;
         
@@ -220,8 +268,8 @@ public class ClientSettings {
     }
     
     private GUISize guiSize = GUISize.SIZE_100;
-    private Theme currentTheme = Theme.OCEAN_BLUE;
-    private Theme targetTheme = Theme.OCEAN_BLUE;
+    private Theme currentTheme = Theme.MIDNIGHT_BLACK;
+    private Theme targetTheme = Theme.MIDNIGHT_BLACK;
 
     private int backgroundAlpha = 255;
     private boolean blurArea = false;
@@ -338,7 +386,7 @@ public class ClientSettings {
     public Color getConfigNameInactiveColor() { return c(55); }
 
     // Dropdown & Additional UI Colors
-    public Color getTextEnabledColor() { return c(2); }  // CardColor (white/light)
+    public Color getTextEnabledColor() { return c(3); }  // TextPrimary (light on dark themes)
     public Color getTextDisabledColor() { return c(51); } // TextNormalColor
     public Color getDropdownBgColor() { 
         return new Color(c(0).getRed(), c(0).getGreen(), c(0).getBlue(), 110); 
@@ -346,8 +394,8 @@ public class ClientSettings {
     public Color getButtonNormalColor() { return c(23); } // ActionBtnNormalColor
     public Color getInputFocusedBgColor() { return c(15); } // InputBgColor
     public Color getInputNormalBgColor() { return c(8); }  // EntryBgColor
-    public Color getPanelContentBgColor() { 
-        return new Color(c(35).getRed(), c(35).getGreen(), c(35).getBlue(), 90); 
+    public Color getPanelContentBgColor() {
+        return new Color(0, 0, 0, 120);
     }
 
     public int getBackgroundAlpha() { return backgroundAlpha; }

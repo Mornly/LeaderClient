@@ -43,13 +43,13 @@ public class ModeSetting extends PanelValueItem {
     public boolean isHoveringExpanded(int mx, int my) {
         if (!isExpanded()) return false;
         String[] modes = value.getModes();
-        float btnW = 50;
+        float btnW = 48;
         for (String m : modes) {
-            float tw = Unfair.fontManager.getFont(12).getStringWidth(m);
-            btnW = Math.max(btnW, tw + 20);
+            float tw = Unfair.fontManager.getFont(13).getStringWidth(m);
+            btnW = Math.max(btnW, tw + 16);
         }
         float btnH = 18;
-        float itemW = 50;
+        float itemW = 48;
         int visibleCount = Math.min(modes.length, MAX_VISIBLE_MODES);
         float currentExpandW = visibleCount * itemW * expandAnim;
         float totalW = btnW + currentExpandW;
@@ -61,7 +61,7 @@ public class ModeSetting extends PanelValueItem {
     public void handleScroll(int delta) {
         String[] modes = value.getModes();
         if (modes.length <= MAX_VISIBLE_MODES) return;
-        float itemW = 50;
+        float itemW = 48;
         float step = itemW * 0.5f;
         float maxScrollOffset = (modes.length - MAX_VISIBLE_MODES) * itemW;
         if (delta > 0) {
@@ -116,18 +116,18 @@ public class ModeSetting extends PanelValueItem {
         float visAlpha = getVisibilityAlpha();
         if (visAlpha < 0.01f) return;
 
-        Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 2,
+        Unfair.fontManager.getFont(16).drawString(value.getName(), x, y + 1,
                 blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
         String[] modes = value.getModes();
         if (modes.length == 0) return;
 
         String selectedText = value.getModeString();
-        int font = 12;
+        int font = 14;
         float textW = Unfair.fontManager.getFont(font).getStringWidth(selectedText);
-        float btnW = Math.max(textW + 20, 50);
+        float btnW = Math.max(textW + 16, 48);
         float btnH = 18;
-        float itemW = 50;
+        float itemW = 48;
         int visibleCount = Math.min(modes.length, MAX_VISIBLE_MODES);
         float currentExpandW = visibleCount * itemW * expandAnim;
 
@@ -179,11 +179,11 @@ public class ModeSetting extends PanelValueItem {
 
                 Color tc = selected ? ClientSettings.INSTANCE.getAccentColor() : ClientSettings.INSTANCE.getModeTextNormalColor();
                 String modeText = modes[i];
-                float modeTextW = Unfair.fontManager.getFont(11).getStringWidth(modeText);
-                float textPosX = modeX + (itemW - modeTextW) / 2f;
-                float textPosY = panelY + (btnH - 11) / 2f + 1;
+                    float modeTextW = Unfair.fontManager.getFont(13).getStringWidth(modeText);
+                    float textPosX = modeX + (itemW - modeTextW) / 2f;
+                    float textPosY = panelY + (btnH - 13) / 2f + 1;
 
-                Unfair.fontManager.getFont(11).drawString(modeText, textPosX, textPosY,
+                    Unfair.fontManager.getFont(13).drawString(modeText, textPosX, textPosY,
                         blendAlpha(tc, alpha * textAlpha * visAlpha).getRGB(), false);
             }
 
@@ -192,21 +192,21 @@ public class ModeSetting extends PanelValueItem {
 
         if (tipAlpha > 0.01f) {
             String tipText = "Need more? Try to scroll.";
-            float tipW = Unfair.fontManager.getFont(10).getStringWidth(tipText) + 12;
-            float tipH = 16;
+            float tipW = Unfair.fontManager.getFont(12).getStringWidth(tipText) + 16;
+            float tipH = 18;
             float tipX = panelX + (totalW - tipW) / 2f;
             float tipY = panelY + btnH + 3;
 
             RoundedUtils.drawRound(tipX, tipY, tipW, tipH, 3,
                     blendAlpha(ClientSettings.INSTANCE.getTipBgColor(), alpha * tipAlpha * visAlpha * 0.85f));
-            Unfair.fontManager.getFont(10).drawString(tipText,
-                    tipX + (tipW - Unfair.fontManager.getFont(10).getStringWidth(tipText)) / 2f,
-                    tipY + (tipH - 10) / 2f + 1.5f,
+            Unfair.fontManager.getFont(12).drawString(tipText,
+                    tipX + (tipW - Unfair.fontManager.getFont(12).getStringWidth(tipText)) / 2f,
+                    tipY + (tipH - 12) / 2f + 1.5f,
                     blendAlpha(ClientSettings.INSTANCE.getTipTextColor(), alpha * tipAlpha * visAlpha).getRGB(), false);
         }
 
-        Unfair.fontManager.getFont(font).drawString(selectedText,
-                btnX + (btnW - textW) / 2f, panelY + (btnH - font) / 2f + 1,
+        Unfair.fontManager.getFont(14).drawString(selectedText,
+                btnX + (btnW - textW) / 2f, panelY + (btnH - 14) / 2f + 1,
                 blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha).getRGB(), false);
     }
 
@@ -214,13 +214,13 @@ public class ModeSetting extends PanelValueItem {
     public void mouseClicked(int mx, int my, int button) {
         if (button != 0) return;
         String[] modes = value.getModes();
-        float btnW = 50;
+        float btnW = 48;
         for (String m : modes) {
-            float tw = Unfair.fontManager.getFont(12).getStringWidth(m);
-            btnW = Math.max(btnW, tw + 20);
+            float tw = Unfair.fontManager.getFont(14).getStringWidth(m);
+            btnW = Math.max(btnW, tw + 16);
         }
         float btnH = 18;
-        float itemW = 50;
+        float itemW = 48;
         int visibleCount = Math.min(modes.length, MAX_VISIBLE_MODES);
         float currentExpandW = visibleCount * itemW * expandAnim;
 
@@ -259,7 +259,7 @@ public class ModeSetting extends PanelValueItem {
     @Override
     public void mouseDragged(int mx, int my, int button) {}
     @Override
-    public float getHeight() { return 22; }
+    public float getHeight() { return 24; }
     @Override
     public boolean visible() { return value.isVisible(); }
 

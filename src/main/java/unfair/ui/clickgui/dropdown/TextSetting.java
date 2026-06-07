@@ -4,7 +4,7 @@ import unfair.Unfair;
 import unfair.management.ClientSettings;
 import unfair.module.modules.render.HUD;
 import unfair.property.properties.TextProperty;
-import unfair.util.RenderUtil;
+import unfair.util.shader.RoundedUtils;
 
 import java.awt.*;
 
@@ -20,31 +20,44 @@ public class TextSetting extends ValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
-        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y - 3, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
+        Unfair.fontManager.getFont(15).drawString(value.getName(), x + 2, y, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
 
         float inputY = y + 12;
-        float inputH = 14;
+        float inputH = 15;
+        int radius = 4;
 
-        int bgColor = focused ? ClientSettings.INSTANCE.getInputFocusedBgColor().getRGB() : ClientSettings.INSTANCE.getInputNormalBgColor().getRGB();
-        RenderUtil.drawRect(x, inputY, x + width, inputY + inputH, bgColor);
+        int bgColor = focused ? ClientSettings.INSTANCE.getInputFocusedBgColor().getRGB()
+                : ClientSettings.INSTANCE.getInputBgColor().getRGB();
+        RoundedUtils.drawRound(x + 2, inputY, width - 4, inputH, radius, bgColor);
 
         if (focused) {
             HUD hud = getHud();
-            int hc = hud.getColor(System.currentTimeMillis()).getRGB();
-            int alpha = (hc >> 24 & 255);
-            int blended = (alpha < 40 ? (hc & 0x00FFFFFF) | 0x28000000 : (hc & 0x00FFFFFF) | (40 << 24));
-            RenderUtil.drawRect(x, inputY, x + width, inputY + inputH, blended);
+            Color hc = hud.getColor(System.currentTimeMillis());
+            Color borderColor = new Color(hc.getRed(), hc.getGreen(), hc.getBlue(), 80);
+            RoundedUtils.drawRoundOutline(x + 2, inputY, width - 4, inputH, radius, 1f, new Color(0, 0, 0, 0), borderColor);
         }
 
         String displayText = value.getValue();
         if (focused && System.currentTimeMillis() % 1000 < 500) displayText += "|";
 
-        Unfair.fontManager.getFont(15).drawString(displayText, x + 3, inputY, Color.WHITE.getRGB(), false);
+        float textX = x + 6;
+        float textY = inputY + (inputH - 10) / 2f;
+        if (displayText.isEmpty() && !focused) {
+            Unfair.fontManager.getFont(15).drawString("Enter text...", textX, textY,
+                    ClientSettings.INSTANCE.getInputPlaceholderColor().getRGB(), false);
+        } else {
+            Unfair.fontManager.getFont(15).drawString(displayText, textX, textY,
+                    ClientSettings.INSTANCE.getTextNormalColor().getRGB(), false);
+        }
     }
 
     @Override
     public void mouseClicked(int mx, int my, int button) {
-        if (button == 0) focused = isHovering(mx, my, x, y, width, 16);
+        if (button == 0) {
+            float inputY = y + 14;
+            float inputH = 18;
+            focused = isHovering(mx, my, x + 2, inputY, width - 4, inputH);
+        }
     }
 
     @Override
@@ -65,7 +78,7 @@ public class TextSetting extends ValueItem {
     }
 
     @Override
-    public float getHeight() { return 26; }
+    public float getHeight() { return 28; }
     @Override
     public boolean visible() { return value.isVisible(); }
 }

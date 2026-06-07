@@ -84,30 +84,13 @@ public class RenderUtil {
         }
     }
 
-    public static void drawCone(float width, float height, boolean useTexture) {
-        if (useTexture) {
-            // 你需要准备一个纹理，例如 "unfair:textures/hat.png"
-            // mc.getTextureManager().bindTexture(new ResourceLocation("unfair:textures/hat.png"));
-            // 这里简化为不使用纹理，或者你可以自己添加
-            useTexture = false;
-        }
-
+    public static void drawCone(float width, float height) {
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        if (useTexture) {
-            worldrenderer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION_TEX);
-            worldrenderer.pos(0.0, height, 0.0).tex(0.5, 0.5).endVertex();
-            for (double[] point : CIRCLE_POINTS) {
-                double u = 0.5 + 0.5 * point[0];
-                double v = 0.5 + 0.5 * point[1];
-                worldrenderer.pos(point[0] * width, 0.0, point[1] * width).tex(u, v).endVertex();
-            }
-        } else {
-            worldrenderer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION);
-            worldrenderer.pos(0.0, height, 0.0).endVertex();
-            for (double[] point : CIRCLE_POINTS) {
-                worldrenderer.pos(point[0] * width, 0.0, point[1] * width).endVertex();
-            }
+        worldrenderer.begin(GL11.GL_TRIANGLE_FAN, DefaultVertexFormats.POSITION);
+        worldrenderer.pos(0.0, height, 0.0).endVertex();
+        for (double[] point : CIRCLE_POINTS) {
+            worldrenderer.pos(point[0] * width, 0.0, point[1] * width).endVertex();
         }
         tessellator.draw();
     }
@@ -331,7 +314,7 @@ public class RenderUtil {
         GlStateManager.pushMatrix();
         GlStateManager.scale(1.0f, 1.0f, -0.01f);
         mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/container/inventory.png"));
-        Gui.drawModalRectWithCustomSizedTexture(x, y, n3 % 8 * 18, 198 + n3 / 8 * 18, 18, 18, 256.0f, 256.0f);
+        Gui.drawModalRectWithCustomSizedTexture(x, y, n3 % 8 * 18, 198 + (float) n3 / 8 * 18, 18, 18, 256.0f, 256.0f);
         GlStateManager.popMatrix();
         GlStateManager.enableAlpha();
         GlStateManager.disableBlend();
@@ -360,70 +343,6 @@ public class RenderUtil {
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
-    }
-    public static void drawRoundedRect(double left, double top, double right, double bottom, float radius, int color) {
-        float f3 = (color >> 24 & 255) / 255.0F;
-        float f = (color >> 16 & 255) / 255.0F;
-        float f1 = (color >> 8 & 255) / 255.0F;
-        float f2 = (color & 255) / 255.0F;
-
-        GlStateManager.pushMatrix();
-        Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        GlStateManager.enableBlend();
-        GlStateManager.disableTexture2D();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        GlStateManager.color(f, f1, f2, f3);
-
-        worldrenderer.begin(7, DefaultVertexFormats.POSITION);
-
-        int cornerSegments = 8;
-        for (int i = 0; i <= cornerSegments; i++) {
-            double angle = Math.PI + (Math.PI / 2 * i / cornerSegments);
-            double x = left + radius + radius * Math.cos(angle);
-            double y = top + radius + radius * Math.sin(angle);
-            worldrenderer.pos(x, y, 0.0D).endVertex();
-        }
-
-        for (int i = 0; i <= cornerSegments; i++) {
-            double angle = Math.PI * 1.5 + (Math.PI / 2 * i / cornerSegments);
-            double x = right - radius + radius * Math.cos(angle);
-            double y = top + radius + radius * Math.sin(angle);
-            worldrenderer.pos(x, y, 0.0D).endVertex();
-        }
-
-        for (int i = 0; i <= cornerSegments; i++) {
-            double angle = 0 + (Math.PI / 2 * i / cornerSegments);
-            double x = right - radius + radius * Math.cos(angle);
-            double y = bottom - radius + radius * Math.sin(angle);
-            worldrenderer.pos(x, y, 0.0D).endVertex();
-        }
-
-        for (int i = 0; i <= cornerSegments; i++) {
-            double angle = Math.PI / 2 + (Math.PI / 2 * i / cornerSegments);
-            double x = left + radius + radius * Math.cos(angle);
-            double y = bottom - radius + radius * Math.sin(angle);
-            worldrenderer.pos(x, y, 0.0D).endVertex();
-        }
-
-        tessellator.draw();
-        GlStateManager.enableTexture2D();
-        GlStateManager.disableBlend();
-        GlStateManager.popMatrix();
-    }
-
-    private static void drawCorner(WorldRenderer worldrenderer, double centerX, double centerY,
-                                   double radius, double startAngle, double endAngle) {
-        int segments = (int)(radius * 2);
-        segments = Math.max(segments, 8);
-
-        for (int i = 0; i <= segments; i++) {
-            double angle = startAngle + (endAngle - startAngle) * i / segments;
-            double rad = Math.toRadians(angle);
-            double x = centerX + radius * Math.cos(rad);
-            double y = centerY + radius * Math.sin(rad);
-            worldrenderer.pos(x, y, 0.0D).endVertex();
-        }
     }
 
     public static void drawRect3D(float x1, float y1, float x2, float y2, int color) {
@@ -791,10 +710,10 @@ public class RenderUtil {
 
         radius = Math.min(radius, 4.0f);
 
-        x *= 2.0;
-        y *= 2.0;
-        x2 *= 2.0;
-        y2 *= 2.0;
+        x *= 2.0F;
+        y *= 2.0F;
+        x2 *= 2.0F;
+        y2 *= 2.0F;
         GL11.glPushAttrib(GL11.GL_CURRENT_BIT | GL11.GL_ENABLE_BIT);
         GL11.glScaled(0.5, 0.5, 0.5);
 
@@ -852,10 +771,10 @@ public class RenderUtil {
         GL11.glShadeModel(7425);
         GL11.glPushAttrib(0);
         GL11.glScaled(0.5, 0.5, 0.5);
-        x *= 2.0;
-        y *= 2.0;
-        x2 *= 2.0;
-        y2 *= 2.0;
+        x *= 2.0F;
+        y *= 2.0F;
+        x2 *= 2.0F;
+        y2 *= 2.0F;
         glEnable(3042);
         GL11.glDisable(3553);
         glColor(n6);
@@ -1139,20 +1058,6 @@ public class RenderUtil {
         GL11.glVertex2f(x + width, y);
         GL11.glEnd();
     }
-
-    public static void drawQuads(float width, float height) {
-        drawQuads(0f, 0f, width, height);
-    }
-
-    public static void drawFixedQuads() {
-        ScaledResolution sr = new ScaledResolution(mc);
-        int factor = sr.getScaleFactor();
-        float width = (float) (mc.displayWidth / factor);
-        float height = (float) (mc.displayHeight / factor);
-        drawQuads(width, height);
-    }
-
-    // ========== TargetESP 所需渲染方法 ==========
 
     public static void setupOrientationMatrix(double x, double y, double z) {
         double renderPosX = ((IAccessorRenderManager) mc.getRenderManager()).getRenderPosX();

@@ -30,17 +30,17 @@ public class BoolSetting extends PanelValueItem {
         float visAlpha = getVisibilityAlpha();
         if (visAlpha < 0.01f) return;
 
-        Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 2,
+        Unfair.fontManager.getFont(16).drawString(value.getName(), x, y + 2,
                 blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
-        float toggleW = 24;
+        float toggleW = 26;
         float toggleH = 12;
         float dotSize = toggleH - 4;
         float padding = 2;
         float maxDotX = toggleW - dotSize - padding;
 
         float toggleX = x + width - toggleW;
-        float toggleY = y + 1;
+        float toggleY = y + 2;
 
         if (alpha < 0.01f) return;
 
@@ -60,7 +60,7 @@ public class BoolSetting extends PanelValueItem {
 
     @Override
     public void mouseClicked(int mx, int my, int button) {
-        if (button == 0 && isHovering(mx, my, x, y, width, 14)) {
+        if (button == 0 && isHovering(mx, my, x, y, width, getHeight())) {
             value.setValue(!value.getValue());
         }
     }
@@ -70,7 +70,7 @@ public class BoolSetting extends PanelValueItem {
     @Override
     public void mouseDragged(int mx, int my, int button) {}
     @Override
-    public float getHeight() { return 16; }
+    public float getHeight() { return 22; }
     @Override
     public boolean visible() { return value.isVisible(); }
 

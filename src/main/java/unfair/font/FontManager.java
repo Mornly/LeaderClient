@@ -28,21 +28,21 @@ public class FontManager {
     private final Map<String, Map<Integer, UFontRenderer>> fontCache = new HashMap<>();
 
     public void load() {
-        s12 = new UFontRenderer("NotoSansSC-Regular", 12);
-        s14 = new UFontRenderer("NotoSansSC-Regular", 14);
-        s15 = new UFontRenderer("NotoSansSC-Regular", 15);
-        s16 = new UFontRenderer("NotoSansSC-Regular", 16);
-        s18 = new UFontRenderer("NotoSansSC-Regular", 18);
-        s20 = new UFontRenderer("NotoSansSC-Regular", 20);
-        s22 = new UFontRenderer("NotoSansSC-Regular", 22);
-        s24 = new UFontRenderer("NotoSansSC-Regular", 24);
-        s28 = new UFontRenderer("NotoSansSC-Regular", 28);
-        s36 = new UFontRenderer("NotoSansSC-Regular", 36);
-        s40 = new UFontRenderer("NotoSansSC-Regular", 40);
+        s12 = getFont("NotoSansSC-Regular", 12);
+        s14 = getFont("NotoSansSC-Regular", 14);
+        s15 = getFont("NotoSansSC-Regular", 15);
+        s16 = getFont("NotoSansSC-Regular", 16);
+        s18 = getFont("NotoSansSC-Regular", 18);
+        s20 = getFont("NotoSansSC-Regular", 20);
+        s22 = getFont("NotoSansSC-Regular", 22);
+        s24 = getFont("NotoSansSC-Regular", 24);
+        s28 = getFont("NotoSansSC-Regular", 28);
+        s36 = getFont("NotoSansSC-Regular", 36);
+        s40 = getFont("NotoSansSC-Regular", 40);
 
-        icon16 = new UFontRenderer("icon", 16);
-        icon20 = new UFontRenderer("icon", 20);
-        icon24 = new UFontRenderer("icon", 24);
+        icon16 = getFont("icon", 16);
+        icon20 = getFont("icon", 20);
+        icon24 = getFont("icon", 24);
     }
 
     public UFontRenderer getFont(int size) {

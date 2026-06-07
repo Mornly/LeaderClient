@@ -65,8 +65,8 @@ public class CreateConfigEntry extends PanelValueItem {
     public void render(int mouseX, int mouseY) {
 
         float h = getHeight();
-        float btnW = 60;
-        float inputH = 28;
+        float btnW = 50;
+        float inputH = 26;
 
         float baseInputW = (width - 70) * baseW_ratio;
         float expandedInputW = (width - 70) * expandedW_ratio;
@@ -101,27 +101,27 @@ public class CreateConfigEntry extends PanelValueItem {
         if (newName.isEmpty() && !focused) {
             float placeholderAlpha = (0.5f + 0.5f * (1f - widthAnim)) * alpha;
             float placeholderOffset = (float) Math.sin(System.currentTimeMillis() / 1000.0 * Math.PI * 2) * 0.5f;
-            Unfair.fontManager.getFont(13).drawString("Config name...", inputX + 10, inputY + 8 + placeholderOffset,
+            Unfair.fontManager.getFont(16).drawString("Config name...", inputX + 10, inputY + 6 + placeholderOffset,
                     blendAlpha(ClientSettings.INSTANCE.getInputPlaceholderColor(), placeholderAlpha).getRGB(), false);
         } else {
             float textScale = 1f + (1f - textAnimProgress) * 0.05f;
             float textAlpha = (0.7f + 0.3f * textAnimProgress) * alpha;
 
             GlStateManager.pushMatrix();
-            float textCenterX = inputX + 10 + Unfair.fontManager.getFont(13).getStringWidth(newName) / 2f;
-            float textCenterY = inputY + 8 + 6;
+            float textCenterX = inputX + 10 + Unfair.fontManager.getFont(16).getStringWidth(newName) / 2f;
+            float textCenterY = inputY + 6 + 8;
             GlStateManager.translate(textCenterX, textCenterY, 0);
             GlStateManager.scale(textScale, textScale, 1f);
             GlStateManager.translate(-textCenterX, -textCenterY, 0);
 
-            Unfair.fontManager.getFont(13).drawString(newName, inputX + 10, inputY + 8,
+            Unfair.fontManager.getFont(16).drawString(newName, inputX + 10, inputY + 6,
                     blendAlpha(ClientSettings.INSTANCE.getInputTextColor(), focusAnim * textAlpha).getRGB(), false);
 
             GlStateManager.popMatrix();
 
             if (focused) {
                 String beforeCursor = newName.substring(0, cursorPos);
-                float cursorX = inputX + 10 + Unfair.fontManager.getFont(13).getStringWidth(beforeCursor);
+                float cursorX = inputX + 10 + Unfair.fontManager.getFont(16).getStringWidth(beforeCursor);
 
                 long cursorTime = System.currentTimeMillis();
                 boolean cursorVisible = (cursorTime % 1000 < 500) || 
@@ -132,20 +132,20 @@ public class CreateConfigEntry extends PanelValueItem {
                         (float)(Math.sin(cursorTime / 200.0 * Math.PI) * 0.3f + 0.7f);
 
                     if (successAnim > 0.01f) {
-                        RenderUtil.drawRect(cursorX, inputY + 8, cursorX + 1, inputY + 21,
+                        RenderUtil.drawRect(cursorX, inputY + 6, cursorX + 1, inputY + 22,
                                 blendAlpha(ClientSettings.INSTANCE.getSuccessColor(), alpha * cursorAlpha).getRGB());
                     } else if (errorAnim > 0.01f) {
-                        RenderUtil.drawRect(cursorX, inputY + 8, cursorX + 1, inputY + 21,
+                        RenderUtil.drawRect(cursorX, inputY + 6, cursorX + 1, inputY + 22,
                                 blendAlpha(ClientSettings.INSTANCE.getErrorColor(), alpha * cursorAlpha).getRGB());
                     } else {
-                        RenderUtil.drawRect(cursorX, inputY + 8, cursorX + 1, inputY + 21,
+                        RenderUtil.drawRect(cursorX, inputY + 6, cursorX + 1, inputY + 22,
                                 blendAlpha(ClientSettings.INSTANCE.getInputBorder_color(), focusAnim * cursorAlpha).getRGB());
 
                         if (textAnimProgress < 0.95f) {
                             float glowW = 2f + (1f - textAnimProgress) * 3f;
                             float glowAlpha = (1f - textAnimProgress) * 0.3f * alpha;
-                            RenderUtil.drawRect(cursorX - glowW/2, inputY + 8,
-                                    cursorX + glowW/2, inputY + 21,
+                            RenderUtil.drawRect(cursorX - glowW/2, inputY + 6,
+                                    cursorX + glowW/2, inputY + 22,
                                     blendAlpha(ClientSettings.INSTANCE.getInputBorder_color(), glowAlpha).getRGB());
                         }
                     }
@@ -164,9 +164,9 @@ public class CreateConfigEntry extends PanelValueItem {
         RoundedUtils.drawRound(btnX, inputY, btnW, inputH, 5, blendAlpha(btnColor, alpha));
         
         String text = "Create";
-        float textW = Unfair.fontManager.getFont(12).getStringWidth(text);
-        Unfair.fontManager.getFont(12).drawString(text,
-                btnX + (btnW - textW) / 2f, inputY + (inputH - 12) / 2f + 3.0f,
+        float textW = Unfair.fontManager.getFont(16).getStringWidth(text);
+        Unfair.fontManager.getFont(16).drawString(text,
+                btnX + (btnW - textW) / 2f, inputY + (inputH - 16) / 2f + 2.0f,
                 blendAlpha(Color.WHITE, alpha).getRGB(), false);
 
         if (successAnim > 0.05f) {
@@ -189,12 +189,12 @@ public class CreateConfigEntry extends PanelValueItem {
         
         float btnX = x + currentInputW + 8;
 
-        if (mx >= btnX && mx <= btnX + 60 && my >= y && my <= y + 28) {
+        if (mx >= btnX && mx <= btnX + 50 && my >= y && my <= y + 26) {
             createConfig();
             return;
         }
 
-        if (mx >= x && mx <= x + currentInputW && my >= y && my <= y + 28) {
+        if (mx >= x && mx <= x + currentInputW && my >= y && my <= y + 26) {
             focused = true;
             cursorPos = newName.length();
             return;

@@ -54,13 +54,13 @@ public class ColorSetting extends PanelValueItem {
         float visAlpha = getVisibilityAlpha();
         if (visAlpha < 0.01f) return;
 
-        Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 2,
+        Unfair.fontManager.getFont(16).drawString(value.getName(), x, y + 2,
                 blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
         int currentColor = value.getValue() & 0xFFFFFF;
         float previewSize = 14;
         float previewX = x + width - previewSize;
-        float previewY = y + 1;
+        float previewY = y + 2;
 
         RoundedUtils.drawRound(previewX, previewY, previewSize, previewSize, 3,
                 blendAlpha(new Color(currentColor), alpha * visAlpha));
@@ -73,7 +73,7 @@ public class ColorSetting extends PanelValueItem {
             float hueBarH = 10;
             float pickerContentH = 6 + svH + 8 + hueBarH + 6;
             float pickerHeight = pickerContentH * expandAnim;
-            float pickerY = y + 20;
+            float pickerY = y + 24;
 
             if (alpha * visAlpha > 0.01f) {
                 RoundedUtils.drawRound(pickerX, pickerY, pickerWidth, pickerHeight, 5,
@@ -128,7 +128,7 @@ public class ColorSetting extends PanelValueItem {
 
         float previewSize = 14;
         float previewX = x + width - previewSize;
-        float previewY = y + 1;
+        float previewY = y + 2;
 
         if (mx >= previewX && mx <= previewX + previewSize && my >= previewY && my <= previewY + previewSize) {
             expanded = !expanded;
@@ -140,7 +140,7 @@ public class ColorSetting extends PanelValueItem {
         float pickerWidth = width - 4;
         float svSize = pickerWidth - 16;
         float svX = x + 2 + 8;
-        float svY = y + 20 + 6;
+        float svY = y + 24 + 6;
         float svH = svSize * 0.7f;
 
         if (mx >= svX && mx <= svX + svSize && my >= svY && my <= svY + svH) {
@@ -179,7 +179,7 @@ public class ColorSetting extends PanelValueItem {
         float pickerWidth = width - 4;
         float svSize = pickerWidth - 16;
         float svX = x + 2 + 8;
-        float svY = y + 20 + 6;
+        float svY = y + 24 + 6;
         float svH = svSize * 0.7f;
 
         saturation = Math.max(0, Math.min(1, (mx - svX) / svSize));
@@ -209,12 +209,12 @@ public class ColorSetting extends PanelValueItem {
 
     @Override
     public float getHeight() {
-        if (!expanded && expandAnim < 0.01f) return 20;
+        if (!expanded && expandAnim < 0.01f) return 22;
         float pickerWidth = width - 4;
         float svSize = pickerWidth - 16;
         float svH = svSize * 0.7f;
         float pickerContentH = 6 + svH + 8 + 10 + 6;
-        return 20 + pickerContentH * expandAnim;
+        return 22 + pickerContentH * expandAnim;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package unfair.ui.clickgui.dropdown;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
@@ -8,30 +9,28 @@ import unfair.module.Category;
 import unfair.module.Module;
 import unfair.module.modules.render.HUD;
 import unfair.util.RenderUtil;
-import unfair.util.shader.BlurUtils;
 
+import java.awt.*;
 import java.util.List;
 
 public class Panel {
     public Category category;
     public float x, y;
     public DD[] modules;
-    private static final float PANEL_WIDTH = 95;
+    private static final float PANEL_WIDTH = 100;
     private static final float HEADER_HEIGHT = 18;
-    private final boolean blurEnabled;
 
-    public Panel(Category c, float x, float y, boolean blur) {
+    public Panel(Category c, float x, float y) {
         this.category = c;
         this.x = x;
         this.y = y;
-        this.blurEnabled = blur;
         initModules();
     }
 
     private void initModules() {
         List<Module> mods = Unfair.moduleManager.getModulesByCategory(category);
         modules = new DD[mods.size()];
-        for (int i = 0; i < mods.size(); i++) modules[i] = new DD(mods.get(i), blurEnabled);
+        for (int i = 0; i < mods.size(); i++) modules[i] = new DD(mods.get(i));
     }
 
     private static HUD getHud() {
@@ -47,38 +46,39 @@ public class Panel {
         HUD hud = getHud();
 
         float panelY = y + scrollY;
-
-        int color1 = hud.getColor(time).getRGB();
-        int color2 = hud.getColor(time + 400).getRGB();
-        RenderUtil.drawGradientRect((int)x, (int)panelY, x + PANEL_WIDTH, (int)(panelY + HEADER_HEIGHT), color1, color2);
-
-        drawString(category.name(), x + 7, panelY + 3, ClientSettings.INSTANCE.getTextEnabledColor().getRGB(), 20, false);
-
         float contentHeight = calculateContentHeight();
 
-        if (blurEnabled && contentHeight > 0) {
-            BlurUtils.prepareBlur();
-            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
-            BlurUtils.blurEnd(2, 3f);
-        } else {
-            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight, ClientSettings.INSTANCE.getPanelContentBgColor().getRGB());
+        Color color1 = hud.getColor(time);
+        Color color2 = hud.getColor(time + 400);
+        RenderUtil.drawGradientRect((int) x, (int) panelY, x + PANEL_WIDTH, (int) (panelY + HEADER_HEIGHT),
+                color1.getRGB(), color2.getRGB());
+
+        drawString(category.name(), x + 8, panelY + 4, new Color(200, 200, 220).getRGB(), 18, false);
+
+        if (contentHeight > 0) {
+            int bgColor = ClientSettings.INSTANCE.getPanelContentBgColor().getRGB();
+            RenderUtil.drawRect(x, panelY + HEADER_HEIGHT, x + PANEL_WIDTH, panelY + HEADER_HEIGHT + contentHeight + 4F, bgColor);
         }
 
-        GlStateManager.enableBlend();
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
-        RenderUtil.scissor(x, panelY + HEADER_HEIGHT, PANEL_WIDTH, contentHeight);
+        Minecraft mc = Minecraft.getMinecraft();
+        float scaleFactor = mc.displayWidth / (float) mc.currentScreen.width;
+        int scissorX = (int) (x * scaleFactor);
+        int scissorY = (int) ((mc.currentScreen.height - (panelY + HEADER_HEIGHT + contentHeight)) * scaleFactor);
+        int scissorW = (int) (PANEL_WIDTH * scaleFactor);
+        int scissorH = (int) (contentHeight * scaleFactor);
+        GL11.glScissor(scissorX, scissorY, scissorW, scissorH);
 
-        float moduleY = HEADER_HEIGHT + 3;
+        float moduleY = HEADER_HEIGHT + 1;
         for (DD mod : modules) {
-            mod.x = x;
+            mod.x = x + 2;
             mod.y = panelY + moduleY;
-            mod.width = PANEL_WIDTH;
+            mod.width = PANEL_WIDTH - 4;
             mod.render(mouseX, mouseY);
-            moduleY += mod.getTotalHeight() + 2;
+            moduleY += mod.getTotalHeight();
         }
 
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
-        GlStateManager.disableBlend();
     }
 
     public void mouseClicked(int mx, int my, int button) {
@@ -94,7 +94,7 @@ public class Panel {
 
     public float calculateContentHeight() {
         float h = 0;
-        for (DD mod : modules) h += mod.getTotalHeight() + 2;
-        return Math.max(h - 2, 0);
+        for (DD mod : modules) h += mod.getTotalHeight();
+        return Math.max(h - 1, 0);
     }
 }

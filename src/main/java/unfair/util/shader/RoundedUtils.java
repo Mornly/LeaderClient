@@ -239,6 +239,53 @@ public class RoundedUtils {
         drawRoundedRectRise((float) x, (float) y, (float) width, (float) height, (float) radius, color, true, true, true, true);
     }
 
+    /**
+     * Draw a rounded rectangle with individual corner radius control.
+     * Pass 0 for a radius to make that corner square, or a positive value to round it.
+     * Useful for seamless connections between UI elements.
+     *
+     * Example: top corners square (0), bottom corners rounded (6):
+     *   drawRound(x, y, w, h, 0, 0, 6, 6, color);
+     */
+    public static void drawRound(float x, float y, float width, float height,
+                                  float radiusTL, float radiusTR, float radiusBR, float radiusBL,
+                                  Color color) {
+        // Use the max radius for the shader SDF, control individual corners via edges
+        float maxRadius = Math.max(Math.max(radiusTL, radiusTR), Math.max(radiusBR, radiusBL));
+        boolean lt = radiusTL > 0;  // top-left
+        boolean rt = radiusTR > 0;  // top-right
+        boolean rb = radiusBR > 0;  // bottom-right
+        boolean lb = radiusBL > 0;  // bottom-left
+
+        initShaders();
+        if (roundedRectRiseShader == null) return;
+
+        GL11.glPushMatrix();
+        GlStateManager.pushAttrib();
+        final int programId = roundedRectRiseShader.programID;
+        GL20.glUseProgram(programId);
+        roundedRectRiseShader.setUniformf("u_size", width, height);
+        roundedRectRiseShader.setUniformf("u_radius", maxRadius);
+        roundedRectRiseShader.setUniformf("u_color",
+                color.getRed() / 255f, color.getGreen() / 255f,
+                color.getBlue() / 255f, color.getAlpha() / 255f);
+
+        // Shader u_edges: x=bottomLeft, y=bottomRight, z=topRight, w=topLeft
+        // when edge==0 → square, edge==1 → rounded
+        roundedRectRiseShader.setUniformf("u_edges",
+                lb ? 1.0F : 0.0F,  // u_edges.x = bottom-left
+                rb ? 1.0F : 0.0F,  // u_edges.y = bottom-right
+                rt ? 1.0F : 0.0F,  // u_edges.z = top-right
+                lt ? 1.0F : 0.0F); // u_edges.w = top-left
+        GlStateManager.enableBlend();
+        GlStateManager.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        ShaderUtils.drawQuads(x, y, width, height);
+        GlStateManager.disableBlend();
+        GL20.glUseProgram(0);
+        GlStateManager.popAttrib();
+        GL11.glPopMatrix();
+    }
+
     private static float getRed(int color) {
         return (color >> 16 & 0xFF) / 255.0F;
     }

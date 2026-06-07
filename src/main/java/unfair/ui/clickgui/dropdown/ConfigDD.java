@@ -7,13 +7,15 @@ import unfair.property.properties.TextProperty;
 import unfair.util.ChatUtil;
 import unfair.util.RenderUtil;
 import unfair.util.shader.BlurUtils;
+import unfair.util.shader.RoundedUtils;
 
+import java.awt.*;
 import java.io.File;
 
 public class ConfigDD {
     public String configName;
     public float x, y, width;
-    public static final float HEIGHT = 22;
+    public static final float HEIGHT = 17;
     public boolean active = false;
     public boolean settingsOpen = false;
 
@@ -81,9 +83,11 @@ public class ConfigDD {
 
     public void render(int mouseX, int mouseY) {
         String displayName = configName.replace(".json", "");
-        int fontSize = 20;
+        int fontSize = 17;
         float textWidth = Unfair.fontManager.getFont(fontSize).getStringWidth(displayName);
         float textX = x + (width - textWidth) / 2;
+
+        boolean hover = isHovering(mouseX, mouseY, x, y, width, HEIGHT);
 
         Unfair.fontManager.getFont(fontSize).drawString(displayName, textX, y + 2,
                 active ? ClientSettings.INSTANCE.getTextEnabledColor().getRGB() : ClientSettings.INSTANCE.getTextDisabledColor().getRGB(), false);
@@ -91,24 +95,19 @@ public class ConfigDD {
         if (settingsOpen && hasVisibleSettings()) {
             float totalSettingsHeight = 0;
             for (ValueItem setting : settings) {
-                if (setting.visible()) totalSettingsHeight += setting.getHeight() + 3;
+                if (setting.visible()) totalSettingsHeight += setting.getHeight() + 2;
             }
-            if (totalSettingsHeight > 0) totalSettingsHeight -= 3;
+            if (totalSettingsHeight > 0) totalSettingsHeight -= 2;
 
-            if (parentPanel.isBlurEnabled()) {
-                BlurUtils.prepareBlur();
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
-                BlurUtils.blurEnd(2, 3f);
-            } else {
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
-            }
+            int bgColor = ClientSettings.INSTANCE.getDropdownBgColor().getRGB();
+            RoundedUtils.drawRound(x + 2, y + HEIGHT - 1, width - 4, totalSettingsHeight, 4, bgColor);
 
-            float settingY = y + HEIGHT;
+            float settingY = y + HEIGHT + 1;
             for (ValueItem setting : settings) {
                 if (!setting.visible()) continue;
-                setting.x = x; setting.y = settingY; setting.width = width; setting.masterAlpha = 1f;
+                setting.x = x + 2; setting.y = settingY; setting.width = width - 4; setting.masterAlpha = 1f;
                 setting.render(mouseX, mouseY);
-                settingY += setting.getHeight() + 3;
+                settingY += setting.getHeight() + 2;
             }
         }
     }
@@ -134,8 +133,8 @@ public class ConfigDD {
 
     private float getSettingsHeight() {
         float h = 0;
-        for (ValueItem s : settings) { if (!s.visible()) continue; h += s.getHeight() + 3; }
-        return h > 3 ? h - 3 : 0;
+        for (ValueItem s : settings) { if (!s.visible()) continue; h += s.getHeight() + 2; }
+        return h > 2 ? h - 2 : 0;
     }
 
     private boolean hasVisibleSettings() { for (ValueItem s : settings) if (s.visible()) return true; return false; }

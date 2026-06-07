@@ -37,17 +37,15 @@ import java.util.List;
 
 public class PanelGui extends GuiScreen {
 
-    private static final float PANEL_WIDTH = 720;
-    private static final float PANEL_HEIGHT = 460;
+    private static final float PANEL_WIDTH = 708;
+    private static final float PANEL_HEIGHT = 448;
     private static final float SIDEBAR_WIDTH = 150;
     private static final float RADIUS = 10;
-    private static final float CAT_ITEM_H = 20;
-    private static final float MODULE_CAT_H = 17;
-    private static final float CONFIG_DOWN_OFFSET = 20;
-    private static final float CLIENT_TITLE_SPACING = 8;
-    private static final float CONFIG_SEL_BG_EXTRA = -2.5f;
+    private static final float MODULE_CAT_H = 20;
+    private static final float CONFIG_DOWN_OFFSET = 24;
+    private static final float CLIENT_TITLE_SPACING = 10;
     private static final float NONCONFIG_SEL_BG_UP = 1;
-    private static final float COL_GAP = 8;
+    private static final float COL_GAP = 7;
 
     private float displayHealth;
     private boolean healthInitialized;
@@ -298,31 +296,31 @@ public class PanelGui extends GuiScreen {
     }
 
     private void drawLogo(float x, float y) {
-        float logoSize = 32;
+        float logoSize = 36;
         float logoX = x + 16;
         float logoY = y + 14;
         RoundedUtils.drawRound(logoX, logoY, logoSize, logoSize, 7, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), guiAlpha));
 
         String logoText = "L";
-        int logoFontSize = 22;
+        int logoFontSize = 24;
         float lw = Unfair.fontManager.getFont(logoFontSize).getStringWidth(logoText);
         Unfair.fontManager.getFont(logoFontSize).drawString(logoText,
                 logoX + (logoSize - lw) / 2f, logoY + (logoSize - logoFontSize) / 2f + 7,
                 blendAlpha(ClientSettings.INSTANCE.getLogoTextColor(), guiAlpha).getRGB(), false);
 
-        float nameX = logoX + logoSize + 10;
-        Unfair.fontManager.getFont(20).drawString("Leader", nameX, logoY + 4, blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), guiAlpha).getRGB(), false);
-        Unfair.fontManager.getFont(12).drawString("version " + Unfair.version, nameX, logoY + 16, blendAlpha(ClientSettings.INSTANCE.getTitleSubColor(), guiAlpha).getRGB(), false);
+        float nameX = logoX + logoSize + 12;
+        Unfair.fontManager.getFont(22).drawString("Leader", nameX, logoY + 2, blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), guiAlpha).getRGB(), false);
+        Unfair.fontManager.getFont(13).drawString("version " + Unfair.version, nameX, logoY + 18, blendAlpha(ClientSettings.INSTANCE.getTitleSubColor(), guiAlpha).getRGB(), false);
     }
 
     private void drawCategories(float x, float y) {
-        float headerY = y + 70;
+        float headerY = y + 68;
         float sidebarAlpha = ClientSettings.INSTANCE.getLayeredAlpha(guiAlpha, 1);
 
-        Unfair.fontManager.getFont(13).drawString("Modules", x + 16, headerY,
+        Unfair.fontManager.getFont(20).drawString("Modules", x + 16, headerY,
                 blendAlpha(ClientSettings.INSTANCE.getSectionHeaderColor(), guiAlpha).getRGB(), false);
 
-        float catY = headerY + 8;
+        float catY = headerY + 15;
 
         for (Category category : categoryList) {
             if (category == Category.CONFIG || category == Category.SETTINGS) {
@@ -336,7 +334,7 @@ public class PanelGui extends GuiScreen {
             if (isConfig) {
                 catSelectTargetY += CONFIG_DOWN_OFFSET + CLIENT_TITLE_SPACING;
             }
-            catSelectTargetY += (isConfig || categoryList.get(i) == Category.SETTINGS) ? CAT_ITEM_H : MODULE_CAT_H;
+            catSelectTargetY += MODULE_CAT_H;
         }
         if (categoryList.get(selectedCategoryIndex) == Category.CONFIG) {
             catSelectTargetY += CONFIG_DOWN_OFFSET + CLIENT_TITLE_SPACING;
@@ -345,15 +343,8 @@ public class PanelGui extends GuiScreen {
 
         float selBgW = SIDEBAR_WIDTH - 20;
         float selBgX = x + 10;
-        boolean selIsConfig = categoryList.get(selectedCategoryIndex) == Category.CONFIG;
-        float selItemH = selIsConfig ? CAT_ITEM_H : MODULE_CAT_H;
-        float selBgH = (CAT_ITEM_H - 2) / 2f;
-        float selBgActualY;
-        if (selIsConfig) {
-            selBgActualY = catSelectAnimY + (selItemH - selBgH) / 2f + CONFIG_SEL_BG_EXTRA;
-        } else {
-            selBgActualY = catSelectAnimY + (selItemH - selBgH) / 2f - NONCONFIG_SEL_BG_UP;
-        }
+        float selBgH = MODULE_CAT_H - 4;
+        float selBgActualY = catSelectAnimY + (MODULE_CAT_H - selBgH) / 2f - NONCONFIG_SEL_BG_UP;
         RoundedUtils.drawRound(selBgX, selBgActualY, selBgW, selBgH, 5, blendAlpha(ClientSettings.INSTANCE.getSelCatBgColor(), sidebarAlpha));
 
         for (int i = 0; i < categoryList.size(); i++) {
@@ -362,7 +353,7 @@ public class PanelGui extends GuiScreen {
 
             if (isConfig) {
                 catY += CONFIG_DOWN_OFFSET;
-                Unfair.fontManager.getFont(13).drawString("Client", x + 16, catY,
+                Unfair.fontManager.getFont(20).drawString("Client", x + 16, catY,
                         blendAlpha(ClientSettings.INSTANCE.getSectionHeaderColor(), guiAlpha).getRGB(), false);
                 catY += CLIENT_TITLE_SPACING;
             }
@@ -370,85 +361,60 @@ public class PanelGui extends GuiScreen {
             String catName = categoryList.get(i).getDisplayName();
             int textColor = (i == selectedCategoryIndex) ? blendAlpha(ClientSettings.INSTANCE.getTextColor(), guiAlpha).getRGB() : blendAlpha(ClientSettings.INSTANCE.getCategoryTextColor(), guiAlpha).getRGB();
 
-            float textOffsetY = !isClientCat ? 3.5f : 4f;
-            Unfair.fontManager.getFont(15).drawString(catName, x + 16, catY + textOffsetY, textColor, false);
-            catY += isClientCat ? CAT_ITEM_H : MODULE_CAT_H;
+            float textOffsetY = !isClientCat ? 3f : 4f;
+            Unfair.fontManager.getFont(16).drawString(catName, x + 16, catY + textOffsetY, textColor, false);
+            catY += MODULE_CAT_H;
         }
     }
 
     private void drawSearchBar(float contentX, float contentTop) {
-        float baseW = 160;
+        float baseW = 150;
         float expandedW = 220;
         float currentW = baseW + (expandedW - baseW) * searchWidthAnim;
-        float searchH = 28;
+        float searchH = 22;
 
         float inputAlpha = ClientSettings.INSTANCE.getLayeredAlpha(guiAlpha, 3);
         float bgAlpha = (0.55f + 0.45f * searchWidthAnim) * inputAlpha;
         Color bgColor = blendAlpha(ClientSettings.INSTANCE.getSearchBgColor(), bgAlpha);
+        RoundedUtils.drawRound(contentX, contentTop, currentW, searchH, 4, bgColor);
 
-        if (searchFocused) {
-            RoundedUtils.drawRoundedRectRise(contentX, contentTop, currentW, searchH, 5,
-                    bgColor.getRGB(), false, false, true, true);
-        } else {
-            RoundedUtils.drawRound(contentX, contentTop, currentW, searchH, 5, bgColor);
-        }
-
-        if (searchAlpha > 0.05f && guiAlpha > 0.05f) {
-            Color borderColor = blendAlpha(ClientSettings.INSTANCE.getAccentColor(), searchAlpha * 0.6f * inputAlpha);
-            RenderUtil.drawRect(contentX, contentTop + searchH - 1, contentX + currentW, contentTop + searchH, borderColor.getRGB());
-        }
+//UnfairGaming 批注:这个傻逼矩形到底有何用?
+//        if (searchAlpha > 0.05f && guiAlpha > 0.05f) {
+//            Color borderColor = blendAlpha(ClientSettings.INSTANCE.getAccentColor(), searchAlpha * 0.6f * inputAlpha);
+//            RenderUtil.drawRect(contentX, contentTop + searchH - 1, contentX + currentW, contentTop + searchH, borderColor.getRGB());
+//        }
 
         if (searchText.isEmpty() && !searchFocused) {
             float placeholderAlpha = (0.6f + 0.4f * (1f - searchWidthAnim)) * guiAlpha;
-            float placeholderOffset = (float) Math.sin(System.currentTimeMillis() / 1000.0 * Math.PI * 2) * 0.5f;
-            Unfair.fontManager.getFont(13).drawString("Search...", contentX + 10, contentTop + 8 + placeholderOffset,
+            Unfair.fontManager.getFont(20).drawString("Search...", contentX + 10, contentTop + 6,
                     blendAlpha(ClientSettings.INSTANCE.getSearchPlaceholderColor(), placeholderAlpha).getRGB(), false);
         } else {
             if (searchSelectionStart >= 0 && searchSelectionStart != searchCursorPos) {
                 int selMin = Math.min(searchSelectionStart, searchCursorPos);
                 int selMax = Math.max(searchSelectionStart, searchCursorPos);
                 String beforeSel = searchText.substring(0, selMin);
-                float selX = contentX + 10 + Unfair.fontManager.getFont(13).getStringWidth(beforeSel);
-                float selW = Unfair.fontManager.getFont(13).getStringWidth(searchText.substring(selMin, selMax));
-                float selectionPulse = (float) Math.sin(System.currentTimeMillis() / 300.0 * Math.PI * 2) * 0.1f + 0.3f;
-                RenderUtil.drawRect(selX, contentTop + 7, selX + selW, contentTop + 21,
-                        blendAlpha(ClientSettings.INSTANCE.getAccentColor(), selectionPulse * guiAlpha).getRGB());
+                float selX = contentX + 10 + Unfair.fontManager.getFont(20).getStringWidth(beforeSel);
+                float selW = Unfair.fontManager.getFont(20).getStringWidth(searchText.substring(selMin, selMax));
+                RenderUtil.drawRect(selX, contentTop + 3, selX + selW, contentTop + 18,
+                        blendAlpha(ClientSettings.INSTANCE.getAccentColor(), 0.3f * guiAlpha).getRGB());
             }
 
-            float textScale = 1f + (1f - textAnimProgress) * 0.05f;
-            float displayTextAlpha = (0.7f + 0.3f * textAnimProgress) * guiAlpha;
+            float displayTextAlpha = guiAlpha;
 
-            GlStateManager.pushMatrix();
-            float textCenterX = contentX + 10 + Unfair.fontManager.getFont(13).getStringWidth(searchText) / 2f;
-            float textCenterY = contentTop + 8 + 6;
-            GlStateManager.translate(textCenterX, textCenterY, 0);
-            GlStateManager.scale(textScale, textScale, 1f);
-            GlStateManager.translate(-textCenterX, -textCenterY, 0);
-
-            Unfair.fontManager.getFont(13).drawString(searchText, contentX + 10, contentTop + 8,
+            Unfair.fontManager.getFont(20).drawString(searchText, contentX + 10, contentTop + 6,
                     blendAlpha(ClientSettings.INSTANCE.getInputTextColor(), searchAlpha * displayTextAlpha).getRGB(), false);
-
-            GlStateManager.popMatrix();
 
             if (searchFocused) {
                 String beforeCursor = searchText.substring(0, searchCursorPos);
-                float cursorX = contentX + 10 + Unfair.fontManager.getFont(13).getStringWidth(beforeCursor);
+                float cursorX = contentX + 10 + Unfair.fontManager.getFont(20).getStringWidth(beforeCursor);
 
                 long cursorTime = System.currentTimeMillis();
-                boolean cursorVisible = (cursorTime % 1000 < 500) || (cursorTime % 120 < 60 && textAnimProgress < 0.9f);
+                boolean cursorVisible = (cursorTime % 1000 < 500);
 
                 if (cursorVisible) {
-                    float cursorAlpha = textAnimProgress < 0.9f ? 1f : (float)(Math.sin(cursorTime / 200.0 * Math.PI) * 0.3f + 0.7f);
-                    RenderUtil.drawRect(cursorX, contentTop + 8, cursorX + 1, contentTop + 21,
+                    float cursorAlpha = (float)(Math.sin(cursorTime / 200.0 * Math.PI) * 0.3f + 0.7f);
+                    RenderUtil.drawRect(cursorX, contentTop + 3, cursorX + 1.0f, contentTop + 18,
                             blendAlpha(ClientSettings.INSTANCE.getAccentColor(), searchAlpha * cursorAlpha * guiAlpha).getRGB());
-
-                    if (textAnimProgress < 0.95f) {
-                        float glowW = 2f + (1f - textAnimProgress) * 3f;
-                        float glowAlpha = (1f - textAnimProgress) * 0.3f * guiAlpha;
-                        RenderUtil.drawRect(cursorX - glowW/2, contentTop + 8,
-                                cursorX + glowW/2, contentTop + 21,
-                                blendAlpha(ClientSettings.INSTANCE.getAccentColor(), glowAlpha).getRGB());
-                    }
                 }
             }
         }
@@ -460,25 +426,24 @@ public class PanelGui extends GuiScreen {
 
         if (selectedCat == Category.CONFIG || selectedCat == Category.SETTINGS) {
             String categoryName = selectedCat.getDisplayName();
-            Unfair.fontManager.getFont(18).drawString(categoryName, contentX, contentTop + 38,
+            Unfair.fontManager.getFont(22).drawString(categoryName, contentX, contentTop + 38,
                     blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), contentAlpha * categoryTitleAlpha).getRGB(), false);
         } else {
             if (searchActive && !searchText.isEmpty()) {
                 String searchResultText = "Search Results";
-                Unfair.fontManager.getFont(18).drawString(searchResultText, contentX, contentTop + 38,
+                Unfair.fontManager.getFont(22).drawString(searchResultText, contentX, contentTop + 38,
                         blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), contentAlpha).getRGB(), false);
             } else {
                 String categoryName = selectedCat.getDisplayName();
-                Unfair.fontManager.getFont(18).drawString(categoryName, contentX, contentTop + 38,
+                Unfair.fontManager.getFont(22).drawString(categoryName, contentX, contentTop + 38,
                         blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), contentAlpha * categoryTitleAlpha).getRGB(), false);
             }
         }
     }
 
     private void drawModuleArea(float panelX, float panelY, float contentX, float contentTop) {
-        float searchH = 28;
         float categoryTitleH = 24;
-        float moduleAreaTop = contentTop + searchH + categoryTitleH + 10;
+        float moduleAreaTop = contentTop + 38 + categoryTitleH;
         float moduleAreaBottom = panelY + PANEL_HEIGHT - 12;
         float moduleAreaHeight = moduleAreaBottom - moduleAreaTop;
         float contentRight = panelX + PANEL_WIDTH - 8;
@@ -527,12 +492,12 @@ public class PanelGui extends GuiScreen {
             GlStateManager.color(1F, 1F, 1F, cardAlpha);
 
             Module mod = entry.mod;
-            int nameColor = blendAlpha(mod.isEnabled() ? ClientSettings.INSTANCE.getTextColor() : ClientSettings.INSTANCE.getCategoryTextColor(), contentAlpha).getRGB();
-            Unfair.fontManager.getFont(14).drawString(mod.getName(), ex + 12, ey + 6, nameColor, false);
+            float nameColor = blendAlpha(mod.isEnabled() ? ClientSettings.INSTANCE.getTextColor() : ClientSettings.INSTANCE.getCategoryTextColor(), contentAlpha).getRGB();
+            Unfair.fontManager.getFont(17).drawString(mod.getName(), ex + 12, ey + 5, (int) nameColor, false);
 
-            float actionBtnWidth = (29 + 3) * 2 - 3;
-            float actionBtnX = ex + colWidth - actionBtnWidth - 40;
-            float actionBtnY = ey + 2 + 1.5f;
+            float actionBtnWidth = (24 + 2) * 2 - 2;
+            float actionBtnX = ex + colWidth - actionBtnWidth - 44;
+            float actionBtnY = ey + 3;
 
             int rawMX = (int)(Mouse.getX() * this.width / (double)this.mc.displayWidth);
             int rawMY = (int)(this.height - Mouse.getY() * this.height / (double)this.mc.displayHeight - 1);
@@ -547,10 +512,10 @@ public class PanelGui extends GuiScreen {
             entry.actionButtons.update(renderDt);
             entry.actionButtons.render(mx, mY);
 
-            float toggleW = 26;
-            float toggleH = 12;
+            float toggleW = 30;
+            float toggleH = 14;
             float toggleX = ex + colWidth - toggleW - 12;
-            float toggleY = ey + 5;
+            float toggleY = ey + 4;
 
             Color trackColor = blendColor(ClientSettings.INSTANCE.getToggleOffColor(), ClientSettings.INSTANCE.getAccentColor(), entry.toggleAnim);
             RoundedUtils.drawRound(toggleX, toggleY, toggleW, toggleH, toggleH / 2f, blendAlpha(trackColor, cardAlpha));
@@ -585,13 +550,13 @@ public class PanelGui extends GuiScreen {
                 } else {
                     setting.render(mx, mY);
                 }
-                settingY += setting.getHeight() * settingVisAlpha + 2;
+                settingY += setting.getHeight() * settingVisAlpha + 1;
             }
 
             GlStateManager.color(1F, 1F, 1F, 1F);
 
-            if (entry.col == 0) leftY += cardH + 6;
-            else rightY += cardH + 6;
+            if (entry.col == 0) leftY += cardH + 4;
+            else rightY += cardH + 4;
         }
 
         maxScrollY = calculateMaxScroll(moduleAreaHeight, visible);
@@ -715,9 +680,9 @@ public class PanelGui extends GuiScreen {
     private void drawPlayerInfo(float panelX, float panelY) {
         float moduleAreaBottom = panelY + PANEL_HEIGHT - 8;
         float infoX = panelX + 10;
-        float infoY = moduleAreaBottom - 44;
+        float infoY = moduleAreaBottom - 48;
         float infoW = SIDEBAR_WIDTH - 20;
-        float infoH = 40;
+        float infoH = 44;
 
         float sidebarAlpha = ClientSettings.INSTANCE.getLayeredAlpha(guiAlpha, 1);
 
@@ -729,7 +694,7 @@ public class PanelGui extends GuiScreen {
         String playerName = player.getName();
         float nameX = infoX + 10;
         float textY = infoY + 8;
-        Unfair.fontManager.getFont(13).drawString(playerName, nameX, textY, blendAlpha(ClientSettings.INSTANCE.getTextColor(), guiAlpha).getRGB(), false);
+        Unfair.fontManager.getFont(15).drawString(playerName, nameX, textY, blendAlpha(ClientSettings.INSTANCE.getTextColor(), guiAlpha).getRGB(), false);
 
         float health = player.getHealth();
         float maxHealth = player.getMaxHealth();
@@ -740,9 +705,9 @@ public class PanelGui extends GuiScreen {
         }
         displayHealth = PanelValueItem.lerp(displayHealth, health, 0.12f, renderDt);
 
-        float hpBarY = textY + 18;
+        float hpBarY = textY + 20;
         float hpBarW = infoW - 20;
-        float hpBarH = 3;
+        float hpBarH = 4;
         RenderUtil.drawRect(nameX, hpBarY, nameX + hpBarW, hpBarY + hpBarH, blendAlpha(ClientSettings.INSTANCE.getHpBarTrackColor(), sidebarAlpha).getRGB());
         if (maxHealth > 0 && displayHealth > 0) {
             float fillW = hpBarW * Math.min(displayHealth / maxHealth, 1f);
@@ -768,8 +733,8 @@ public class PanelGui extends GuiScreen {
 
         float contentX = x + SIDEBAR_WIDTH + 8;
         float contentTop = y + 10;
-        float searchW = 160 + 60 * searchWidthAnim;
-        float searchH = 28;
+        float searchW = 180 + 80 * searchWidthAnim;
+        float searchH = 20;
 
         if (mouseX >= contentX && mouseX <= contentX + searchW &&
                 mouseY >= contentTop && mouseY <= contentTop + searchH) {
@@ -781,7 +746,7 @@ public class PanelGui extends GuiScreen {
             return;
         }
 
-        float headerY = y + 70 + 8;
+        float headerY = y + 72;
 
         for (Category category : categoryList) {
             if (category == Category.CONFIG || category == Category.SETTINGS) {
@@ -789,14 +754,14 @@ public class PanelGui extends GuiScreen {
             }
         }
 
-        float catClickY = headerY;
+        float catClickY = headerY + 7;
         for (int i = 0; i < categoryList.size(); i++) {
             boolean isConfig = categoryList.get(i) == Category.CONFIG;
             boolean isClientCat = categoryList.get(i) == Category.CONFIG || categoryList.get(i) == Category.SETTINGS;
             if (isConfig) {
                 catClickY += CONFIG_DOWN_OFFSET + CLIENT_TITLE_SPACING;
             }
-            float itemH = isClientCat ? CAT_ITEM_H : MODULE_CAT_H;
+            float itemH = MODULE_CAT_H;
 
             if (mouseX >= x + 10 && mouseX <= x + SIDEBAR_WIDTH - 10 &&
                     mouseY >= catClickY && mouseY <= catClickY + itemH) {
@@ -842,12 +807,12 @@ public class PanelGui extends GuiScreen {
                 float cardH = entry.getTotalHeight();
                 if (mouseX >= ex && mouseX <= ex + colWidth && mouseY >= clickY && mouseY <= clickY + cardH) {
                     if (mouseButton == 0) {
-                        float actionBtnWidth = (29 + 3) * 2 - 3;
-                        float actionBtnX = ex + colWidth - actionBtnWidth - 40;
-                        float actionBtnY = clickY + 2 + 1.5f;
+                        float actionBtnWidth = (24 + 2) * 2 - 2;
+                        float actionBtnX = ex + colWidth - actionBtnWidth - 44;
+                        float actionBtnY = clickY + 3;
                         
                         if (mouseX >= actionBtnX && mouseX <= actionBtnX + actionBtnWidth &&
-                            mouseY >= actionBtnY && mouseY <= actionBtnY + 15) {
+                            mouseY >= actionBtnY && mouseY <= actionBtnY + 16) {
                             entry.actionButtons.mouseClicked(mouseX, mouseY, mouseButton);
                             return;
                         }
@@ -862,7 +827,7 @@ public class PanelGui extends GuiScreen {
                                 hitSetting = true;
                                 break;
                             }
-                            settingY += setting.getHeight() + 2;
+                            settingY += setting.getHeight() + 1;
                         }
                         if (!hitSetting) {
                             entry.mod.toggle();
@@ -870,8 +835,8 @@ public class PanelGui extends GuiScreen {
                     }
                     return;
                 }
-                if (entry.col == 0) leftClickY += cardH + 6;
-                else rightClickY += cardH + 6;
+                if (entry.col == 0) leftClickY += cardH + 4;
+                else rightClickY += cardH + 4;
             }
         }
 
@@ -1213,8 +1178,8 @@ public class PanelGui extends GuiScreen {
         float leftTotal = 0;
         float rightTotal = 0;
         for (ModuleEntry e : entries) {
-            if (e.col == 0) leftTotal += e.getTotalHeight() + 6;
-            else rightTotal += e.getTotalHeight() + 6;
+            if (e.col == 0) leftTotal += e.getTotalHeight() + 4;
+            else rightTotal += e.getTotalHeight() + 4;
         }
         float maxCol = Math.max(leftTotal, rightTotal);
         float result = maxCol - areaHeight;
@@ -1340,7 +1305,6 @@ public class PanelGui extends GuiScreen {
     
     private void refreshSettings() {
         settingsEntries.clear();
-        settingsEntries.add(new SettingsEntry("GUI Size", SettingsEntry.SettingsType.GUI_SIZE));
         settingsEntries.add(new SettingsEntry("Theme", SettingsEntry.SettingsType.THEME));
         settingsEntries.add(new SettingsEntry("Background Alpha", SettingsEntry.SettingsType.BACKGROUND_ALPHA));
         settingsEntries.add(new SettingsEntry("Blur Area", SettingsEntry.SettingsType.BLUR_AREA));
@@ -1387,11 +1351,11 @@ public class PanelGui extends GuiScreen {
         }
 
         float getTotalHeight() {
-            float h = 22;
+                float h = 24;
             for (PanelValueItem s : settings) {
                 float visAlpha = s.getVisibilityAlpha();
                 if (visAlpha > 0.001f) {
-                    h += s.getHeight() * visAlpha + 2;
+                    h += s.getHeight() * visAlpha + 1;
                 }
             }
             return Math.max(h, 40);

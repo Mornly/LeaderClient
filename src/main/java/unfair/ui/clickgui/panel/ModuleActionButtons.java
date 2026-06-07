@@ -11,9 +11,9 @@ import java.awt.*;
 
 public class ModuleActionButtons extends PanelValueItem {
     private final Module module;
-    private final float buttonWidth = 29;
-    private final float buttonHeight = 15;
-    private final float gap = 3;
+    private final float buttonWidth = 24;
+    private final float buttonHeight = 16;
+    private final float gap = 2;
     
     private boolean bindHovered = false;
     private boolean hideHovered = false;
@@ -112,14 +112,14 @@ public class ModuleActionButtons extends PanelValueItem {
             hideTextColor = blendColor(textNormal, textHide, hideHoverAnim);
         }
         
-        float bindTextW = Unfair.fontManager.getFont(11).getStringWidth(bindText);
-        float hideTextW = Unfair.fontManager.getFont(11).getStringWidth(hideText);
+        float bindTextW = Unfair.fontManager.getFont(13).getStringWidth(bindText);
+        float hideTextW = Unfair.fontManager.getFont(13).getStringWidth(hideText);
 
-        Unfair.fontManager.getFont(11).drawString(bindText,
-                bindX + (buttonWidth - bindTextW) / 2f, btnY + (buttonHeight - 11) / 2f + 2.5f,
+        Unfair.fontManager.getFont(13).drawString(bindText,
+                bindX + (buttonWidth - bindTextW) / 2f, btnY + (buttonHeight - 13) / 2f + 2.5f,
                 blendAlpha(bindTextColor, alpha * visAlpha).getRGB(), false);
-        Unfair.fontManager.getFont(11).drawString(hideText,
-                hideX + (buttonWidth - hideTextW) / 2f, btnY + (buttonHeight - 11) / 2f + 2.5f,
+        Unfair.fontManager.getFont(13).drawString(hideText,
+                hideX + (buttonWidth - hideTextW) / 2f, btnY + (buttonHeight - 13) / 2f + 2.5f,
                 blendAlpha(hideTextColor, alpha * visAlpha).getRGB(), false);
     }
 

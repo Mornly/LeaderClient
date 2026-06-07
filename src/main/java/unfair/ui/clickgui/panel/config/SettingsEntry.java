@@ -20,7 +20,6 @@ public class SettingsEntry extends PanelValueItem {
     private float sliderDisplayAlpha = 0f;
     
     public enum SettingsType {
-        GUI_SIZE,
         THEME,
         BACKGROUND_ALPHA,
         BLUR_AREA
@@ -34,9 +33,6 @@ public class SettingsEntry extends PanelValueItem {
     
     private void updateValue() {
         switch (type) {
-            case GUI_SIZE:
-                value = ClientSettings.INSTANCE.getGuiSize();
-                break;
             case THEME:
                 value = ClientSettings.INSTANCE.getTheme();
                 break;
@@ -75,7 +71,7 @@ public class SettingsEntry extends PanelValueItem {
         Color bgColor = blendColor(ClientSettings.INSTANCE.getEntryBgColor(), ClientSettings.INSTANCE.getEntryHoverColor(), hoverAnim);
         RoundedUtils.drawRound(x, y, width, entryHeight, 5, blendAlpha(bgColor, alpha));
         
-        Unfair.fontManager.getFont(14).drawString(name, x + 12, y + 8, 
+        Unfair.fontManager.getFont(18).drawString(name, x + 12, y + 6, 
                 blendAlpha(ClientSettings.INSTANCE.getTitleMainColor(), alpha).getRGB(), false);
         
         if (type == SettingsType.BACKGROUND_ALPHA) {
@@ -84,8 +80,8 @@ public class SettingsEntry extends PanelValueItem {
             drawToggle();
         } else {
             String valueText = getValueText();
-            float textW = Unfair.fontManager.getFont(13).getStringWidth(valueText);
-            Unfair.fontManager.getFont(13).drawString(valueText, x + width - textW - 12, y + 9, 
+            float textW = Unfair.fontManager.getFont(18).getStringWidth(valueText);
+            Unfair.fontManager.getFont(18).drawString(valueText, x + width - textW - 12, y + 7, 
                     blendAlpha(ClientSettings.INSTANCE.getEntryValueColor(), alpha).getRGB(), false);
         }
     }
@@ -93,9 +89,9 @@ public class SettingsEntry extends PanelValueItem {
     private void drawSlider(int mouseX) {
         int alphaVal = ClientSettings.INSTANCE.getBackgroundAlpha();
         float sliderX = x + 12;
-        float sliderY = y + 26;
+        float sliderY = y + 28;
         float sliderW = width - 24;
-        float sliderH = 4;
+        float sliderH = 2;
 
         RoundedUtils.drawRound(sliderX, sliderY, sliderW, sliderH, 2,
                 blendAlpha(ClientSettings.INSTANCE.getSliderTrackColor(), alpha));
@@ -106,8 +102,8 @@ public class SettingsEntry extends PanelValueItem {
                     blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha));
         }
 
-        float dotSize = 10 + sliderDisplayAlpha * 4;
-        float dotX = sliderX + fillW;
+        float dotSize = 12 + sliderDisplayAlpha * 4;
+        float dotX = Math.max(sliderX, Math.min(sliderX + sliderW, sliderX + fillW));
         Color dotColor = blendColor(ClientSettings.INSTANCE.getAccentColor(), ClientSettings.INSTANCE.getCardColor(), sliderDisplayAlpha);
         RoundedUtils.drawRound(dotX - dotSize / 2f, sliderY + (sliderH - dotSize) / 2f,
                 dotSize, dotSize, dotSize / 2f, blendAlpha(dotColor, alpha));
@@ -122,8 +118,8 @@ public class SettingsEntry extends PanelValueItem {
     }
 
     private void drawToggle() {
-        float toggleW = 36;
-        float toggleH = 16;
+        float toggleW = 44;
+        float toggleH = 20;
         float toggleX = x + width - toggleW - 12;
         float toggleY = y + (getHeight() - toggleH) / 2f;
 
@@ -140,8 +136,6 @@ public class SettingsEntry extends PanelValueItem {
     
     private String getValueText() {
         switch (type) {
-            case GUI_SIZE:
-                return ClientSettings.INSTANCE.getGuiSize().getDisplayName();
             case THEME:
                 return ClientSettings.INSTANCE.getTheme().getDisplayName();
             default:
@@ -157,14 +151,6 @@ public class SettingsEntry extends PanelValueItem {
         if (!isHovering(mx, my, x, y, width, entryHeight)) return;
         
         switch (type) {
-            case GUI_SIZE:
-                ClientSettings.GUISize[] sizes = ClientSettings.GUISize.values();
-                int currentSizeIndex = ((ClientSettings.GUISize) value).ordinal();
-                int nextSizeIndex = (currentSizeIndex + 1) % sizes.length;
-                ClientSettings.INSTANCE.setGuiSize(sizes[nextSizeIndex]);
-                value = sizes[nextSizeIndex];
-                break;
-                
             case THEME:
                 ClientSettings.Theme[] themes = ClientSettings.Theme.values();
                 int currentThemeIndex = ((ClientSettings.Theme) value).ordinal();

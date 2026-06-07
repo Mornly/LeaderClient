@@ -28,7 +28,7 @@ public class KillEffect extends Module{
     @EventTarget
     public void onUpdate(UpdateEvent event) {
         if (this.isEnabled()){
-        if (this.target != null && (!mc.theWorld.loadedEntityList.contains(this.target)) || target.getHealth() <= 0) {
+        if (this.target != null && (!mc.theWorld.loadedEntityList.contains(this.target) || target.getHealth() <= 0)) {
             if (this.isEnabled()) {
                 if (this.lightning.getValue()) {
                     final EntityLightningBolt entityLightningBolt = new EntityLightningBolt(mc.theWorld, target.posX, target.posY, target.posZ);

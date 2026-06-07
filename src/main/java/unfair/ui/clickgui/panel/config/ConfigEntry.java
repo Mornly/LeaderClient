@@ -54,48 +54,47 @@ public class ConfigEntry extends PanelValueItem {
                 blendAlpha(ClientSettings.INSTANCE.getEntryIconColor(), alpha).getRGB(), false);
 
         float textX = iconX + 22;
-        float textY = y + (cardH - 14) / 2f;
+        float textY = y + (cardH - 18) / 2f;
 
         int textColor = isActive ? 
             blendAlpha(ClientSettings.INSTANCE.getEntryValueColor(), alpha).getRGB(): 
             blendAlpha(ClientSettings.INSTANCE.getConfigNameInactiveColor(), alpha).getRGB();
         
-        Unfair.fontManager.getFont(14).drawString(configName, textX, textY + 1.5f, textColor, false);
+        Unfair.fontManager.getFont(18).drawString(configName, textX, textY + 1.5f, textColor, false);
 
         if (isActive) {
             String activeTag = "Active";
-            float tagW = Unfair.fontManager.getFont(11).getStringWidth(activeTag);
-            float tagFinalX = textX + Unfair.fontManager.getFont(14).getStringWidth(configName) + 8;
+            float tagW = Unfair.fontManager.getFont(14).getStringWidth(activeTag);
+            float tagFinalX = textX + Unfair.fontManager.getFont(18).getStringWidth(configName) + 8;
 
-            RoundedUtils.drawRound(tagFinalX, textY, tagW + 10, 14, 3,
+            RoundedUtils.drawRound(tagFinalX, textY, tagW + 12, 16, 3,
                     blendAlpha(ClientSettings.INSTANCE.getButtonPrimaryColor(), alpha * 0.9f));
-            Unfair.fontManager.getFont(11).drawString(activeTag, tagFinalX + 5, textY + 4.5f,
+            Unfair.fontManager.getFont(14).drawString(activeTag, tagFinalX + 6, textY + 4,
                     blendAlpha(ClientSettings.INSTANCE.getCardColor(), alpha).getRGB(), false);
         }
 
         float btnY = y + (cardH - 18) / 2f + 1;
-        float btnStartX = x + width - 170;
+        float btnStartX = x + width - 200;
 
         drawSmallButton(btnStartX, btnY, "Load", ClientSettings.INSTANCE.getButtonPrimaryColor(),
-                       isBtnHovered(mouseX, mouseY, btnStartX, btnY, 40, 18));
-        drawSmallButton(btnStartX + 44, btnY, "Save", ClientSettings.INSTANCE.getButtonPrimaryColor(),
-                       isBtnHovered(mouseX, mouseY, btnStartX + 44, btnY, 40, 18));
-        drawSmallButton(btnStartX + 88, btnY, "Delete", ClientSettings.INSTANCE.getButtonDangerColor(),
-                       isBtnHovered(mouseX, mouseY, btnStartX + 88, btnY, 48, 18));
+                       isBtnHovered(mouseX, mouseY, btnStartX, btnY, 48, 18));
+        drawSmallButton(btnStartX + 52, btnY, "Save", ClientSettings.INSTANCE.getButtonPrimaryColor(),
+                       isBtnHovered(mouseX, mouseY, btnStartX + 52, btnY, 48, 18));
+        drawSmallButton(btnStartX + 104, btnY, "Delete", ClientSettings.INSTANCE.getButtonDangerColor(),
+                       isBtnHovered(mouseX, mouseY, btnStartX + 104, btnY, 56, 18));
     }
 
     private void drawSmallButton(float bx, float by, String text, Color baseColor, boolean hovered) {
-        float btnW = text.equals("Delete") ? 48 : 40;
+        float btnW = text.equals("Delete") ? 56 : 48;
         float btnH = 18;
 
         Color color = hovered ? baseColor.brighter() : baseColor;
         
         RoundedUtils.drawRound(bx, by, btnW, btnH, 4, blendAlpha(color, alpha));
 
-        int font = 10;
-        float textW = Unfair.fontManager.getFont(font).getStringWidth(text);
-        Unfair.fontManager.getFont(font).drawString(text,
-                bx + (btnW - textW) / 2f, by + (btnH - font) / 2f + 2.0f,
+        float textW = Unfair.fontManager.getFont(14).getStringWidth(text);
+        Unfair.fontManager.getFont(14).drawString(text,
+                bx + (btnW - textW) / 2f, by + (btnH - 14) / 2f + 2.0f,
                 blendAlpha(ClientSettings.INSTANCE.getCardColor(), alpha).getRGB(), false);
     }
 
@@ -112,13 +111,13 @@ public class ConfigEntry extends PanelValueItem {
 
         float cardH = getHeight();
         float btnY = y + (cardH - 18) / 2f + 1;
-        float btnStartX = x + width - 170;
+        float btnStartX = x + width - 200;
 
-        if (isBtnHovered(mx, my, btnStartX, btnY, 40, 18)) {
+        if (isBtnHovered(mx, my, btnStartX, btnY, 48, 18)) {
             loadConfig();
-        } else if (isBtnHovered(mx, my, btnStartX + 44, btnY, 40, 18)) {
+        } else if (isBtnHovered(mx, my, btnStartX + 52, btnY, 48, 18)) {
             saveConfig();
-        } else if (isBtnHovered(mx, my, btnStartX + 88, btnY, 48, 18)) {
+        } else if (isBtnHovered(mx, my, btnStartX + 104, btnY, 56, 18)) {
             deleteConfig();
         }
     }
@@ -130,7 +129,7 @@ public class ConfigEntry extends PanelValueItem {
     public void mouseDragged(int mx, int my, int button) {}
 
     @Override
-    public float getHeight() { return 36; }
+    public float getHeight() { return 34; }
 
     @Override
     public boolean visible() { return true; }

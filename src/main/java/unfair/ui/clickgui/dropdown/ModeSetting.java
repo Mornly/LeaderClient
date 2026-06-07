@@ -5,6 +5,8 @@ import unfair.management.ClientSettings;
 import unfair.module.modules.render.HUD;
 import unfair.property.properties.ModeProperty;
 
+import java.awt.*;
+
 public class ModeSetting extends ValueItem {
     private final ModeProperty value;
 
@@ -16,24 +18,27 @@ public class ModeSetting extends ValueItem {
 
     @Override
     public void render(int mouseX, int mouseY) {
-        Unfair.fontManager.getFont(17).drawString(value.getName(), x, y + 1, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
+        Unfair.fontManager.getFont(15).drawString(value.getName(), x + 2, y + 1, ClientSettings.INSTANCE.getSettingNameColor().getRGB(), false);
 
         String modeText = value.getModeString();
-        float textWidth = Unfair.fontManager.getFont(17).getStringWidth(modeText);
+        float textWidth = Unfair.fontManager.getFont(15).getStringWidth(modeText);
         HUD hud = getHud();
-        int color = hud.getColor(System.currentTimeMillis()).getRGB();
-        Unfair.fontManager.getFont(17).drawString(modeText, x + width - textWidth, y + 1, color, false);
+        Color accent = hud.getColor(System.currentTimeMillis());
+
+        float labelX = x + width - textWidth - 2;
+
+        Unfair.fontManager.getFont(15).drawString(modeText, labelX, y + 1, accent.getRGB(), false);
     }
 
     @Override
     public void mouseClicked(int mx, int my, int button) {
-        if (button == 0 && isHovering(mx, my, x, y, width, 10)) value.nextMode();
+        if (button == 0 && isHovering(mx, my, x, y, width, getHeight())) value.nextMode();
     }
 
     @Override
     public void mouseReleased(int mx, int my, int button) {}
     @Override
-    public float getHeight() { return 12; }
+    public float getHeight() { return 14; }
     @Override
     public boolean visible() { return value.isVisible(); }
 }

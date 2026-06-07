@@ -3,6 +3,8 @@ package unfair.ui.clickgui.dropdown;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import unfair.Unfair;
+import unfair.management.ClientSettings;
 import unfair.module.Category;
 import unfair.util.RenderUtil;
 
@@ -13,9 +15,10 @@ import java.util.List;
 public class DropDownGui extends GuiScreen {
     final List<Panel> panels = new ArrayList<>();
     private ConfigPanel configPanel;
-    public float posX = 13, posY = 18;
     public float scrollY = 0;
     private final long openTime;
+
+    private float baseX = 8, baseY = 8;
 
     public DropDownGui() {
         super();
@@ -24,10 +27,10 @@ public class DropDownGui extends GuiScreen {
         float offsetX = 0;
         for (Category cat : Category.values()) {
             if (cat == Category.CONFIG) continue;
-            panels.add(new Panel(cat, posX + offsetX, posY, false));
-            offsetX += 120;
+            panels.add(new Panel(cat, baseX + offsetX, baseY));
+            offsetX += 103;
         }
-        configPanel = new ConfigPanel(posX + offsetX, posY, false);
+        configPanel = new ConfigPanel(baseX + offsetX, baseY);
     }
 
     @Override
@@ -35,10 +38,15 @@ public class DropDownGui extends GuiScreen {
 
     @Override
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-        RenderUtil.drawRect(0, 0, this.width, this.height, (int)(0.35F * 255) << 24);
+        int bgAlpha = (int) (0.6F * 255);
+        RenderUtil.drawRect(0, 0, this.width, this.height, bgAlpha << 24);
 
-        for (Panel panel : panels) panel.render(mouseX, mouseY, scrollY);
-        if (configPanel != null) configPanel.render(mouseX, mouseY, scrollY);
+        for (Panel panel : panels) {
+            panel.render(mouseX, mouseY, scrollY);
+        }
+        if (configPanel != null) {
+            configPanel.render(mouseX, mouseY, scrollY);
+        }
     }
 
     @Override
@@ -60,7 +68,7 @@ public class DropDownGui extends GuiScreen {
         try { super.handleMouseInput(); } catch (IOException e) { e.printStackTrace(); }
         int wheelInput = Mouse.getDWheel();
         if (wheelInput != 0) {
-            scrollY += wheelInput / 120.0F * 10;
+            scrollY += wheelInput / 120.0F * 12;
             if (scrollY > 0) scrollY = 0;
         }
     }

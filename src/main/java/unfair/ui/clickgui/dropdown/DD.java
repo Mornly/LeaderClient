@@ -7,24 +7,23 @@ import unfair.module.modules.render.HUD;
 import unfair.property.Property;
 import unfair.property.properties.*;
 import unfair.util.RenderUtil;
-import unfair.util.shader.BlurUtils;
+import unfair.util.shader.RoundedUtils;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DD {
     public Module module;
     public float x, y, width;
-    public static final float HEIGHT = 20;
+    public static final float HEIGHT = 17;
 
     public boolean settingsOpen = false;
 
     public ValueItem[] settings;
-    private final boolean blurEnabled;
 
-    public DD(Module m, boolean blur) {
+    public DD(Module m) {
         this.module = m;
-        this.blurEnabled = blur;
         initSettings();
     }
 
@@ -58,40 +57,48 @@ public class DD {
 
     public void render(int mouseX, int mouseY) {
         String name = module.getName();
-        int fontSize = 20;
+        int fontSize = 17;
         float textWidth = stringWidth(name, fontSize);
         float textX = x + (width - textWidth) / 2;
+        boolean enabled = module.isEnabled();
 
-        if (module.isEnabled()) {
-            drawString(name, textX, y + 3, ClientSettings.INSTANCE.getTextEnabledColor().getRGB(), fontSize, false);
+        long time = System.currentTimeMillis();
+        HUD hud = getHud();
+
+        if (enabled) {
+            Color accent = hud.getColor(time);
+            int textColor = accent.getRGB();
+            drawString(name, textX, y + 3, textColor, fontSize, false);
         } else {
             drawString(name, textX, y + 3, ClientSettings.INSTANCE.getTextDisabledColor().getRGB(), fontSize, false);
+        }
+
+        if (hasVisibleSettings()) {
+            String arrow = settingsOpen ? "▼" : "▶";
+            float arrowW = stringWidth(arrow, 12);
+            int arrowColor = settingsOpen ? hud.getColor(time).getRGB() : ClientSettings.INSTANCE.getTextDisabledColor().getRGB();
+            Unfair.fontManager.getFont(12).drawString(arrow, x + width - arrowW - 3, y + 3, arrowColor, false);
         }
 
         if (settingsOpen && hasVisibleSettings()) {
             float totalSettingsHeight = 0;
             for (ValueItem setting : settings) {
-                if (setting.visible()) totalSettingsHeight += setting.getHeight() + 3;
+                if (setting.visible()) totalSettingsHeight += setting.getHeight() + 2;
             }
-            if (totalSettingsHeight > 0) totalSettingsHeight -= 3;
+            if (totalSettingsHeight > 0) totalSettingsHeight -= 2;
 
-            if (blurEnabled) {
-                BlurUtils.prepareBlur();
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
-                BlurUtils.blurEnd(2, 3f);
-            } else {
-                RenderUtil.drawRect(x, y + HEIGHT, x + width, y + HEIGHT + totalSettingsHeight, ClientSettings.INSTANCE.getDropdownBgColor().getRGB());
-            }
+            int bgColor = ClientSettings.INSTANCE.getDropdownBgColor().getRGB();
+            RoundedUtils.drawRound(x + 2, y + HEIGHT - 1, width - 4, totalSettingsHeight, 4, bgColor);
 
-            float settingY = y + HEIGHT;
+            float settingY = y + HEIGHT + 1;
             for (ValueItem setting : settings) {
                 if (!setting.visible()) continue;
-                setting.x = x;
+                setting.x = x + 2;
                 setting.y = settingY;
-                setting.width = width;
+                setting.width = width - 4;
                 setting.masterAlpha = 1f;
                 setting.render(mouseX, mouseY);
-                settingY += setting.getHeight() + 3;
+                settingY += setting.getHeight() + 2;
             }
         }
     }
@@ -130,9 +137,9 @@ public class DD {
         float h = 0;
         for (ValueItem s : settings) {
             if (!s.visible()) continue;
-            h += s.getHeight() + 3;
+            h += s.getHeight() + 2;
         }
-        return h > 3 ? h - 3 : 0;
+        return h > 2 ? h - 2 : 0;
     }
 
     private boolean hasVisibleSettings() {

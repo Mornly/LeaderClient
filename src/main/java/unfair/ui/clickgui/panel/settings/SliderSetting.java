@@ -60,7 +60,7 @@ public class SliderSetting extends PanelValueItem {
         float visAlpha = getVisibilityAlpha();
         if (visAlpha < 0.01f) return;
 
-        Unfair.fontManager.getFont(13).drawString(value.getName(), x, y + 1,
+        Unfair.fontManager.getFont(16).drawString(value.getName(), x, y + 1,
                 blendAlpha(ClientSettings.INSTANCE.getSettingNameColor(), alpha * visAlpha).getRGB(), false);
 
         String displayStr;
@@ -69,24 +69,30 @@ public class SliderSetting extends PanelValueItem {
         else
             displayStr = String.valueOf(Math.round(displayValue));
 
-        float textWidth = Unfair.fontManager.getFont(13).getStringWidth(displayStr);
-        Unfair.fontManager.getFont(13).drawString(displayStr, x + width - textWidth, y + 1,
+        float textWidth = Unfair.fontManager.getFont(16).getStringWidth(displayStr);
+        Unfair.fontManager.getFont(16).drawString(displayStr, x + width - textWidth, y + 1,
                 blendAlpha(ClientSettings.INSTANCE.getValueTextColor(), alpha * visAlpha).getRGB(), false);
 
         float sliderX = x;
         float sliderW = width;
-        float sliderY = y + 16;
-        float sliderH = 3;
+        float sliderY = y + 17;
+        float sliderH = 2;
 
         RoundedUtils.drawRound(sliderX, sliderY, sliderW, sliderH, 2, blendAlpha(ClientSettings.INSTANCE.getSliderTrackColor(), alpha * visAlpha));
 
         double range = getMax() - getMin();
         float fillW = range > 0 ? (float)(sliderW * ((displayValue - getMin()) / range)) : 0;
+        fillW = Math.max(0, Math.min(fillW, sliderW));
+        
         if (fillW > 0) {
-            RoundedUtils.drawRound(sliderX, sliderY - 1, fillW, sliderH + 2, 2, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha));
+            RoundedUtils.drawRound(sliderX, sliderY, fillW, sliderH, 2, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha));
         }
 
-        RoundedUtils.drawRound(sliderX + fillW - 3, sliderY - 2, 6, sliderH + 4, 3, blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha));
+        float handleSize = 8;
+        float handleX = sliderX + fillW - handleSize / 2f;
+        handleX = Math.max(sliderX - handleSize / 2f, Math.min(handleX, sliderX + sliderW - handleSize / 2f));
+        RoundedUtils.drawRound(handleX, sliderY - (handleSize - sliderH) / 2f, handleSize, handleSize, handleSize / 2f, 
+                blendAlpha(ClientSettings.INSTANCE.getAccentColor(), alpha * visAlpha));
 
         if (dragging) {
             double pct = Math.max(0, Math.min(1, (mouseX - x) / width));
@@ -101,8 +107,8 @@ public class SliderSetting extends PanelValueItem {
 
     @Override
     public void mouseClicked(int mx, int my, int button) {
-        float sliderY = y + 16;
-        if (isHovering(mx, my, x, sliderY - 4, width, 12) && button == 0) dragging = true;
+        float sliderY = y + 17;
+        if (isHovering(mx, my, x, sliderY - 4, width, 10) && button == 0) dragging = true;
     }
 
     @Override
@@ -110,7 +116,8 @@ public class SliderSetting extends PanelValueItem {
     @Override
     public void mouseDragged(int mx, int my, int button) {}
     @Override
-    public float getHeight() { return 24; }
+    public float getHeight() { return 26; }
+
     @Override
     public boolean visible() { return value.isVisible(); }
 
