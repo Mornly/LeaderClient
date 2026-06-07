@@ -43,11 +43,9 @@ public class ModeSetting extends PanelValueItem {
     public boolean isHoveringExpanded(int mx, int my) {
         if (!isExpanded()) return false;
         String[] modes = value.getModes();
-        float btnW = 48;
-        for (String m : modes) {
-            float tw = Unfair.fontManager.getFont(13).getStringWidth(m);
-            btnW = Math.max(btnW, tw + 16);
-        }
+        String selectedText = value.getModeString();
+        float textW = Unfair.fontManager.getFont(14).getStringWidth(selectedText);
+        float btnW = Math.max(textW + 16, 48);
         float btnH = 18;
         float itemW = 48;
         int visibleCount = Math.min(modes.length, MAX_VISIBLE_MODES);
@@ -214,11 +212,9 @@ public class ModeSetting extends PanelValueItem {
     public void mouseClicked(int mx, int my, int button) {
         if (button != 0) return;
         String[] modes = value.getModes();
-        float btnW = 48;
-        for (String m : modes) {
-            float tw = Unfair.fontManager.getFont(14).getStringWidth(m);
-            btnW = Math.max(btnW, tw + 16);
-        }
+        String selectedText = value.getModeString();
+        float textW = Unfair.fontManager.getFont(14).getStringWidth(selectedText);
+        float btnW = Math.max(textW + 16, 48);
         float btnH = 18;
         float itemW = 48;
         int visibleCount = Math.min(modes.length, MAX_VISIBLE_MODES);

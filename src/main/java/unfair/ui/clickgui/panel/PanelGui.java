@@ -733,8 +733,10 @@ public class PanelGui extends GuiScreen {
 
         float contentX = x + SIDEBAR_WIDTH + 8;
         float contentTop = y + 10;
-        float searchW = 180 + 80 * searchWidthAnim;
-        float searchH = 20;
+        float baseW = 150;
+        float expandedW = 220;
+        float searchW = baseW + (expandedW - baseW) * searchWidthAnim;
+        float searchH = 22;
 
         if (mouseX >= contentX && mouseX <= contentX + searchW &&
                 mouseY >= contentTop && mouseY <= contentTop + searchH) {
@@ -932,22 +934,24 @@ public class PanelGui extends GuiScreen {
             mx = transformed[0];
             mY = transformed[1];
             
+            boolean handled = false;
             for (ModuleEntry entry : moduleEntries) {
                 for (PanelValueItem setting : entry.settings) {
                     if (setting instanceof ModeSetting) {
                         ModeSetting modeSetting = (ModeSetting) setting;
-                        if (modeSetting.isExpanded()) {
-                            if (modeSetting.isHoveringExpanded(mx, mY)) {
-                                modeSetting.handleScroll(delta);
-                                return;
-                            } else {
-                                modeSetting.setExpanded(false);
-                            }
+                        if (modeSetting.isExpanded() && modeSetting.isHoveringExpanded(mx, mY)) {
+                            modeSetting.handleScroll(delta);
+                            handled = true;
+                            break;
                         }
                     }
                 }
+                if (handled) break;
             }
-            targetScrollY -= delta * 0.3f;
+            
+            if (!handled) {
+                targetScrollY -= delta * 0.3f;
+            }
         }
         super.handleMouseInput();
     }
