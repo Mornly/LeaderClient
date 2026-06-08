@@ -5,10 +5,12 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 import unfair.Unfair;
 import unfair.event.EventTarget;
 import unfair.events.Render2DEvent;
 import unfair.module.Module;
+import unfair.property.properties.FloatProperty;
 import unfair.property.properties.IntProperty;
 import unfair.property.properties.ModeProperty;
 import unfair.property.properties.PercentProperty;
@@ -28,12 +30,14 @@ public class Potion extends Module {
         super("Potion", false, false);
     }
 
-    private final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Circle", "Glow Circle", "Bar"});
-    public final PercentProperty background = new PercentProperty("BackGround", 15, () -> mode.getValue() != 1);
-    private final ModeProperty fontColorMode = new ModeProperty("Font Color Mode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
-    private final ModeProperty circleColorMode = new ModeProperty("Circle Color Mode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
-    private final IntProperty posX = new IntProperty("Pos X", 240, -480, 640);
-    private final IntProperty posY = new IntProperty("Pos Y", 60, -280, 350);
+    private final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Circle", "GlowCircle", "Bar"});
+    public final PercentProperty background = new PercentProperty("background", 15, () -> mode.getValue() != 1);
+    private final ModeProperty fontColorMode = new ModeProperty("FontColorMode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
+    private final ModeProperty circleColorMode = new ModeProperty("CircleColorMode", 0, new String[]{"HUD", "White", "Potion"}, () -> mode.getValue() == 1);
+    private final IntProperty glowLayer = new IntProperty("GlowLayers",10,1,100,() -> mode.getValue() == 1);
+    private final FloatProperty glowRadius = new FloatProperty("GlowRadius",1.5F,0.1F,5F,() -> mode.getValue() == 1);
+    private final IntProperty postx = new IntProperty("PostX", 240, -480, 640);
+    private final IntProperty posty = new IntProperty("PostY", 60, -280, 350);
     private final Map<Integer, Integer> potionMaxDurations = new HashMap<>();
 
     private static class AnimData {
@@ -143,8 +147,8 @@ public class Potion extends Module {
         renderList.sort(Comparator.comparingInt(this::getEffectFullWidth).reversed());
 
         HUD hud = (HUD) Unfair.moduleManager.modules.get(HUD.class);
-        int baseX = posX.getValue();
-        int baseY = posY.getValue();
+        int baseX = postx.getValue();
+        int baseY = posty.getValue();
 
         if (mode.getValue() == 0) {
             renderCircleMode(renderList, hud, baseX, baseY);
@@ -256,35 +260,60 @@ public class Potion extends Module {
             int alpha = (int) (progress * 255);
             Color fadedCircle = new Color(potCol.getRed(), potCol.getGreen(), potCol.getBlue(), alpha);
             Color fadedFont = new Color(fontCol.getRed(), fontCol.getGreen(), fontCol.getBlue(), alpha);
-
             if (potion.hasStatusIcon()) {
                 GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
                 mc.getTextureManager().bindTexture(new ResourceLocation("textures/gui/container/inventory.png"));
                 int iconIndex = potion.getStatusIconIndex();
                 GlStateManager.enableBlend();
-                Gui.drawModalRectWithCustomSizedTexture(baseX + offsetX - 17, (int) drawY + 16 - offsetY + getHeight(),
+                Gui.drawModalRectWithCustomSizedTexture(baseX + offsetX - 17,
+                        (int) drawY + 16 - offsetY + getHeight(),
                         iconIndex % 8 * 18, 198 + iconIndex / 8 * 18, 18, 18, 256f, 256f);
                 GlStateManager.disableBlend();
             }
 
             float ratio = (float) effect.getDuration() / (float) (potionMaxDurations.getOrDefault(id, 1));
-            int cx = baseX + offsetX - 20;
-            int cy = (int) drawY + 16 - offsetY + getHeight() - 3;
+            double iconCenterX = baseX + offsetX - 17 + 9;
+            double iconCenterY = (int) drawY + 16 - offsetY + getHeight() + 9;
+            double mainRealRadius = 12.5;      // 主体圆半径
+            double glowMaxRealRadius = 12.5 + glowRadius.getValue();  // 光晕最大半径
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
 
-            // 所有圆环透明度均乘以progress
-            circle(cx, cy, 27, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), (int)(30 * progress)));
-            circle(cx, cy, 25.5, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), (int)(60 * progress)));
-            circle(cx, cy, 24.5, ratio * 360, false, new Color(fadedCircle.getRed(), fadedCircle.getGreen(), fadedCircle.getBlue(), (int)(100 * progress)));
-            circle(cx, cy, 24, ratio * 360, false, new Color(0, 0, 0, (int)(70 * progress)));
-            circle(cx, cy, 24, ratio * 360, false, fadedCircle);
+            int glowLayers = glowLayer.getValue();
+            for (int i = 0; i < glowLayers; i++) {
+                float t = (float) i / (glowLayers - 1);
+                double realR = mainRealRadius + (glowMaxRealRadius - mainRealRadius) * (1.0 - t);
+                int layerAlpha = (int) ((15 + 20 * t) * progress);
+                if (layerAlpha > 255) layerAlpha = 255;
+                Color glowColor = new Color(
+                        fadedCircle.getRed(),
+                        fadedCircle.getGreen(),
+                        fadedCircle.getBlue(),
+                        layerAlpha
+                );
+                double drawX = iconCenterX - realR;
+                double drawY1 = iconCenterY - realR;
+                double drawR = realR * 2.0;
+                circle(drawX, drawY1, drawR, ratio * 360, false, glowColor);
+            }
 
+            // 恢复默认混合，绘制主体圆环（清晰边缘）
+            GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            double mainDrawX = iconCenterX - mainRealRadius;
+            double mainDrawY = iconCenterY - mainRealRadius;
+            double mainDrawR = mainRealRadius * 2.0;
+            circle(mainDrawX, mainDrawY, mainDrawR, ratio * 360, false, fadedCircle);
+
+            GlStateManager.disableBlend();
+            // ------------------------------------
+
+            // 文字
             drawFont(name, baseX + offsetX + 7, (int) drawY + 16 - offsetY + getHeight(), fadedFont.getRGB(), true);
-            drawFont(duration, baseX + offsetX + 7, (int) drawY + 27 - offsetY + getHeight(), new Color(255, 255, 255, alpha).getRGB(), true);
+            drawFont(duration, baseX + offsetX + 7, (int) drawY + 27 - offsetY + getHeight(),
+                    new Color(255, 255, 255, alpha).getRGB(), true);
 
             currentY += effectiveHeight;
         }
-
-        // GlowCircle模式没有背景矩形，无需处理
     }
 
     private void renderBarMode(List<PotionEffect> renderList, HUD hud, int baseX, int baseY) {
