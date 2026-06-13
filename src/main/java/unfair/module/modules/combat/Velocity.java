@@ -32,11 +32,13 @@ import java.util.Objects;
 
 public class Velocity extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    public final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Vanilla", "Prediction", "Reduce"});
+    public final ModeProperty mode = new ModeProperty("Mode", 0, new String[]{"Vanilla","Prediction"});
     public final BooleanProperty reduce = new BooleanProperty("Reduce", true, () -> mode.getValue() == 1);
-    private final BooleanProperty reduceWhenCanAttack = new BooleanProperty("Reduce When Can Attack", true, () -> mode.getValue() != 0);
-    private final BooleanProperty onlySprinting = new BooleanProperty("Only Sprinting", true, () -> mode.getValue() == 1);
-    public final IntProperty attackTimes = new IntProperty("Attack Times", 1, 1, 5, () -> this.mode.getValue() == 1 && this.reduce.getValue());
+    public final ModeProperty reduceMode = new ModeProperty("ReduceMode", 0, new String[]{"Attack", "ReleaseWhenCanAttack","ReleaseBeforeCanAttack"}, () -> mode.getValue() == 1 && reduce.getValue());
+    private final BooleanProperty extraAttack = new BooleanProperty("ExtraAttack", false, () -> mode.getValue() == 1 && reduce.getValue() && reduceMode.getValue() == 1);
+    private final BooleanProperty reduceWhenCanAttack = new BooleanProperty("Reduce When Can Attack", true, () -> mode.getValue() == 1 && reduce.getValue() && reduceMode.getValue() == 0);
+    private final BooleanProperty onlySprinting = new BooleanProperty("Only Sprinting", true, () -> mode.getValue() == 1 && reduceMode.getValue() == 0);
+    public final IntProperty attackTimes = new IntProperty("Attack Times", 1, 1, 5, () -> this.mode.getValue() == 1 && this.reduce.getValue() && reduceMode.getValue() == 0);
 
     public final BooleanProperty jump = new BooleanProperty("Jump", true, () -> mode.getValue() == 1);
     public final BooleanProperty delay = new BooleanProperty("Delay", false, () -> mode.getValue() == 1);
@@ -59,7 +61,6 @@ public class Velocity extends Module {
     private boolean pendingExplosion = false;
     private boolean allowNext = true;
     private boolean delayFlag = false;
-    private boolean isFallDamage;
     private boolean jumpFlag = false;
     public static boolean hasReceivedVelocity;
     private int ticksSinceVelocity = -1;
@@ -69,6 +70,7 @@ public class Velocity extends Module {
     private float[] targetRotation = null;
     private double knockbackZ = 0;
     private int reduceTick = -1;
+    private boolean extraAttacked = false;
 
     public Velocity() {
         super("Velocity", false, false);
@@ -204,10 +206,16 @@ public class Velocity extends Module {
                         this.knockbackZ = 0;
                     }
                 }
+                KillAura killAura = (KillAura)Unfair.moduleManager.getModule(KillAura.class);
                 if (delayFlag && ((delay.getValue()
                         && (isInLiquidOrWeb() || Unfair.delayManager.getDelay() >= (long) delayTicks.getValue() && !airBuffer.getValue()) || (mc.thePlayer.onGround && !groundDelay.getValue() && !airBuffer.getValue()))
-                        || (airBuffer.getValue() && mc.thePlayer.onGround && delayFlag))) {
+                        || (airBuffer.getValue() && mc.thePlayer.onGround && delayFlag))  || (reduceMode.getValue() == 1 && killAura.autoBlock.getValue() == 2 && killAura.blockTick == 0 && killAura.shouldAutoBlock()  && reduce.getValue()) || (reduceMode.getValue() == 2 && killAura.autoBlock.getValue() == 2 && killAura.blockTick == 2 && killAura.shouldAutoBlock()) && reduce.getValue()) {
                     ticksSinceVelocity = 0;
+                    if (killAura.getTarget() != null) {
+                        if (extraAttack.getValue() && reduceMode.getValue() == 1 && reduce.getValue() && killAura.blockTick == 0) {
+                            extraAttacked = true;
+                        }
+                    }
                     hasReceivedVelocity = true;
                     dbg(Unfair.clientName + "Delay/Buffer " + Unfair.delayManager.getDelay() + " Ticks");
                     Unfair.delayManager.setDelayState(false, DelayModules.VELOCITY);
@@ -216,13 +224,27 @@ public class Velocity extends Module {
             }
             if (reduce.getValue()) {
                 if (event.getType() != EventType.PRE) return;
+                if (extraAttacked){
+                    KillAura killAura = (KillAura)Unfair.moduleManager.getModule(KillAura.class);
+                    EventManager.call(new AttackEvent(killAura.getTarget()));
+                    mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
+                    if (killAura.getTarget() != mc.thePlayer) {
+                        mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(killAura.getTarget(), C02PacketUseEntity.Action.ATTACK));
+                    } else {
+                        mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(Objects.requireNonNull(killAura.getTarget()), C02PacketUseEntity.Action.ATTACK));
+                    }
+                    mc.thePlayer.motionX *= 0.6D;
+                    mc.thePlayer.motionZ *= 0.6D;
+                    mc.thePlayer.setSprinting(false);
+                    extraAttacked = false;
+                }
                 if (hasReceivedVelocity){
                     if (reduceTick >= attackTimes.getValue()){
                         reduceTick = 0;
                         hasReceivedVelocity = false;
                     }
                     RayCastUtil.RayCastResult targetA = RayCastUtil.rayCast(new RotationUtil.RotationVec(event.getYaw(),event.getPitch()),3);
-                    if (targetA != null) {
+                    if (targetA != null && reduceMode.getValue() == 0) {
                         if (targetA.entityHit instanceof EntityPlayer && targetA.entityHit != mc.thePlayer) {
                             if (mc.thePlayer.isSprinting() || !this.onlySprinting.getValue()) {
                                 KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
@@ -258,46 +280,6 @@ public class Velocity extends Module {
                 }
             }
         }
-        if (mode.getValue() == 2){
-            if (event.getType() == EventType.PRE){
-                if (hasReceivedVelocity){
-                    RayCastUtil.RayCastResult targetA = RayCastUtil.rayCast(new RotationUtil.RotationVec(event.getYaw(),event.getPitch()),3.2);
-                    if (targetA != null) {
-                        if (targetA.entityHit instanceof EntityPlayer && targetA.entityHit != mc.thePlayer) {
-                            if (mc.thePlayer.isSprinting() || !this.onlySprinting.getValue()) {
-                                KillAura killAura = (KillAura) Unfair.moduleManager.getModule(KillAura.class);
-                                if (killAura.getTarget() != null) {
-                                    if (!reduceWhenCanAttack.getValue() || (killAura.blockTick == 0 && killAura.autoBlock.getValue() == 2) || (killAura.autoBlock.getValue() == 6 && killAura.blockTick == killAura.attackTick.getValue()) || (killAura.autoBlock.getValue() != 6 && killAura.autoBlock.getValue() != 2) || (killAura.autoBlock.getValue() == 5 && killAura.blockTick == 0)) {
-                                        EventManager.call(new AttackEvent(killAura.getTarget()));
-                                            mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
-                                            if (killAura.getTarget() != mc.thePlayer) {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(killAura.getTarget(), C02PacketUseEntity.Action.ATTACK));
-                                            } else {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(Objects.requireNonNull(killAura.getTarget()), C02PacketUseEntity.Action.ATTACK));
-                                            }
-                                            mc.thePlayer.motionX *= 0.6D;
-                                            mc.thePlayer.motionZ *= 0.6D;
-                                            mc.thePlayer.setSprinting(false);
-                                    }
-                                } else {
-                                            EventManager.call(new AttackEvent(targetA.entityHit));
-                                            mc.getNetHandler().addToSendQueue(new C0APacketAnimation());
-                                            if (targetA.entityHit!= mc.thePlayer) {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(targetA.entityHit, C02PacketUseEntity.Action.ATTACK));
-                                            } else {
-                                                mc.getNetHandler().addToSendQueue(new C02PacketUseEntity(Objects.requireNonNull(targetA.entityHit), C02PacketUseEntity.Action.ATTACK));
-                                            }
-                                            mc.thePlayer.motionX *= 0.6D;
-                                            mc.thePlayer.motionZ *= 0.6D;
-                                            mc.thePlayer.setSprinting(false);
-                                }
-                            }
-                        }
-                    }
-                    hasReceivedVelocity = false;
-                }
-            }
-        }
     }
 
     @EventTarget
@@ -306,26 +288,6 @@ public class Velocity extends Module {
             if (event.getPacket() instanceof S12PacketEntityVelocity) {
                 S12PacketEntityVelocity packet = (S12PacketEntityVelocity) event.getPacket();
                 if (packet.getEntityID() == mc.thePlayer.getEntityId()) {
-                    double packetDirection = 0.0;
-                    S12PacketEntityVelocity s12 = (S12PacketEntityVelocity) event.getPacket();
-                    double motionX = s12.getMotionX();
-                    double motionZ = s12.getMotionZ();
-
-                    packetDirection = Math.atan2(motionX, motionZ);
-                    double degreePlayer = getDirection();
-
-                    double degreePacket = Math.floorMod((int) Math.toDegrees(packetDirection), 360);
-
-
-                    double angle = Math.abs(degreePacket + degreePlayer);
-                    angle = Math.floorMod((int) angle, 360);
-
-                    double threshold = 120.0;
-                    boolean inRange = angle >= (180.0 - threshold / 2.0) && angle <= (180.0 + threshold / 2.0);
-
-                    if (inRange) {
-                       isFallDamage = false;
-                    }
                     if (!delay.getValue()) {
                         hasReceivedVelocity = true;
                     }
@@ -336,7 +298,7 @@ public class Velocity extends Module {
                             && !pendingExplosion
                             && (!allowNext || !(Boolean) fakeCheck.getValue())
                             && (!longJump.isEnabled() || !longJump.canStartJump())) {
-                        if ((airBuffer.getValue() && !mc.thePlayer.onGround) || (delay.getValue() && !mc.thePlayer.onGround) || (delay.getValue() && groundDelay.getValue()) && !airBuffer.getValue()) {
+                        if ((airBuffer.getValue() && !mc.thePlayer.onGround) || (delay.getValue() && !mc.thePlayer.onGround) || (delay.getValue() && groundDelay.getValue() && !airBuffer.getValue())) {
                             Unfair.delayManager.setDelayState(true, DelayModules.VELOCITY);
                             dbg(Unfair.clientName + "Delay/Buffer Active");
                             Unfair.delayManager.delayedPacket.offer(packet);
@@ -389,17 +351,6 @@ public class Velocity extends Module {
         }
     }
     @EventTarget
-    public void onStrafe(StrafeEvent event) {
-        if (mode.getValue() == 2) {
-            boolean shouldJump;
-            shouldJump = mc.thePlayer.hurtTime == 9 && mc.thePlayer.isSprinting() &&
-                    !isFallDamage;
-            if (shouldJump && mc.thePlayer.onGround && !mc.gameSettings.keyBindJump.isKeyDown() && !isInLiquidOrWeb()) {
-                mc.thePlayer.jump();
-            }
-        }
-    }
-    @EventTarget
     public void onLoadWorld(LoadWorldEvent event) {
         onDisabled();
     }
@@ -435,23 +386,5 @@ public class Velocity extends Module {
         } else {
             return new String[]{CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, mode.getModeString())};
         }
-    }
-    private double getDirection() {
-        float moveYaw = mc.thePlayer.rotationYaw;
-
-        if (mc.thePlayer.moveForward != 0f && mc.thePlayer.moveStrafing == 0f) {
-            moveYaw += (mc.thePlayer.moveForward > 0) ? 0 : 180;
-        } else if (mc.thePlayer.moveForward != 0f && mc.thePlayer.moveStrafing != 0f) {
-            if (mc.thePlayer.moveForward > 0) {
-                moveYaw += (mc.thePlayer.moveStrafing > 0) ? -45 : 45;
-            } else {
-                moveYaw -= (mc.thePlayer.moveStrafing > 0) ? -45 : 45;
-            }
-            moveYaw += (mc.thePlayer.moveForward > 0) ? 0 : 180;
-        } else if (mc.thePlayer.moveStrafing != 0f && mc.thePlayer.moveForward == 0f) {
-            moveYaw += (mc.thePlayer.moveStrafing > 0) ? -90 : 90;
-        }
-
-        return (double) Math.floorMod((int) moveYaw, 360);
     }
 }

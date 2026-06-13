@@ -30,6 +30,7 @@ import unfair.util.TeamUtil;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Objects;
 
 public class AutoProjectiles extends Module {
     private static final Minecraft mc = Minecraft.getMinecraft();
@@ -58,9 +59,8 @@ public class AutoProjectiles extends Module {
         if (!(entity instanceof EntityOtherPlayerMP)) return false;
         if (mc.thePlayer.getDistanceToEntity(entity) > this.range.getValue()) return false;
         EntityPlayer player = (EntityPlayer) entity;
-        if (TeamUtil.isFriend(player)) return false;
         if (!isEntityHeightVisible(entity)) return false;
-        return !this.teams.getValue() || !TeamUtil.isSameTeam(player);
+        return (!this.teams.getValue() || !TeamUtil.isSameTeam(player)) && (!this.botCheck.getValue() || !TeamUtil.isBot(player));
     }
 
     private boolean isEntityHeightVisible(EntityLivingBase entity) {
@@ -90,7 +90,7 @@ public class AutoProjectiles extends Module {
             return throwDelay.getValue();
         }
         if (mc.gameSettings.keyBindBack.isKeyDown()) return 1;
-        if (RotationUtil.distanceToEntity(getTarget()) <= 4.5) return 1;
+        if (RotationUtil.distanceToEntity(Objects.requireNonNull(getTarget())) <= 4.5) return 1;
         if (RotationUtil.distanceToEntity(getTarget()) <= 6) return 2;
         if (RotationUtil.distanceToEntity(getTarget()) <= 8) return 3;
         if (RotationUtil.distanceToEntity(getTarget()) <= 9) return 5;
@@ -207,7 +207,7 @@ public class AutoProjectiles extends Module {
     public void onUpdate(UpdateEvent event) {
         if (!this.isEnabled() || event.getType() != EventType.PRE) return;
 
-        if ((this.invCheck.getValue() && mc.currentScreen instanceof GuiContainer) || (!this.botCheck.getValue() || !TeamUtil.isBot((EntityPlayer) getTarget()))) return;
+        if ((this.invCheck.getValue() && mc.currentScreen instanceof GuiContainer)) return;
 
         if (!this.hasProjectile()) {
             this.target = null;
@@ -215,18 +215,18 @@ public class AutoProjectiles extends Module {
             this.switchBack();
             return;
         }
-
+        KillAura aura = (KillAura) Unfair.moduleManager.modules.get(KillAura.class);
+        if (aura.isEnabled() && mc.thePlayer.getDistanceToEntity(aura.getTarget()) > aura.autoBlockRange.getValue() - 1f){
+            this.target = null;
+            this.throwState = 0;
+            this.switchBack();
+            return;
+        }
         switch (this.throwState) {
             case 0:
                 if (System.currentTimeMillis() - this.lastThrowTime < getDelay() * 50F) return;
-
                 this.target = this.getTarget();
                 if (this.target == null) return;
-
-                KillAura aura = (KillAura) Unfair.moduleManager.modules.get(KillAura.class);
-                if (aura != null && aura.isEnabled() && mc.thePlayer.getDistanceToEntity(this.target) <= aura.autoBlockRange.getValue())
-                    return;
-
                 this.throwState = 1;
                 break;
 

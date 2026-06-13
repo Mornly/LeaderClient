@@ -109,10 +109,15 @@ public class Island extends Module {
             }
             runToXy(x, y);
             if (this.blockCounterMode.getValue() == 0) {
-                GL11.glEnable(GL11.GL_SCISSOR_TEST);
                 float progress = Math.min(64, size) / 64f;
                 int barColor = hud.getColor(System.currentTimeMillis()).getRGB();
-                drawBackgroundAuto(1);
+                float left = animatedX.getOutput();
+                float top = animatedY.getOutput();
+                float right = left + width;
+                float bottom = top + height;
+                int accentColor = hud.getColor(System.currentTimeMillis()).getRGB();
+                drawPanelBackground(left, top, right, bottom + 10, backgroundRadius.getValue(), new Color(0, 0, 0, 70).getRGB(), false, accentColor);
+
                 float barLeft = animatedX.getOutput() + animatedWidth.getOutput() - 15;
                 float barTop = animatedY.getOutput() + 6;
                 float barRight = barLeft + 6;
@@ -129,15 +134,18 @@ public class Island extends Module {
                     RenderUtil.drawFont(description, (int) (animatedX.getOutput() + 8), (int) (animatedY.getOutput() + 22), -1, true);
                 }
 
-                GL11.glDisable(GL11.GL_SCISSOR_TEST);
             }
             if (this.blockCounterMode.getValue() == 1) {
                 width = textWidth + 10 + 20 + 10;
                 height = 30f;
-                GL11.glEnable(GL11.GL_SCISSOR_TEST);
                 float progress = Math.min(64, size) / 64f;
                 Color potCol = hud.getColor(System.currentTimeMillis());
-                drawBackgroundAuto(1);
+                float left = animatedX.getOutput();
+                float top = animatedY.getOutput();
+                float right = left + width;
+                float bottom = top + height;
+                int accentColor = hud.getColor(System.currentTimeMillis()).getRGB();
+                drawPanelBackground(left, top, right, bottom + 10, backgroundRadius.getValue(), new Color(0, 0, 0, 70).getRGB(), false, accentColor);
                 float circleCenterX = animatedX.getOutput() + animatedWidth.getOutput() - 22; // 微调，使圆居中
                 float circleCenterY = animatedY.getOutput() + animatedHeight.getOutput() / 2f;
                 RenderUtil.circle(circleCenterX, circleCenterY, 16, 360, false, new Color(0, 0, 0, 70));
@@ -154,8 +162,6 @@ public class Island extends Module {
                     RenderUtil.drawFont(title, (int)(animatedX.getOutput() + 8), (int)(animatedY.getOutput() + 10), -1, true);
                     RenderUtil.drawFont(description, (int)(animatedX.getOutput() + 8), (int)(animatedY.getOutput() + 22), -1, true);
                 }
-
-                GL11.glDisable(GL11.GL_SCISSOR_TEST);
             }
         }else {
             CopyOnWriteArrayList<NotificationTask> notifications = Notification.tasks;
@@ -173,17 +179,17 @@ public class Island extends Module {
                     y = 40;
 
                     runToXy(x, y);
-
-                    GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
-                    drawBackgroundAuto(1);
+                    float left = animatedX.getOutput();
+                    float top = animatedY.getOutput();
+                    float right = left + width;
+                    float bottom = top + height;
+                    int accentColor = hud.getColor(System.currentTimeMillis()).getRGB();
+                    drawPanelBackground(left, top, right, bottom + 10, backgroundRadius.getValue(), new Color(0, 0, 0, 70).getRGB(), false, accentColor);
                     RenderUtil.drawRect(animatedX.getOutput() + 6, animatedY.getOutput() + ((y - animatedY.getOutput()) * 2), animatedX.getOutput() + 6 + (width - 12) * Math.min(1, notification.getProgress()), animatedY.getOutput() + ((y - animatedY.getOutput()) * 2) + 2f, hud.getColor(System.currentTimeMillis()).getRGB());
 
                     if (!shader) {
                         RenderUtil.drawFont(description, (int) (animatedX.getOutput() + 6), (int) (animatedY.getOutput() + 12), -1, true);
                     }
-
-                    GL11.glDisable(GL11.GL_SCISSOR_TEST);
                 }
             } else {
                 CopyOnWriteArrayList<NotificationTask> notifications1 = Notification.disTasks;
@@ -198,19 +204,18 @@ public class Island extends Module {
                         height = 30;
                         x = sr.getScaledWidth() / 2f;
                         y = 40;
-
                         runToXy(x, y);
-
-                        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-
-                        drawBackgroundAuto(1);
+                        float left = animatedX.getOutput();
+                        float top = animatedY.getOutput();
+                        float right = left + width;
+                        float bottom = top + height;
+                        int accentColor = hud.getColor(System.currentTimeMillis()).getRGB();
+                        drawPanelBackground(left, top, right, bottom + 10, backgroundRadius.getValue(), new Color(0, 0, 0, 70).getRGB(), false, accentColor);
                         RenderUtil.drawRect(animatedX.getOutput() + 6, animatedY.getOutput() + ((y - animatedY.getOutput()) * 2) + 1, animatedX.getOutput() + 6 + (width - 12) * Math.min(1, notification.getProgress()), animatedY.getOutput() + ((y - animatedY.getOutput()) * 2) + 3f, hud.getColor(System.currentTimeMillis()).getRGB());
 
                         if (!shader) {
                             RenderUtil.drawFont(description, (int) (animatedX.getOutput() + 6), (int) (animatedY.getOutput() + 12), -1, true);
                         }
-
-                        GL11.glDisable(GL11.GL_SCISSOR_TEST);
                     }
                 } else {
                     if (timer.hasTimeElapsed(120 - (Math.abs(fps - Minecraft.getDebugFPS())) * 2L)) {
@@ -224,16 +229,16 @@ public class Island extends Module {
                     y = 40;
 
                     runToXy(x, y);
-
-                    GL11.glPushMatrix();
-                    GL11.glEnable(GL11.GL_SCISSOR_TEST);
-                    drawBackgroundAuto(0);
-
+                    float left = animatedX.getOutput();
+                    float top = animatedY.getOutput();
+                    float right = left + width;
+                    float bottom = top + height;
+                    int accentColor = hud.getColor(System.currentTimeMillis()).getRGB();
+                    drawPanelBackground(left, top, right, bottom, backgroundRadius.getValue(), new Color(0, 0, 0, 70).getRGB(), false, accentColor);
                     if (!shader) {
                         RenderUtil.drawFont(title, (int) (animatedX.getOutput() + 5), (int) (animatedY.getOutput() + 5), hud.getColor(System.currentTimeMillis()).getRGB(), true);
                     }
-                    GL11.glDisable(GL11.GL_SCISSOR_TEST);
-                    GL11.glPopMatrix();
+
                 }
             }
         }
@@ -255,5 +260,10 @@ public class Island extends Module {
     public float getRenderY(float y) {
         return y - height / 2;
     }
-
+    private void drawPanelBackground(float left, float top, float right, float bottom, float radius, int bgColor, boolean drawTopLine, int accentColor) {
+        RenderUtil.drawRoundedRectangle(left, top, right, bottom, radius, bgColor);
+        if (drawTopLine) {
+            RenderUtil.drawRect(left + 5, top + 1, right - 5, top + 2, accentColor);
+        }
+    }
 }

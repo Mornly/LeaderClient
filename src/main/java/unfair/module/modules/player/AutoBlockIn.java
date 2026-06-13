@@ -50,6 +50,7 @@ public class AutoBlockIn extends Module {
     private EnumFacing targetFacing;
     private Vec3 targetHitVec;
     private int lastSlot = -1;
+    private int originalSlot = -1;
 
     public AutoBlockIn() {
         super("AutoBlockIn", false);
@@ -68,21 +69,29 @@ public class AutoBlockIn extends Module {
     @Override
     public void onEnabled() {
         if (mc.thePlayer != null) {
+            originalSlot = mc.thePlayer.inventory.currentItem;
             serverYaw = mc.thePlayer.rotationYaw;
             serverPitch = mc.thePlayer.rotationPitch;
             aimYaw = serverYaw;
             aimPitch = serverPitch;
             progress = 0;
-            lastSlot = mc.thePlayer.inventory.currentItem;
+            lastSlot = originalSlot;
             targetBlock = null;
             targetFacing = null;
             targetHitVec = null;
             lastPlaceTime = 0;
+            int bestSlot = findBestBlockSlot();
+            if (bestSlot != -1 && bestSlot != mc.thePlayer.inventory.currentItem) {
+                mc.thePlayer.inventory.currentItem = bestSlot;
+            }
         }
     }
 
     @Override
     public void onDisabled() {
+        if (originalSlot != -1 && mc.thePlayer != null && mc.thePlayer.inventory.currentItem != originalSlot) {
+            mc.thePlayer.inventory.currentItem = originalSlot;
+        }
         if (lastSlot != -1 && mc.thePlayer != null && mc.thePlayer.inventory.currentItem != lastSlot) {
             mc.thePlayer.inventory.currentItem = lastSlot;
         }
@@ -90,6 +99,13 @@ public class AutoBlockIn extends Module {
         targetBlock = null;
         targetFacing = null;
         targetHitVec = null;
+    }
+
+    private void maintainBestBlock() {
+        int bestSlot = findBestBlockSlot();
+        if (bestSlot != -1 && mc.thePlayer.inventory.currentItem != bestSlot) {
+            mc.thePlayer.inventory.currentItem = bestSlot;
+        }
     }
 
     @EventTarget(Priority.HIGH)
@@ -102,18 +118,12 @@ public class AutoBlockIn extends Module {
             return;
         }
 
+        maintainBestBlock();
+
         serverYaw = event.getYaw();
         serverPitch = event.getPitch();
 
         updateProgress();
-
-        int blockSlot = findBestBlockSlot();
-
-        if (blockSlot != -1) {
-            if (mc.thePlayer.inventory.currentItem != blockSlot) {
-                mc.thePlayer.inventory.currentItem = blockSlot;
-            }
-        }
 
         ItemStack currentHeld = mc.thePlayer.inventory.getCurrentItem();
         boolean holdingBlock = currentHeld != null && currentHeld.getItem() instanceof ItemBlock;
@@ -408,16 +418,11 @@ public class AutoBlockIn extends Module {
         return (dx + dy + dz) == 1;
     }
 
-
     private boolean tryPlaceOnBlock(BlockPos supportBlock, Vec3 eye, double reach, BlockPos targetPos) {
-        // Try all 6 faces of support block
         for (EnumFacing facing : EnumFacing.values()) {
             BlockPos placementPos = supportBlock.offset(facing);
-
-            // Check if placement would be at target
             if (!placementPos.equals(targetPos)) continue;
 
-            // Generate candidate hit points on this face
             int n = (int) Math.round(1 / STEP);
 
             for (int r = 0; r <= n; r++) {
@@ -483,7 +488,6 @@ public class AutoBlockIn extends Module {
                 Vec3 center = new Vec3(support.getX() + 0.5, support.getY() + 0.5, support.getZ() + 0.5);
                 if (eye.distanceTo(center) > reach) continue;
 
-                // Try placement
                 int n = (int) Math.round(1 / STEP);
                 for (int r = 0; r <= n; r++) {
                     double v = r * STEP + (Math.random() * JIT * 2 - JIT);

@@ -1,5 +1,3 @@
-
-
 package unfair.module.modules.combat;
 
 import net.minecraft.client.Minecraft;
@@ -7,17 +5,16 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.*;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
-import org.jetbrains.annotations.NotNull;
 import org.lwjgl.opengl.GL11;
 import unfair.event.EventTarget;
 import unfair.event.types.EventType;
 import unfair.events.*;
-import unfair.mixin.IAccessorS14PacketEntity;
 import unfair.module.Module;
 import unfair.property.properties.BooleanProperty;
 import unfair.property.properties.FloatProperty;
@@ -26,294 +23,359 @@ import unfair.util.PacketUtil;
 import unfair.util.TimedPacket;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
 
 public class BackTrack extends Module {
+
+   private static final Minecraft mc = Minecraft.getMinecraft();
+
+   // 属性设置
+   private final IntProperty trackMs = new IntProperty("TrackMS", 200, 1, 1000);
+   private final FloatProperty maxDistance = new FloatProperty("MaxTrackRange", 6.0F, 3.1F, 6.0F);
+   private final IntProperty maxTick = new IntProperty("MaxTick", 10, 0, 30);
+   private final BooleanProperty renderRealPos = new BooleanProperty("RenderRealPos", true);
+   private final BooleanProperty smart = new BooleanProperty("Smart", true);
+   private final BooleanProperty onlyHighSpeed = new BooleanProperty("Only On Target High Speed", false);
+   private final FloatProperty highSpeedThreshold = new FloatProperty("HighSpeed Threshold", 0.2F, 0.01F, 1.0F,onlyHighSpeed::getValue);
+
+   private final Queue<TimedPacket> packetQueue = new ConcurrentLinkedQueue<>();
+   private final List<Packet<?>> skipPackets = new ArrayList<>();
+   private final Deque<Vec3> positionHistory = new ConcurrentLinkedDeque<>();
+   private final Deque<Vec3> recentPositions = new ConcurrentLinkedDeque<>();
+
+   private Vec3 realTargetPos;
+   private Vec3 lastRealTargetPos;
+   private EntityPlayer target;
+   private int attackTicks;
+
    public BackTrack() {
       super("BackTrack", false);
    }
-   private static final Minecraft mc = Minecraft.getMinecraft();
-   private final IntProperty minLatency = new IntProperty("Min MS", 50, 10, 1000);
-   private final IntProperty maxLatency = new IntProperty("Max MS", 100, 10, 1000);
-   private final FloatProperty minDistance = new FloatProperty("Min Distance", 0.0F, 0.0F, 3.0F);
-   private final FloatProperty maxDistance = new FloatProperty("Max Distance", 6.0F, 0.0F, 10.0F);
-   private final IntProperty stopOnTargetHurtTime = new IntProperty("Player HurtTime", -1, -1, 10);
-   private final IntProperty stopOnSelfHurtTime = new IntProperty("Stop On Get Hurt", -1, -1, 10);
-   private final BooleanProperty drawESP = new BooleanProperty("Draw ESP", true);
-   private final Queue<TimedPacket> packetQueue = new ConcurrentLinkedQueue<>();
-   private final List<Packet<?>> skipPackets = new ArrayList<>();
-
-   private Vec3 vec3;
-   private EntityPlayer target;
-
-   private int currentLatency = 0;
 
    @Override
    public String[] getSuffix() {
-      return new String[]{minLatency.getValue() + "-" + maxLatency.getValue()};
+      return new String[]{trackMs.getValue() + "ms"};
    }
 
    @Override
    public void onEnabled() {
-      packetQueue.clear();
-      skipPackets.clear();
-      vec3 = null;
-      target = null;
+      clearAll();
    }
-   public static final int color = new Color(255, 255, 255, 200).getRGB();
-   public static void drawBox(@NotNull Vec3 pos) {
-      GlStateManager.pushMatrix();
-      double x = pos.xCoord - mc.getRenderManager().viewerPosX;
-      double y = pos.yCoord - mc.getRenderManager().viewerPosY;
-      double z = pos.zCoord - mc.getRenderManager().viewerPosZ;
-      AxisAlignedBB bbox = mc.thePlayer.getEntityBoundingBox().expand(0.1D, 0.1, 0.1);
-      AxisAlignedBB axis = new AxisAlignedBB(bbox.minX - mc.thePlayer.posX + x, bbox.minY - mc.thePlayer.posY + y, bbox.minZ - mc.thePlayer.posZ + z, bbox.maxX - mc.thePlayer.posX + x, bbox.maxY - mc.thePlayer.posY + y, bbox.maxZ - mc.thePlayer.posZ + z);
-      float a = (float) (color >> 24 & 255) / 255.0F;
-      float r = (float) (color >> 16 & 255) / 255.0F;
-      float g = (float) (color >> 8 & 255) / 255.0F;
-      float b = (float) (color & 255) / 255.0F;
-      GL11.glBlendFunc(770, 771);
-      GL11.glEnable(3042);
-      GL11.glDisable(3553);
-      GL11.glDisable(2929);
-      GL11.glDepthMask(false);
-      GL11.glLineWidth(2.0F);
-      GL11.glColor4f(r, g, b, a);
-      drawBoundingBox(axis, r, g, b);
-      GL11.glEnable(3553);
-      GL11.glEnable(2929);
-      GL11.glDepthMask(true);
-      GL11.glDisable(3042);
-      GlStateManager.popMatrix();
-   }
-   public static void drawBoundingBox(AxisAlignedBB abb, float r, float g, float b) {
-      drawBoundingBox(abb, r, g, b, 0.25f);
-   }
-   public static void drawBoundingBox(@NotNull AxisAlignedBB abb, float r, float g, float b, float a) {
-      Tessellator ts = Tessellator.getInstance();
-      WorldRenderer vb = ts.getWorldRenderer();
-      vb.begin(7, DefaultVertexFormats.POSITION_COLOR);
-      vb.pos(abb.minX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      ts.draw();
-      vb.begin(7, DefaultVertexFormats.POSITION_COLOR);
-      vb.pos(abb.maxX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      ts.draw();
-      vb.begin(7, DefaultVertexFormats.POSITION_COLOR);
-      vb.pos(abb.minX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      ts.draw();
-      vb.begin(7, DefaultVertexFormats.POSITION_COLOR);
-      vb.pos(abb.minX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      ts.draw();
-      vb.begin(7, DefaultVertexFormats.POSITION_COLOR);
-      vb.pos(abb.minX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      ts.draw();
-      vb.begin(7, DefaultVertexFormats.POSITION_COLOR);
-      vb.pos(abb.minX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.minX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.minZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.maxY, abb.maxZ).color(r, g, b, a).endVertex();
-      vb.pos(abb.maxX, abb.minY, abb.maxZ).color(r, g, b, a).endVertex();
-      ts.draw();
-   }
+
    @Override
    public void onDisabled() {
       releaseAll();
+      clearAll();
+   }
+
+   private void clearAll() {
+      packetQueue.clear();
+      skipPackets.clear();
+      positionHistory.clear();
+      recentPositions.clear();
+      realTargetPos = null;
+      lastRealTargetPos = null;
+      target = null;
+      attackTicks = 0;
    }
 
    @EventTarget
-   public void onUpdate(UpdateEvent e) {
-      if (!isEnabled() || e.getType() == EventType.POST || target == null) return;
-      if (vec3.distanceTo(mc.thePlayer.getPositionVector()) < target.getPositionVector().distanceTo(mc.thePlayer.getPositionVector())){
-         currentLatency = 0;
-      }
-      try {
-         final double distance = vec3.distanceTo(mc.thePlayer.getPositionVector());
-         if (distance > maxDistance.getValue()
-                 || distance < minDistance.getValue()
-         ) {
-            currentLatency = 0;
-         }
+   public void onAttack(AttackEvent e) {
+      if (!isEnabled()) return;
 
-      } catch (NullPointerException ignored) {
+      Entity entity = e.getTarget();
+      if (!(entity instanceof EntityPlayer)) return;
+
+      EntityPlayer player = (EntityPlayer) entity;
+
+      // 高速检查：仅当目标移动速度超过阈值时才启用回溯
+      if (onlyHighSpeed.getValue()) {
+         double dx = player.posX - player.prevPosX;
+         double dy = player.posY - player.prevPosY;
+         double dz = player.posZ - player.prevPosZ;
+         double speed = Math.sqrt(dx * dx + dy * dy + dz * dz); // 每tick速度（方块/tick）
+         if (speed < highSpeedThreshold.getValue()) {
+            return; // 速度不够，不触发回溯
+         }
       }
+
+      // 如果目标是同一个玩家，重置攻击计时并返回（防止重复设置）
+      if (target != null && player.getEntityId() == target.getEntityId()) {
+         attackTicks = 0;
+         return;
+      }
+
+      // 设置新目标
+      target = player;
+      realTargetPos = player.getPositionVector();
+      lastRealTargetPos = realTargetPos;
+
+      positionHistory.clear();
+      recentPositions.clear();
+      positionHistory.add(realTargetPos);
+      recentPositions.add(realTargetPos);
+
+      attackTicks = 0;
    }
 
    @EventTarget
    public void onTick(TickEvent e) {
       if (!isEnabled() || e.getType() == EventType.POST) return;
-      while (!packetQueue.isEmpty()) {
-         try {
-            if (packetQueue.element().getCold().getCum(currentLatency)) {
-               Packet<?> packet = packetQueue.remove().getPacket();
-               skipPackets.add(packet);
-               PacketUtil.receivePacket(packet);
-            } else {
-               break;
-            }
-         } catch (NullPointerException ignored) {
-         }
+
+      if (target != null) {
+         attackTicks++;
       }
 
+      updateTargetLogic();
+      processPacketQueue();
+
       if (packetQueue.isEmpty() && target != null) {
-         vec3 = target.getPositionVector();
+         realTargetPos = target.getPositionVector();
       }
    }
 
+   private void updateTargetLogic() {
+      if (target == null || realTargetPos == null) return;
 
-
-   @EventTarget
-   public void onAttack(AttackEvent e) {
-      if (!isEnabled()) return;
-      final Vec3 targetPos = e.getTarget().getPositionVector();
-      if (e.getTarget() instanceof EntityPlayer) {
-         if (target == null || e.getTarget() != target) {
-            vec3 = targetPos;
-         } 
-         target = (EntityPlayer) e.getTarget();
-
-         try {
-            final double distance = targetPos.distanceTo(mc.thePlayer.getPositionVector());
-            if (distance > maxDistance.getValue() || distance < minDistance.getValue())
-               return;
-         } catch (NullPointerException ignored) {
+      try {
+         Vec3 currentPos = target.getPositionVector();
+         recentPositions.addLast(currentPos);
+         if (recentPositions.size() > 5) {
+            recentPositions.removeFirst();
          }
 
-         currentLatency = (int) (Math.random() * (maxLatency.getValue() - minLatency.getValue()) + minLatency.getValue());
+         if (recentPositions.size() == 5) {
+            Vec3 oldestPos = recentPositions.getFirst();
+            if (oldestPos.distanceTo(currentPos) > 5.0) {
+               resetAndRelease();
+               return;
+            }
+         }
+
+         positionHistory.addLast(currentPos);
+         if (positionHistory.size() > 10) {
+            positionHistory.removeFirst();
+         }
+
+         boolean tooFar = realTargetPos.distanceTo(mc.thePlayer.getPositionVector()) > maxDistance.getValue();
+         boolean tickExpired = attackTicks > maxTick.getValue();
+         if (tickExpired || tooFar) {
+            resetAndRelease();
+            return;
+         }
+
+         if (smart.getValue() && !positionHistory.isEmpty()) {
+            Vec3 firstHistory = positionHistory.getFirst();
+            double distReal = realTargetPos.distanceTo(mc.thePlayer.getPositionVector());
+            double distHistory = firstHistory.distanceTo(mc.thePlayer.getPositionVector());
+            if (distReal <= distHistory) {
+               resetAndRelease();
+               return;
+            }
+         }
+
+         lastRealTargetPos = realTargetPos;
+      } catch (Exception ex) {
+         resetAndRelease();
+      }
+   }
+
+   private void processPacketQueue() {
+      long maxDelay = trackMs.getValue();
+
+      while (!packetQueue.isEmpty()) {
+         TimedPacket timedPacket = packetQueue.peek();
+         if (timedPacket == null) break;
+
+         if (timedPacket.getCold().getCum(maxDelay)) {
+            packetQueue.poll();
+            Packet<?> packet = timedPacket.getPacket();
+            skipPackets.add(packet);
+            PacketUtil.receivePacket(packet);
+         } else {
+            break;
+         }
       }
    }
 
    @EventTarget
    public void onRender3D(Render3DEvent event) {
-      if (target == null || vec3 == null || target.isDead || !isEnabled())
+      if (!isEnabled() || target == null || realTargetPos == null || lastRealTargetPos == null)
          return;
-      final net.minecraft.util.Vec3 pos = currentLatency > 0 ? vec3 : target.getPositionVector();
-      if (drawESP.getValue())drawBox(pos);
+      if (!renderRealPos.getValue())
+         return;
+
+      float size = target.getCollisionBorderSize();
+      double width = target.width / 2.0 + size;
+      double height = target.height + size;
+
+      Vec3 smoothed = getSmoothedPosition(event.getPartialTicks());
+      AxisAlignedBB aabb = new AxisAlignedBB(
+              smoothed.xCoord - width, smoothed.yCoord, smoothed.zCoord - width,
+              smoothed.xCoord + width, smoothed.yCoord + height, smoothed.zCoord + width
+      ).offset(
+              -mc.getRenderManager().viewerPosX,
+              -mc.getRenderManager().viewerPosY,
+              -mc.getRenderManager().viewerPosZ
+      );
+
+      GlStateManager.pushMatrix();
+      GlStateManager.enableBlend();
+      GlStateManager.disableTexture2D();
+      GlStateManager.disableDepth();
+      GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
+
+      drawFilledBox(aabb, 255, 255, 255);
+
+      GlStateManager.enableDepth();
+      GlStateManager.enableTexture2D();
+      GlStateManager.disableBlend();
+      GlStateManager.popMatrix();
    }
+
+   private Vec3 getSmoothedPosition(float partialTicks) {
+      if (positionHistory.isEmpty()) {
+         return new Vec3(
+                 lastRealTargetPos.xCoord + (realTargetPos.xCoord - lastRealTargetPos.xCoord) * partialTicks,
+                 lastRealTargetPos.yCoord + (realTargetPos.yCoord - lastRealTargetPos.yCoord) * partialTicks,
+                 lastRealTargetPos.zCoord + (realTargetPos.zCoord - lastRealTargetPos.zCoord) * partialTicks
+         );
+      }
+
+      double totalWeight = 0;
+      double x = 0, y = 0, z = 0;
+
+      Object[] history = positionHistory.toArray();
+      int size = history.length;
+      for (int i = 0; i < size; i++) {
+         double weight = (i + 1) / (double) size;
+         Vec3 pos = (Vec3) history[i];
+         x += pos.xCoord * weight;
+         y += pos.yCoord * weight;
+         z += pos.zCoord * weight;
+         totalWeight += weight;
+      }
+
+      double currentWeight = 3;
+      x += realTargetPos.xCoord * currentWeight;
+      y += realTargetPos.yCoord * currentWeight;
+      z += realTargetPos.zCoord * currentWeight;
+      totalWeight += currentWeight;
+
+      return new Vec3(x / totalWeight, y / totalWeight, z / totalWeight);
+   }
+
    @EventTarget
    public void onReceivePacket(PacketEvent e) {
       if (!isEnabled() || e.getType() == EventType.SEND) return;
-      Packet<?> p = e.getPacket();
-      if (skipPackets.contains(p)) {
-         skipPackets.remove(p);
+
+      Packet<?> packet = e.getPacket();
+      if (skipPackets.contains(packet)) {
+         skipPackets.remove(packet);
          return;
       }
 
-      if (target != null && stopOnTargetHurtTime.getValue() != -1 && target.hurtTime == stopOnTargetHurtTime.getValue()) {
-         releaseAll();
-         return;
+      if (target == null) return;
+
+      boolean shouldIntercept = false;
+
+      if (packet instanceof S14PacketEntity) {
+         S14PacketEntity wrapper = (S14PacketEntity) packet;
+         Entity entity = wrapper.getEntity(mc.theWorld);
+         if (entity != null && entity.getEntityId() == target.getEntityId()) {
+            realTargetPos = realTargetPos.addVector(
+                    wrapper.func_149062_c() / 32.0D,
+                    wrapper.func_149061_d() / 32.0D,
+                    wrapper.func_149064_e() / 32.0D
+            );
+            shouldIntercept = true;
+         }
+      } else if (packet instanceof S18PacketEntityTeleport) {
+         S18PacketEntityTeleport wrapper = (S18PacketEntityTeleport) packet;
+         if (wrapper.getEntityId() == target.getEntityId()) {
+            realTargetPos = new Vec3(
+                    wrapper.getX() / 32.0D,
+                    wrapper.getY() / 32.0D,
+                    wrapper.getZ() / 32.0D
+            );
+            shouldIntercept = true;
+         }
+      } else if (packet instanceof S13PacketDestroyEntities) {
+         S13PacketDestroyEntities wrapper = (S13PacketDestroyEntities) packet;
+         for (int id : wrapper.getEntityIDs()) {
+            if (id == target.getEntityId()) {
+               resetAndRelease();
+               return;
+            }
+         }
       }
-      if (stopOnSelfHurtTime.getValue() != -1 && mc.thePlayer.hurtTime == stopOnSelfHurtTime.getValue()) {
-         releaseAll();
-         return;
-      }
 
-      try {
-         if (mc.thePlayer == null || mc.thePlayer.ticksExisted < 20) {
-            packetQueue.clear();
-            return;
-         }
-
-         if (target == null) {
-            releaseAll();
-            return;
-         }
-
-         if (e.isCancelled())
-            return;
-
-         if (p instanceof S19PacketEntityStatus
-                 || p instanceof S02PacketChat
-                 || p instanceof S0BPacketAnimation
-                 || p instanceof S06PacketUpdateHealth
-         )
-            return;
-
-         if (p instanceof S08PacketPlayerPosLook || p instanceof S40PacketDisconnect) {
-            releaseAll();
-            target = null;
-            vec3 = null;
-            return;
-
-         } else if (p instanceof S13PacketDestroyEntities) {
-            S13PacketDestroyEntities wrapper = (S13PacketDestroyEntities) p;
-            for (int id : wrapper.getEntityIDs()) {
-               if (id == target.getEntityId()) {
-                  target = null;
-                  vec3 = null;
-                  releaseAll();
-                  return;
-               }
-            }
-         } else if (p instanceof S14PacketEntity) {
-            S14PacketEntity wrapper = (S14PacketEntity) p;
-            if (((IAccessorS14PacketEntity) wrapper).getEntityId() == target.getEntityId()) {
-               vec3 = vec3.add(new Vec3(wrapper.func_149062_c() / 32.0D, wrapper.func_149061_d() / 32.0D,
-                       wrapper.func_149064_e() / 32.0D));
-            }
-         } else if (p instanceof S18PacketEntityTeleport) {
-            S18PacketEntityTeleport wrapper = (S18PacketEntityTeleport) p;
-            if (wrapper.getEntityId() == target.getEntityId()) {
-               vec3 = new Vec3(wrapper.getX() / 32.0D, wrapper.getY() / 32.0D, wrapper.getZ() / 32.0D);
-            }
-         }
-
-         packetQueue.add(new TimedPacket(p));
+      if (shouldIntercept) {
+         packetQueue.add(new TimedPacket(packet));
          e.setCancelled(true);
-      } catch (NullPointerException ignored) {
-
       }
+   }
+
+   private void resetAndRelease() {
+      target = null;
+      realTargetPos = null;
+      lastRealTargetPos = null;
+      positionHistory.clear();
+      recentPositions.clear();
+      releaseAll();
    }
 
    private void releaseAll() {
-      if (!packetQueue.isEmpty()) {
-         for (TimedPacket timedPacket : packetQueue) {
-            Packet<?> packet = timedPacket.getPacket();
+      while (!packetQueue.isEmpty()) {
+         TimedPacket tp = packetQueue.poll();
+         if (tp != null) {
+            Packet<?> packet = tp.getPacket();
             skipPackets.add(packet);
             PacketUtil.receivePacket(packet);
          }
-         packetQueue.clear();
       }
    }
 
+   public static void drawFilledBox(AxisAlignedBB aabb, int red, int green, int blue) {
+      Tessellator tessellator = Tessellator.getInstance();
+      WorldRenderer renderer = tessellator.getWorldRenderer();
+      renderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+
+      renderer.pos(aabb.minX, aabb.minY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.minX, aabb.minY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.minY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.minY, aabb.minZ).color(red, green, blue, 63).endVertex();
+
+      renderer.pos(aabb.minX, aabb.maxY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.maxY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.maxY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.minX, aabb.maxY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+
+      renderer.pos(aabb.minX, aabb.minY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.minY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.maxY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.minX, aabb.maxY, aabb.minZ).color(red, green, blue, 63).endVertex();
+
+      renderer.pos(aabb.minX, aabb.minY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.minX, aabb.maxY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.maxY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.minY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+
+      renderer.pos(aabb.minX, aabb.minY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.minX, aabb.maxY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.minX, aabb.maxY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.minX, aabb.minY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+
+      renderer.pos(aabb.maxX, aabb.minY, aabb.minZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.minY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.maxY, aabb.maxZ).color(red, green, blue, 63).endVertex();
+      renderer.pos(aabb.maxX, aabb.maxY, aabb.minZ).color(red, green, blue, 63).endVertex();
+
+      tessellator.draw();
+   }
 }
