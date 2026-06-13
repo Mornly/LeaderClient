@@ -529,6 +529,189 @@ public class TargetHUD extends Module {
         return Math.max(-255, Math.min(255, value));
     }
 
+    private void applyDraggingForStyle(float width, float height) {
+        if (!(mc.currentScreen instanceof GuiChat)) {
+            dragging = false;
+            prevMouseDown = false;
+            return;
+        }
+        ScaledResolution sr = new ScaledResolution(mc);
+        float sw = sr.getScaledWidth();
+        float sh = sr.getScaledHeight();
+        float scaleV = this.scale.getValue();
+
+        float localX, localY;
+        float x = offX.getValue().floatValue();
+        float y = offY.getValue().floatValue();
+        switch (posX.getValue()) {
+            case 1:
+                localX = (sw / 2f - width / 2f) + x;
+                break;
+            case 2:
+                localX = sw - width - x;
+                break;
+            default:
+                localX = x;
+        }
+        switch (posY.getValue()) {
+            case 1:
+                localY = (sh / 2f - height / 2f) + y;
+                break;
+            case 2:
+                localY = sh - height - y;
+                break;
+            default:
+                localY = y;
+        }
+        float screenX = localX * scaleV;
+        float screenY = localY * scaleV;
+        float screenW = width * scaleV;
+        float screenH = height * scaleV;
+
+        float mouseX = Mouse.getX() * sw / mc.displayWidth;
+        float mouseY = sh - Mouse.getY() * sh / mc.displayHeight - 1.0F;
+        boolean hovered = mouseX >= screenX && mouseX <= screenX + screenW && mouseY >= screenY && mouseY <= screenY + screenH;
+        boolean mouseDown = Mouse.isButtonDown(0);
+
+        if (mouseDown && !prevMouseDown && hovered) {
+            dragging = true;
+            dragOffsetX = mouseX - screenX;
+            dragOffsetY = mouseY - screenY;
+        }
+        if (!mouseDown) {
+            dragging = false;
+        }
+        if (dragging) {
+            float targetScreenX = mouseX - dragOffsetX;
+            float targetScreenY = mouseY - dragOffsetY;
+            float targetLocalX = targetScreenX / scaleV;
+            float targetLocalY = targetScreenY / scaleV;
+            int newOffX, newOffY;
+            switch (posX.getValue()) {
+                case 1:
+                    newOffX = Math.round(targetLocalX - (sw / 2f - width / 2f));
+                    break;
+                case 2:
+                    newOffX = Math.round(sw - width - targetLocalX);
+                    break;
+                default:
+                    newOffX = Math.round(targetLocalX);
+            }
+            switch (posY.getValue()) {
+                case 1:
+                    newOffY = Math.round(targetLocalY - (sh / 2f - height / 2f));
+                    break;
+                case 2:
+                    newOffY = Math.round(sh - height - targetLocalY);
+                    break;
+                default:
+                    newOffY = Math.round(targetLocalY);
+            }
+            newOffX = clampOffset(newOffX);
+            newOffY = clampOffset(newOffY);
+            offX.setValue(newOffX);
+            offY.setValue(newOffY);
+        }
+        prevMouseDown = mouseDown;
+    }
+
+    private void maybeApplyDragForStyle(int styleMode, float heal, float abs) {
+        if (styleMode == 1 || styleMode == 2) return;
+        float width = 0, height = 0;
+        switch (styleMode) {
+            case 0: // Myau
+            {
+                String targetNameText = ChatColors.formatColor(String.format("&r%s&r", TeamUtil.stripName(this.target)));
+                int targetNameWidth = RenderUtil.getWidth(targetNameText);
+                String healthText = ChatColors.formatColor(
+                        String.format("&r&f%s%s❤&r", healthFormat.format(heal), abs > 0.0F ? "&6" : "&c")
+                );
+                int healthTextWidth = RenderUtil.getWidth(healthText);
+                float barContentWidth = Math.max(
+                        (float) targetNameWidth + (this.indicator.getValue() ? 2.0F + (float) RenderUtil.getWidth(heal == (mc.thePlayer.getHealth() + mc.thePlayer.getAbsorptionAmount()) / 2.0F ? "D" : (heal < (mc.thePlayer.getHealth() + mc.thePlayer.getAbsorptionAmount()) / 2.0F ? "W" : "L")) + 2.0F : 0.0F),
+                        (float) healthTextWidth + (this.indicator.getValue() ? 2.0F + (float) RenderUtil.getWidth(heal == (mc.thePlayer.getHealth() + mc.thePlayer.getAbsorptionAmount()) / 2.0F ? "0.0" : diffFormat.format((mc.thePlayer.getHealth() + mc.thePlayer.getAbsorptionAmount()) / 2.0F - heal)) + 2.0F : 0.0F)
+                );
+                float headIconOffset = this.head.getValue() && this.headTexture != null ? 25.0F : 0.0F;
+                width = Math.max(headIconOffset + 70.0F, headIconOffset + 2.0F + barContentWidth + 2.0F);
+                height = 27.0F;
+            }
+            break;
+            case 3: // Leader
+            {
+                String targetNameText = ChatColors.formatColor(String.format("&r%s&r", TeamUtil.stripName(this.target)));
+                int targetNameWidth = RenderUtil.getWidth(targetNameText);
+                String healthText = ChatColors.formatColor(
+                        String.format("&r&f%s%s❤&r", healthFormat.format(heal), abs > 0.0F ? "&6" : "&c")
+                );
+                int healthTextWidth = RenderUtil.getWidth(healthText);
+                float barContentWidth = Math.max((float) targetNameWidth, (float) healthTextWidth) + 10.0F;
+                float headIconOffset = this.headTexture != null ? 25.0F : 0.0F;
+                width = headIconOffset + barContentWidth + 6.0F;
+                height = 22.0F;
+            }
+            break;
+            case 4: // Rounded
+            {
+                String targetNameText = ChatColors.formatColor(String.format("&r%s&r", TeamUtil.stripName(this.target)));
+                int targetNameWidth = RenderUtil.getWidth(targetNameText);
+                final float HEAD_SIZE = 32.0F;
+                final float PADDING = 6.0F;
+                final float HEAD_OFFSET = PADDING + HEAD_SIZE + 6.0F;
+                float minWidth = 220.0F;
+                width = Math.max(minWidth, HEAD_OFFSET + targetNameWidth + PADDING);
+                final float BAR_HEIGHT = 6.0F;
+                final float BG_HEIGHT = (PADDING + HEAD_SIZE + 4.0F) + BAR_HEIGHT + PADDING;
+                height = BG_HEIGHT;
+            }
+            break;
+            case 5: // Astolfo
+            {
+                String name = TeamUtil.stripName(target);
+                float nameWidth = getTextWidth(name);
+                width = Math.max(130, nameWidth + 60);
+                height = 56;
+            }
+            break;
+            case 6: // Exhibition
+            {
+                String name = TeamUtil.stripName(target);
+                float nameWidth = getTextWidth(name);
+                width = Math.max(120, nameWidth + 50);
+                height = 40;
+            }
+            break;
+            case 7: // Adjust
+            {
+                String name = ChatColors.formatColor(String.format("&r%s&r", TeamUtil.stripName(this.target)));
+                List<ItemStack> items = this.collectItems(this.target);
+                int itemCount = items.size();
+                float pad = 3.0F;
+                boolean showHead = this.head.getValue() && this.headTexture != null;
+                float headGap = 4.0F;
+                float nameHeight = getTextWidth("A") - 2;
+                float innerGap = 2.0F;
+                float itemSize = 11.0F;
+                float itemGap = 1.0F;
+                float gapBeforeBar = 2.0F;
+                float barHeight = 3.0F;
+                float barBottomPad = 3.0F;
+                float contentHeight = nameHeight + innerGap + itemSize;
+                height = pad + contentHeight + gapBeforeBar + barHeight + barBottomPad;
+                float itemsWidth = itemCount > 0 ? itemCount * (itemSize + itemGap) - itemGap : 0.0F;
+                float nameWidth2 = getTextWidth(name);
+                float rightWidth = Math.max(nameWidth2, itemsWidth);
+                float barY1 = height - barBottomPad - barHeight;
+                float headSize = barY1 - pad - pad;
+                float leftWidth = showHead ? pad + headSize + headGap : pad;
+                width = Math.max(120.0F, leftWidth + rightWidth + pad);
+            }
+            break;
+        }
+        if (width > 0 && height > 0) {
+            applyDraggingForStyle(width, height);
+        }
+    }
+
     @EventTarget
     public void onRender(Render2DEvent event) {
         if (this.isEnabled() && mc.thePlayer != null) {
@@ -580,6 +763,9 @@ public class TargetHUD extends Module {
 
                 int styleMode = this.style.getValue();
                 if (target != null) {
+                    if (styleMode != 1 && styleMode != 2) {
+                        maybeApplyDragForStyle(styleMode, heal, abs);
+                    }
                     if (styleMode == 0) {
                         drawUnfairStyle(health, abs, heal);
                     } else if (styleMode <= 2) {
@@ -761,7 +947,6 @@ public class TargetHUD extends Module {
         ScaledResolution scaledResolution = new ScaledResolution(mc);
         String targetNameText = ChatColors.formatColor(String.format("&r%s&r", TeamUtil.stripName(this.target)));
         int targetNameWidth = RenderUtil.getWidth(targetNameText);
-
         String healthText = ChatColors.formatColor(
                 String.format("&r&f%s%s❤&r", healthFormat.format(heal), abs > 0.0F ? "&6" : "&c")
         );
@@ -778,18 +963,17 @@ public class TargetHUD extends Module {
                 posX += (float) scaledResolution.getScaledWidth() / this.scale.getValue() / 2.0F - barTotalWidth / 2.0F;
                 break;
             case 2:
-                posX *= -1.0F;
-                posX += (float) scaledResolution.getScaledWidth() / this.scale.getValue() - barTotalWidth;
+                posX = -this.offX.getValue().floatValue() / this.scale.getValue() + scaledResolution.getScaledWidth() / this.scale.getValue() - barTotalWidth;
+                break;
         }
-
         float posY = this.offY.getValue().floatValue() / this.scale.getValue();
         switch (this.posY.getValue()) {
             case 1:
                 posY += (float) scaledResolution.getScaledHeight() / this.scale.getValue() / 2.0F - 15.0F;
                 break;
             case 2:
-                posY *= -1.0F;
-                posY += (float) scaledResolution.getScaledHeight() / this.scale.getValue() - 30.0F;
+                posY = -this.offY.getValue().floatValue() / this.scale.getValue() + scaledResolution.getScaledHeight() / this.scale.getValue() - 30.0F;
+                break;
         }
 
         GlStateManager.pushMatrix();
@@ -898,8 +1082,8 @@ public class TargetHUD extends Module {
                 posX += (float) scaledResolution.getScaledWidth() / this.scale.getValue() / 2.0F - barTotalWidth / 2.0F;
                 break;
             case 2:
-                posX *= -1.0F;
-                posX += (float) scaledResolution.getScaledWidth() / this.scale.getValue() - barTotalWidth;
+                posX = -this.offX.getValue().floatValue() / this.scale.getValue() + scaledResolution.getScaledWidth() / this.scale.getValue() - barTotalWidth;
+                break;
         }
         float posY = this.offY.getValue().floatValue() / this.scale.getValue();
         switch (this.posY.getValue()) {
@@ -907,8 +1091,8 @@ public class TargetHUD extends Module {
                 posY += (float) scaledResolution.getScaledHeight() / this.scale.getValue() / 2.0F - 13.5F;
                 break;
             case 2:
-                posY *= -1.0F;
-                posY += (float) scaledResolution.getScaledHeight() / this.scale.getValue() - 27.0F;
+                posY = -this.offY.getValue().floatValue() / this.scale.getValue() + scaledResolution.getScaledHeight() / this.scale.getValue() - 27.0F;
+                break;
         }
         GlStateManager.pushMatrix();
         GlStateManager.scale(this.scale.getValue(), this.scale.getValue(), 0.0F);

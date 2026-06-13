@@ -55,6 +55,7 @@ public class HUD extends Module {
     public final IntProperty barHeight = new IntProperty("Bar Height Less", 0, 0, 10);
 
     public final BooleanProperty shadow = new BooleanProperty("Shadow", true);
+    public final BooleanProperty interval = new BooleanProperty("Interval", false);
     public final BooleanProperty suffixes = new BooleanProperty("Suffixes", true);
     public final BooleanProperty lowerCase = new BooleanProperty("Lower Case", false);
     public final BooleanProperty chatOutline = new BooleanProperty("Chat Outline", true);
@@ -84,13 +85,30 @@ public class HUD extends Module {
         return null;
     }
 
+    private String addSpacesBeforeCapitals(String str) {
+        if (str == null || str.isEmpty()) return str;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (i > 0 && Character.isUpperCase(c)) {
+                sb.append(' ');
+            }
+            sb.append(c);
+        }
+        return sb.toString();
+    }
+
     private String getModuleName(Module module) {
         String moduleName = module.getName();
         if (this.lowerCase.getValue()) {
             moduleName = moduleName.toLowerCase(Locale.ROOT);
         }
+        if (this.interval.getValue()) {
+            moduleName = addSpacesBeforeCapitals(moduleName);
+        }
         return moduleName;
     }
+
     private String[] getModuleSuffix(Module module) {
         String[] moduleSuffix = module.getSuffix();
         if (this.lowerCase.getValue()) {
